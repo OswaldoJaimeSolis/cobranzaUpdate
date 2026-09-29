@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -438,7 +438,7 @@ public class CobranzaPlazasController {
 	@CrossOrigin(origins = "http://localhost:" + port)
 	PropietarioPlaza propietarioPlazaEditar(@RequestBody PropietarioPlaza propietarioPlaza,
 			@PathVariable String idPropietarioPlaza) {
-		PropietarioPlaza ppOld = propietarioPlazaDao.getOne(idPropietarioPlaza);
+		PropietarioPlaza ppOld = propietarioPlazaDao.getReferenceById(idPropietarioPlaza);
 		System.out.println("EEEEEEEEEEEEEEE" + idPropietarioPlaza);
 		ppOld.setVigenciaFinal(getVigenciaFinalFromVINew(propietarioPlaza.getVigenciaInicial()));
 		propietarioPlazaDao.save(ppOld);
