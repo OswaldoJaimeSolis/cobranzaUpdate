@@ -8,7 +8,7 @@ import { TipoPlaza } from '../../tiposplaza/model/tipo-plaza';
 import { BusquedaContribuyentesComponent } from 'src/app/shared/busqueda/busqueda-contribuyentes/busqueda-contribuyentes.component';
 import { DialogInformativoComponent } from 'src/app/shared/dialog-informativo/dialog-informativo.component';
 import { DatePipe } from '@angular/common';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 export interface BusResultTP {
   tipoPlazaSelect: TipoPlaza
 }
@@ -28,7 +28,7 @@ export class AddPropietarioPlazaComponent implements OnInit {
   oFinal: PropietarioPlaza = new PropietarioPlaza();
   encabezado = "Agregar propietario";
   nuevo = true;
-  formPropietarioPlaza: FormGroup;
+  formPropietarioPlaza: UntypedFormGroup;
 
   constructor(private dialogRef: MatDialogRef<AddPropietarioPlazaComponent>,
     @Inject(MAT_DIALOG_DATA) dd: DialogData, private dialog: MatDialog, private service: PropietarioPlazaService, public datePipe: DatePipe) {
