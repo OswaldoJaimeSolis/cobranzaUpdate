@@ -1,6 +1,7 @@
 package com.jalpa.cobranza;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -13,6 +14,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 
 import android.os.Environment;
@@ -323,6 +325,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Carpeta "Cobranza" donde se guarda el QR generado y de donde se lee el logo del
+     * ticket.
+     *
+     * A partir de Android 10 (API 29, almacenamiento delimitado / scoped storage) ya no
+     * es posible escribir ni leer en la raíz del almacenamiento externo
+     * (Environment.getExternalStorageDirectory()), que era la ruta original
+     * "<almacenamiento externo>/Cobranza". Se usa el directorio externo propio de la
+     * aplicación, que no requiere permisos y sigue siendo accesible por USB/MTP en
+     * Android/data/com.jalpa.cobranza/files/Cobranza.
+     *
+     * Nota para el operador: el archivo logo_ticket.png debe copiarse ahora a esa ruta.
+     */
+    private File getDirectorioCobranza(){
+        File base= getExternalFilesDir(null);
+        if(base==null){
+            // Almacenamiento externo no disponible: se cae al almacenamiento interno.
+            base= getFilesDir();
+        }
+        return new File(base,"Cobranza");
+    }
+
     private void generarImprimirQR(String codigoContribuyente){
         QRCodeWriter writer = new QRCodeWriter();
         try {
@@ -335,8 +359,8 @@ public class MainActivity extends AppCompatActivity {
                     bmp.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
                 }
             }
-            String path=Environment.getExternalStorageDirectory().getPath().concat("/Cobranza");
-            File dir= new File(path);
+            File dir= getDirectorioCobranza();
+            String path= dir.getPath();
             if(!dir.exists()){
                 dir.mkdirs();
             }
@@ -1069,7 +1093,9 @@ public class MainActivity extends AppCompatActivity {
             //https://stackoverflow.com/questions/50916380/room-best-ways-to-create-backups-for-offline-application
             Database.getInstance(this).getAppDatabase().close();
             File dbfile = this.getDatabasePath("cobranza");
-            File sdir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"DBsaves");
+            // Scoped storage (API 29+): la carpeta pública de descargas ya no es
+            // escribible directamente, se usa el directorio externo de la app.
+            File sdir = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),"DBsaves");
             String sfpath = sdir.getPath() + File.separator + "DBsave" + String.valueOf(System.currentTimeMillis());
             if (!sdir.exists()) {
                 sdir.mkdirs();
@@ -1269,8 +1295,36 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    /**
+     * Desde Android 12 (API 31) consultar los dispositivos Bluetooth emparejados exige el
+     * permiso en tiempo de ejecución BLUETOOTH_CONNECT; sin él la llamada lanza
+     * SecurityException. Se solicita en LogueoActivity, aquí sólo se verifica.
+     */
+    private boolean puedeUsarBluetooth(){
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S){
+            return true;
+        }
+        return ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    // El permiso se verifica arriba con puedeUsarBluetooth(); lint no puede seguir la
+    // comprobación a través del método auxiliar.
+    @SuppressLint("MissingPermission")
     private void imprimirTicket(boolean ticket,String cadena, String path){
 
+        if(!puedeUsarBluetooth()){
+            Log.e("error","Falta el permiso BLUETOOTH_CONNECT para usar la impresora");
+            // imprimirTicket puede invocarse desde un hilo secundario (AsyncTask), por eso
+            // el Toast se publica explícitamente en el hilo principal.
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, "Otorgue el permiso de Bluetooth para imprimir", Toast.LENGTH_LONG).show();
+                }
+            });
+            return;
+        }
 
         BXLConfigLoader bxlConfigLoader=new BXLConfigLoader(this);
         try
@@ -1324,8 +1378,8 @@ public class MainActivity extends AppCompatActivity {
             //posPrinter.setPageModePrintArea("0, 0, 576, 1600");
 
             if(ticket) {
-                String pathLogoticket = Environment.getExternalStorageDirectory().getPath().concat("/Cobranza/logo_ticket.png");
-                File images = new File(pathLogoticket);
+                File images = new File(getDirectorioCobranza(), "logo_ticket.png");
+                String pathLogoticket = images.getPath();
                 if (images.exists()) {
                     posPrinter.setPageModePrintDirection(POSPrinterConst.PTR_PD_LEFT_TO_RIGHT);
                     ByteBuffer buffer = ByteBuffer.allocate(4);
