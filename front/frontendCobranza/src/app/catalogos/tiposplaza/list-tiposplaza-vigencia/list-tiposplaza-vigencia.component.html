@@ -10,28 +10,27 @@
       <mat-icon mat-list-icon>add</mat-icon>
     </button>
   </div>
-  <span *ngIf="displayOrNot; then condition1 else condition2"></span>
-  <ng-template #condition1>
+  @if (displayOrNot) {
     <h2 mat-subheader>No hay períodos</h2>
-  </ng-template>
-
-
-
-  <ng-template #condition2>
-
-
-    <mat-list-item *ngFor="let o of vigencias">
-      <mat-icon mat-list-icon>watch_later</mat-icon>
-      <h4 mat-line>De {{o.vigenciaInicial|date: 'dd/MM/yyyy'}} al {{o.vigenciaFinal|date: 'dd/MM/yyyy'}} Importe:
+  } @else {
+    @for (o of vigencias; track o) {
+      <mat-list-item>
+        <mat-icon mat-list-icon>watch_later</mat-icon>
+        <h4 mat-line>De {{o.vigenciaInicial|date: 'dd/MM/yyyy'}} al {{o.vigenciaFinal|date: 'dd/MM/yyyy'}} Importe:
         {{o.importe }} </h4>
-      <button mat-raised-button color="primary" (click)="deleteO(o.idTipoPlazaVigencia)">
-        Eliminar
-      </button>
+        <button mat-raised-button color="primary" (click)="deleteO(o.idTipoPlazaVigencia)">
+          Eliminar
+        </button>
+        <mat-divider></mat-divider>
+      </mat-list-item>
+    }
+  }
 
-      <mat-divider></mat-divider>
-    </mat-list-item>
-  </ng-template>
+
+
 </mat-list>
 <div class="container">
-  <mat-progress-spinner mode="indeterminate"  *ngIf="isLoading" ></mat-progress-spinner>  
+  @if (isLoading) {
+    <mat-progress-spinner mode="indeterminate"  ></mat-progress-spinner>
+  }
 </div>

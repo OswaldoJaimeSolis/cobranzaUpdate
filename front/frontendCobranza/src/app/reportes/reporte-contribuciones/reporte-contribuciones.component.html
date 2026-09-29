@@ -16,7 +16,7 @@
     <mat-divider>
     </mat-divider>
   </div>
-  
+
 
 
   <div class="container">
@@ -26,9 +26,11 @@
         <mat-form-field>
           <mat-label>Estado</mat-label>
           <mat-select [(value)]="estadoSelect">
-            <mat-option *ngFor="let estado of estadosPago" [value]="estado.value">
-              {{estado.viewValue}}
-            </mat-option>
+            @for (estado of estadosPago; track estado) {
+              <mat-option [value]="estado.value">
+                {{estado.viewValue}}
+              </mat-option>
+            }
           </mat-select>
         </mat-form-field>
       </div>
@@ -69,26 +71,26 @@
         </mat-form-field>
       </div>
     </div>
-    
-    </div>
-    <div class="centerText">
-      <h4 class="centerText">Recaudadores</h4>
-      <div class="centerText">
-        <mat-checkbox name="todosRecaudador" [(ngModel)]="todosRecaudador"
-          (change)="actualizarTodosR(todosRecaudador)">
-          Todos
-        </mat-checkbox>
-        <mat-form-field style="position: relative;text-align: right; margin-left: 50px">
-          <button mat-mini-fab color="primary" (click)="buscarRecaudador()" disabled={{todosRecaudador}}>
-            <mat-icon mat-list-icon>search</mat-icon>
-          </button>
-          <input name="recaudador" matInput placeholder="Recaudador: "
-            [(ngModel)]="recaudador.codigoRecaudador"
-            style="position: relative;text-align: left; margin-left: 50px" #data="ngModel" readonly=true
-            disabled={{todosRecaudador}} required>
 
-        </mat-form-field>
-      </div>
+  </div>
+  <div class="centerText">
+    <h4 class="centerText">Recaudadores</h4>
+    <div class="centerText">
+      <mat-checkbox name="todosRecaudador" [(ngModel)]="todosRecaudador"
+        (change)="actualizarTodosR(todosRecaudador)">
+        Todos
+      </mat-checkbox>
+      <mat-form-field style="position: relative;text-align: right; margin-left: 50px">
+        <button mat-mini-fab color="primary" (click)="buscarRecaudador()" disabled={{todosRecaudador}}>
+          <mat-icon mat-list-icon>search</mat-icon>
+        </button>
+        <input name="recaudador" matInput placeholder="Recaudador: "
+          [(ngModel)]="recaudador.codigoRecaudador"
+          style="position: relative;text-align: left; margin-left: 50px" #data="ngModel" readonly=true
+          disabled={{todosRecaudador}} required>
+
+      </mat-form-field>
+    </div>
   </div>
 
 
@@ -107,20 +109,24 @@
         <mat-form-field>
           <mat-label>Formato reporte</mat-label>
           <mat-select [(value)]="formatoSelect">
-            <mat-option *ngFor="let formato of formatos" [value]="formato.value">
-              {{formato.viewValue}}
-            </mat-option>
+            @for (formato of formatos; track formato) {
+              <mat-option [value]="formato.value">
+                {{formato.viewValue}}
+              </mat-option>
+            }
           </mat-select>
         </mat-form-field>
       </div>
     </div>
     <button mat-stroked-button disabled={{isLoading}} (click)="recuperaReporte(formatoSelect, true)">Reporte
-      contribuciones</button>
+    contribuciones</button>
     <button mat-stroked-button disabled={{isLoading}} (click)="recuperaReporte(formatoSelect,false)">Reporte movimientos
     </button>
     <span flex></span>
     <span flex></span>
   </div>
   <div class="container">
-    <mat-progress-spinner mode="indeterminate" *ngIf="isLoading"></mat-progress-spinner>
+    @if (isLoading) {
+      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+    }
   </div>

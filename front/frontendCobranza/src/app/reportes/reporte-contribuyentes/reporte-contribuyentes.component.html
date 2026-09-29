@@ -30,5 +30,7 @@
   <span flex></span>
 </div>
 <div class="container">
-  <mat-progress-spinner mode="indeterminate" *ngIf="isLoading"></mat-progress-spinner>
+  @if (isLoading) {
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+  }
 </div>

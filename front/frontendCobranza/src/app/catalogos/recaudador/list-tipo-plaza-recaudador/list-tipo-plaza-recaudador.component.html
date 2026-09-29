@@ -10,25 +10,22 @@
       <mat-icon mat-list-icon>add</mat-icon>
     </button>
   </div>
-  <span *ngIf="displayOrNot; then condition1 else condition2"></span>
-  <ng-template #condition1>
+  @if (displayOrNot) {
     <h2 mat-subheader>No hay plazas asignadas</h2>
-  </ng-template>
+  } @else {
+    @for (o of tpsRecaudador; track o) {
+      <mat-list-item>
+        <mat-icon mat-list-icon>watch_later</mat-icon>
+        <h4 mat-line>{{o.tipoPlaza.codigoTipoPlaza}}  </h4>
+        <p mat-line>{{o.tipoPlaza.descripcionTipoPlaza}}</p>
+        <button mat-raised-button color="primary" style="width: 120px" (click)="deleteO(o.idRecaudadorTipoPlaza)">
+          Eliminar
+        </button>
+        <mat-divider></mat-divider>
+      </mat-list-item>
+    }
+  }
 
 
 
-  <ng-template #condition2>
-
-
-    <mat-list-item *ngFor="let o of tpsRecaudador">
-      <mat-icon mat-list-icon>watch_later</mat-icon>
-      <h4 mat-line>{{o.tipoPlaza.codigoTipoPlaza}}  </h4>
-      <p mat-line>{{o.tipoPlaza.descripcionTipoPlaza}}</p>
-      <button mat-raised-button color="primary" style="width: 120px" (click)="deleteO(o.idRecaudadorTipoPlaza)">
-        Eliminar
-      </button>
-
-      <mat-divider></mat-divider>
-    </mat-list-item>
-  </ng-template>
 </mat-list>
