@@ -7,8 +7,9 @@ This is the Android mobile app of a 3-repo "cobranza de plazas" (municipal marke
 ## Project basics
 
 - Single-module legacy Android app, package `com.jalpa.cobranza`, applicationId `com.jalpa.cobranza`.
-- Gradle 4.10.1 (see `gradle/wrapper/gradle-wrapper.properties`), Android Gradle Plugin 3.3.2 (very old toolchain — expect friction on modern JDKs/Android Studio).
-- `compileSdkVersion`/`targetSdkVersion` 28, `minSdkVersion` 26. Language is plain Java (no Kotlin).
+- Gradle 8.14.5 (see `gradle/wrapper/gradle-wrapper.properties`), Android Gradle Plugin 8.13.2. Build with a Java 21 JDK (`JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64` on the maintainer's machine).
+- `compileSdk` 36, `targetSdk` 35, `minSdk` 26. Language is plain Java (no Kotlin), compiled at source/target level 21 with core library desugaring enabled.
+- `targetSdk` intentionally lags `compileSdk`: at 36 Android's edge-to-edge enforcement can no longer be opted out of, and none of these fixed legacy layouts apply window insets. `res/values-v35/styles.xml` carries the `android:windowOptOutEdgeToEdgeEnforcement` opt-out. Raising `targetSdk` to 36 means auditing every Activity's layout for insets first.
 - No dependency injection framework, no ViewModel/LiveData, no Retrofit/OkHttp — this predates those conventions in the codebase.
 - There is no README.md, no `.cursor/rules`, and no `.github/copilot-instructions.md` in this repo.
 - Git history is effectively a single commit ("cobranza app entregada" — app delivered), so treat this as a delivered/legacy codebase rather than one with an evolving convention log.
@@ -57,11 +58,12 @@ The app is a plain Activity-based application with no architectural layering fra
 
 ### Hardware-integration features
 
-- **Camera / QR scanning**: `ScanActivity` uses `com.google.android.gms.vision.barcode` (Play Services Vision, QR only) for reading contributor codes; `google.zxing` is used the other direction, to *generate* a QR PNG for a contributor (see `MainActivity.generarImprimirQR`), saved to `<external storage>/Cobranza/qr_contribuyente.png`.
+- **Camera / QR scanning**: `ScanActivity` uses `com.google.android.gms.vision.barcode` (Play Services Vision, QR only) for reading contributor codes; `google.zxing` is used the other direction, to *generate* a QR PNG for a contributor (see `MainActivity.generarImprimirQR`), saved to `getExternalFilesDir(null)/Cobranza/qr_contribuyente.png` (i.e. `Android/data/com.jalpa.cobranza/files/Cobranza/`, via the `MainActivity.getDirectorioCobranza()` helper). This used to be the public `<external storage>/Cobranza/` directory; scoped storage (API 29+) made that unwritable.
 - **Bluetooth receipt printing**: `MainActivity.imprimirTicket(...)` and `Imprimir.java` both drive a Bixolon SPP-R310 POS printer over Bluetooth using the `jpos118-controls` / `bixolon_printer_v130` jars (`jpos.POSPrinter`, `com.bxl.config.editor.BXLConfigLoader`). The paired Bluetooth device name is expected to start with `"SPP"`; the printer is (re)configured via `BXLConfigLoader` each time a ticket is printed. `MainActivity` has its own inline printing path and `Imprimir` has a near-duplicate implementation (`imprimirDo`) plus the actual ticket-text formatting (`generarCadena`) used for reprints.
 - **Location**: `ContribuyenteActivity` uses `FusedLocationProviderClient` (`play-services-location`) to stamp a newly-registered `Plaza` with lat/long when the contributor is created.
-- Firebase (`firebase-ml-vision`, `firebase-core`) is included as a dependency but not wired into any Activity found in this codebase — treat it as vestigial unless proven otherwise.
-- Required runtime permissions (see `AndroidManifest.xml` and `LogueoActivity.PERMISSIONS`): camera, fine/coarse location, read/write external storage, Bluetooth + Bluetooth admin, internet. Permissions are requested in bulk from `LogueoActivity.enablePermisos()` rather than per-feature just-in-time.
+- Firebase is gone. `firebase-ml-vision` / `firebase-core` were dependencies with no `com.google.firebase` usage anywhere in the source and no `google-services.json`, so they were removed. They were, however, transitively supplying `com.google.android.gms.vision`, which the scanner does use — that now comes from an explicit `play-services-vision` dependency.
+- The ticket logo is read from the same app-specific directory as the QR (`Android/data/com.jalpa.cobranza/files/Cobranza/logo_ticket.png`). Operators who previously dropped `logo_ticket.png` in the public `Cobranza/` folder must move it, otherwise tickets print without the logo (the code guards on `File.exists()`).
+- Required runtime permissions (see `AndroidManifest.xml` and `LogueoActivity.permisosRequeridos()`): camera, fine/coarse location, internet, and Bluetooth. The permission list is built per API level — `BLUETOOTH_CONNECT` from API 31 (the legacy `BLUETOOTH`/`BLUETOOTH_ADMIN` below that), and the storage permissions only on the API levels where they are still grantable, since the app now writes only inside its own external files dir. Permissions are requested in bulk from `LogueoActivity.enablePermisos()` rather than per-feature just-in-time; `MainActivity.imprimirTicket` additionally re-checks `BLUETOOTH_CONNECT` before touching the printer.
 
 ### Data model quirks worth knowing before editing
 
