@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { TiposplazaService } from 'src/app/catalogos/tiposplaza/service/tiposplaza.service';
 import { TipoPlaza } from 'src/app/catalogos/tiposplaza/model/tipo-plaza';
-import { MatDialogRef, MatDialog } from '@angular/material/dialog';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
 import { AddContribuyenteComponent } from 'src/app/catalogos/contribuyente/add-contribuyente/add-contribuyente.component';
 import { AddTiposplazaComponent } from 'src/app/catalogos/tiposplaza/add-tiposplaza/add-tiposplaza.component';
 

@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { TipoPlaza } from '../model/tipo-plaza';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog';
 import { TiposplazaService } from '../service/tiposplaza.service';
 import { TipoPlazaVigencia } from '../model/tipo-plaza-vigencia';
 import { AddTiposplazaVigenciaComponent } from '../add-tiposplaza-vigencia/add-tiposplaza-vigencia.component';
