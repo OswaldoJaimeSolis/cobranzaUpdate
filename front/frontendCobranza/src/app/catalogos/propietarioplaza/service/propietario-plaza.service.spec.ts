@@ -6,7 +6,7 @@ describe('PropietarioPlazaService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: PropietarioPlazaService = TestBed.get(PropietarioPlazaService);
+    const service: PropietarioPlazaService = TestBed.inject(PropietarioPlazaService);
     expect(service).toBeTruthy();
   });
 });
