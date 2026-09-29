@@ -12,7 +12,7 @@ import { AddRecaudadorComponent } from 'src/app/catalogos/recaudador/add-recauda
   styleUrls: ['./busqueda-recaudadores.component.css']
 })
 export class BusquedaRecaudadoresComponent implements OnInit {
-  recaudadores: Recaudador[];
+  recaudadores: Recaudador[] = [];
   displayedColumns: string[] = ['codigo', 'descripcion'];
   dataSource = new MatTableDataSource(this.recaudadores);
   constructor(private service: RecaudadorService, private dialogRef: MatDialogRef<BusquedaRecaudadoresComponent>, private dialog: MatDialog) { }

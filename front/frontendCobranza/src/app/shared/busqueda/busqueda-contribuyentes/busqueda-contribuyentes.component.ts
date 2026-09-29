@@ -11,7 +11,7 @@ import { AddContribuyenteComponent } from 'src/app/catalogos/contribuyente/add-c
   styleUrls: ['./busqueda-contribuyentes.component.css']
 })
 export class BusquedaContribuyentesComponent implements OnInit {
-  contribuyentes: Contribuyente[];
+  contribuyentes: Contribuyente[] = [];
   displayedColumns: string[] = ['codigo', 'nombre', 'apePaterno', 'apeMaterno'];
   dataSource = new MatTableDataSource(this.contribuyentes);
   constructor(private service: ContribuyenteService, private dialogRef: MatDialogRef<BusquedaContribuyentesComponent>, private dialog: MatDialog) { }

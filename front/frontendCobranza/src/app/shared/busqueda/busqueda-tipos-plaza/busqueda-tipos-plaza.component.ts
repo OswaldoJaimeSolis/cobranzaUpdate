@@ -12,7 +12,7 @@ import { AddTiposplazaComponent } from 'src/app/catalogos/tiposplaza/add-tipospl
   styleUrls: ['./busqueda-tipos-plaza.component.css']
 })
 export class BusquedaTiposPlazaComponent implements OnInit {
-  tiposPlaza: TipoPlaza[];
+  tiposPlaza: TipoPlaza[] = [];
   displayedColumns: string[] = ['codigo', 'descripcion'];
   dataSource = new MatTableDataSource(this.tiposPlaza);
   constructor(private service: TiposplazaService, private dialogRef: MatDialogRef<BusquedaTiposPlazaComponent>, private dialog: MatDialog) { }
