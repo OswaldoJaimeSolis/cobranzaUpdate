@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TipoPlaza } from 'src/app/catalogos/tiposplaza/model/tipo-plaza';
-import { MatDialogRef, MatTableDataSource, MatDialog } from '@angular/material';
+import { MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
 import { RecaudadorService } from 'src/app/catalogos/recaudador/service/recaudador.service';
 import { Recaudador } from 'src/app/catalogos/recaudador/model/recaudador';
 import { AddRecaudadorComponent } from 'src/app/catalogos/recaudador/add-recaudador/add-recaudador.component';

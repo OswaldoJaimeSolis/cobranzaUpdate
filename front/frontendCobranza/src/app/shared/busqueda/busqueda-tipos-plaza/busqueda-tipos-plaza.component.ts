@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { TiposplazaService } from 'src/app/catalogos/tiposplaza/service/tiposplaza.service';
 import { TipoPlaza } from 'src/app/catalogos/tiposplaza/model/tipo-plaza';
-import { MatDialogRef, MatTableDataSource, MatDialog } from '@angular/material';
+import { MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
 import { AddContribuyenteComponent } from 'src/app/catalogos/contribuyente/add-contribuyente/add-contribuyente.component';
 import { AddTiposplazaComponent } from 'src/app/catalogos/tiposplaza/add-tiposplaza/add-tiposplaza.component';
 

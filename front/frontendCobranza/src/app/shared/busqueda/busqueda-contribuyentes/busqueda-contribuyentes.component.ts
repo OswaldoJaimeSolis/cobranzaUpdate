@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Contribuyente } from 'src/app/catalogos/contribuyente/model/contribuyente';
-import { MatTableDataSource, MatDialogRef, MatDialog } from '@angular/material';
+import { MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
 import { ContribuyenteService } from 'src/app/catalogos/contribuyente/service/contribuyente.service';
 import { AddContribuyenteComponent } from 'src/app/catalogos/contribuyente/add-contribuyente/add-contribuyente.component';
 

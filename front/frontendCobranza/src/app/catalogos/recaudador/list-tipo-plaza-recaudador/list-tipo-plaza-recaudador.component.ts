@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Recaudador } from '../model/recaudador';
 import { RecuadadorTipoPlaza } from '../model/recuadador-tipo-plaza';
 import { RecaudadorService } from '../service/recaudador.service';

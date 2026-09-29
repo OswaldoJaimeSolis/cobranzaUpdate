@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TipoPlaza } from '../model/tipo-plaza';
 import { TiposplazaService } from '../service/tiposplaza.service';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { AddTiposplazaComponent } from '../add-tiposplaza/add-tiposplaza.component';
 
 @Component({

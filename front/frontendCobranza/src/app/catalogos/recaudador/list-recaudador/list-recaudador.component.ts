@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Recaudador } from '../model/recaudador';
 import { RecaudadorService } from '../service/recaudador.service';
-import { MatDialog, MatDialogConfig } from '@angular/material';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { AddRecaudadorComponent } from '../add-recaudador/add-recaudador.component';
 import { DialgAnswerSiNoComponent } from 'src/app/shared/dialg-answer-si-no/dialg-answer-si-no.component';
 

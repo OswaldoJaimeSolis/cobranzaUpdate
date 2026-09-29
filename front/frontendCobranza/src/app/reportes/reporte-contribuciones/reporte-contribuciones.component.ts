@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { BusquedaTiposPlazaComponent } from 'src/app/shared/busqueda/busqueda-tipos-plaza/busqueda-tipos-plaza.component';
 import { TipoPlaza } from 'src/app/catalogos/tiposplaza/model/tipo-plaza';
 import { BusquedaContribuyentesComponent } from 'src/app/shared/busqueda/busqueda-contribuyentes/busqueda-contribuyentes.component';
