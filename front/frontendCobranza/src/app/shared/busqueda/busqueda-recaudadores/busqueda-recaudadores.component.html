@@ -1,0 +1,41 @@
+<h2 mat-dialog-title class="centerText">Recaudadores</h2>
+<div class="centerTitle">
+  <button mat-fab color="primary" (click)="openAddRecaudador()">
+    <mat-icon mat-list-icon>add</mat-icon>
+  </button>
+</div>
+<mat-dialog-content>
+  <mat-form-field>
+    <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Búsqueda">
+  </mat-form-field>
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+    <!--- Note that these columns can be defined in any order.
+        The actual rendered columns are set as a property on the row definition" -->
+
+
+
+    <!-- Position Column -->
+    <ng-container matColumnDef="codigo">
+      <th mat-header-cell *matHeaderCellDef> Código </th>
+      <td mat-cell *matCellDef="let element"> {{element.codigoRecaudador}} </td>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="descripcion">
+      <th mat-header-cell *matHeaderCellDef> Descripción </th>
+      <td mat-cell *matCellDef="let element"> {{element.nombreRecaudador}} </td>
+    </ng-container>
+
+
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selectRow(row)"></tr>
+  </table>
+</mat-dialog-content>
+<!--<mat-dialog-actions style="justify-content: center">
+  <button mat-raised-button color="primary" (click)="cancelar()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="aceptar()">Aceptar</button>
+
+</mat-dialog-actions>
+-->

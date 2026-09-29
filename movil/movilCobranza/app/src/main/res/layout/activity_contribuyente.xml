@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".contribuyente.ContribuyenteActivity">
+    <TextView
+        android:id="@+id/tvCNombre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nombre"
+        android:layout_marginTop="80px"
+        android:layout_marginLeft="10px"
+        />
+    <EditText
+        android:id="@+id/etCNombre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/tvCNombre"
+        android:layout_marginLeft="80px"
+        android:layout_marginTop="50px"
+        android:inputType="textCapCharacters"
+        android:ems="10"/>
+    <TextView
+        android:id="@+id/tvFechaInicial"
+        android:layout_below="@+id/etCNombre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ape. Paterno"
+        android:layout_marginTop="30px"
+        android:layout_marginLeft="10px"
+
+        />
+
+    <EditText
+        android:id="@+id/etCApePaterno"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/etCNombre"
+        android:layout_marginLeft="48px"
+        android:layout_toRightOf="@id/tvFechaInicial"
+        android:ems="8"
+        android:inputType="textCapCharacters" />
+
+
+    <TextView
+        android:id="@+id/tvCApeMaterno"
+        android:layout_below="@+id/etCApePaterno"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ape. Materno"
+        android:layout_marginTop="30px"
+        android:layout_marginLeft="10px"
+        />
+
+    <EditText
+        android:id="@+id/etCApeMaterno"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/etCApePaterno"
+        android:layout_marginLeft="46px"
+        android:layout_toRightOf="@id/tvCApeMaterno"
+        android:ems="8"
+        android:inputType="textCapCharacters" />
+
+    <TextView
+        android:id="@+id/tvCFechaNacimiento"
+        android:layout_below="@+id/etCApeMaterno"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="F. Nacimiento"
+        android:layout_marginTop="30px"
+        android:layout_marginLeft="10px"
+
+        />
+    <CheckBox
+        android:id="@+id/cbSinFechaNacimiento"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No disponible"
+        android:layout_toRightOf="@id/etCFechaNacimiento"
+        android:layout_below="@+id/etCApeMaterno"
+        android:layout_marginTop="10px"
+        android:layout_marginLeft="10px"/>
+
+    <EditText
+        android:id="@+id/etCFechaNacimiento"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/etCApeMaterno"
+        android:layout_marginLeft="45px"
+        android:layout_toRightOf="@id/tvCFechaNacimiento"
+        android:ems="6"
+        android:inputType="date" />
+
+    <TextView
+        android:id="@+id/tvCRfc"
+        android:layout_below="@+id/etCFechaNacimiento"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="RFC"
+        android:layout_marginTop="30px"
+        android:layout_marginLeft="10px"
+        />
+
+    <EditText
+        android:id="@+id/etCRfc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/etCFechaNacimiento"
+        android:layout_marginLeft="107px"
+        android:layout_toRightOf="@id/tvCRfc"
+        android:ems="8"
+        android:inputType="textCapCharacters" />
+
+    <TextView
+        android:id="@+id/tvTipoPlaza"
+        android:layout_below="@+id/etCRfc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tipo plaza"
+        android:layout_marginTop="30px"
+        android:layout_marginLeft="10px"
+        />
+
+    <Spinner
+        android:id="@+id/cbTipoPlaza"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/etCRfc"
+        android:layout_marginLeft="65px"
+        android:layout_toRightOf="@id/tvTipoPlaza"
+        android:ems="8" />
+
+    <TextView
+        android:id="@+id/tvGiro"
+        android:layout_below="@+id/cbTipoPlaza"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Giro"
+        android:layout_marginTop="30px"
+        android:layout_marginLeft="10px"
+        />
+
+    <EditText
+        android:id="@+id/etGiro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/cbTipoPlaza"
+        android:layout_marginLeft="108px"
+        android:layout_toRightOf="@id/tvGiro"
+        android:ems="10"
+        android:inputType="textCapCharacters" />
+
+
+
+    <TextView
+        android:id="@+id/tvCImporte"
+        android:layout_below="@+id/etGiro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Importe"
+        android:layout_marginTop="30px"
+        android:layout_marginLeft="10px"
+        />
+    <EditText
+        android:id="@+id/etCImporte"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/tvCImporte"
+        android:layout_below="@id/etGiro"
+        android:layout_marginLeft="83px"
+        android:inputType="numberDecimal"
+        android:gravity="right"
+        android:ems="6"/>
+
+    <Button
+        android:id="@+id/btnCrear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/etCImporte"
+        android:layout_marginTop="50px"
+        android:text="Crear"/>
+
+
+
+
+</RelativeLayout>

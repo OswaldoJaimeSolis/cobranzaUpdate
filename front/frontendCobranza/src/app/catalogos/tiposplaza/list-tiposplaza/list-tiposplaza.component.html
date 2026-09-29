@@ -1,0 +1,46 @@
+<mat-list>
+  <div class="add-btn">
+    <button mat-fab color="primary" (click)="openDialog()">
+      <mat-icon mat-list-icon>add</mat-icon>
+    </button>
+  </div>
+  <div class="centerTitle">
+    <h2>Tipos de plaza</h2>
+  </div>
+  <span *ngIf="displayOrNot; then condition1 else condition2"></span>
+  <ng-template #condition1>
+    <h2 mat-subheader>No hay tipos de Plaza</h2>
+  </ng-template>
+
+  
+  <ng-template #condition2>
+
+
+    <div>
+      <mat-form-field>
+        <input matInput #myInput placeholder="Búsqueda..." [(ngModel)]="stringBusqueda">
+      </mat-form-field>
+
+
+
+    </div>
+
+
+    <mat-list-item *ngFor="let o of tiposPlaza| filterTiposPlaza: stringBusqueda">
+      <mat-icon mat-list-icon>watch_later</mat-icon>
+      <h4 mat-line>{{o.codigoTipoPlaza}} </h4>
+      <p mat-line> {{o.descripcionTipoPlaza}} </p>
+      <button mat-mini-fab color="primary" (click)="openDialogEdit(o)">
+        <mat-icon mat-list-icon>edit</mat-icon>
+      </button>
+      <button mat-mini-fab color="primary" (click)="deleteO(o.codigoTipoPlaza)">
+        <mat-icon mat-list-icon>delete</mat-icon>
+      </button>
+
+      <mat-divider></mat-divider>
+    </mat-list-item>
+  </ng-template>
+</mat-list>
+<div class="container" fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="10%" fxLayoutAlign="center">
+  <mat-progress-spinner mode="indeterminate"  *ngIf="isLoading" ></mat-progress-spinner>  
+</div>

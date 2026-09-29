@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>{{encabezado}} Contribuyente</h2>
+<form (ngSubmit)="onSave(conFinal)" #contribuyenteForm="ngForm">
+  <mat-dialog-content>
+
+    <div class="columns-container">
+
+      <mat-form-field>
+        <input name="codigoContribuyente" matInput placeholder="Código: " [(ngModel)]="conFinal.codigoContribuyente" #data="ngModel"
+          disabled=true readonly=true  required>
+      </mat-form-field>
+      <mat-form-field>
+        <input name="nombre" matInput placeholder="Nombre: " [(ngModel)]="conFinal.nombre" #data="ngModel" required>
+      </mat-form-field>
+      <mat-form-field>
+        <input name="apePaterno" matInput placeholder="Ape. Paterno: " [(ngModel)]="conFinal.apePaterno" #data="ngModel" required>
+      </mat-form-field>
+      <mat-form-field>
+        <input name="apeMaterno" matInput placeholder="Ape. Materno: " [(ngModel)]="conFinal.apeMaterno" #data="ngModel" required>
+      </mat-form-field>
+
+      <mat-form-field>
+        <input name="rfc" matInput placeholder="RFC: " [(ngModel)]="conFinal.rfcContribuyente" #data="ngModel">
+      </mat-form-field>
+    </div>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="!contribuyenteForm.form.valid" >Save</button>
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="cargos_report" pageWidth="752" pageHeight="572" orientation="Landscape" columnWidth="752" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="5099addc-a004-41e2-96bf-efec80345000">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="fechaInicial" class="java.util.Date"/>
+	<parameter name="fechaFinal" class="java.util.Date"/>
+	<parameter name="despachador" class="java.lang.String"/>
+	<parameter name="autorizador" class="java.lang.String"/>
+	<parameter name="revisor" class="java.lang.String"/>
+	<parameter name="logo" class="java.io.InputStream"/>
+	<parameter name="magna" class="java.lang.Double"/>
+	<parameter name="premium" class="java.lang.Double"/>
+	<parameter name="listaTiposCombustible" class="net.sf.jasperreports.engine.JRDataSource"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="codigoContribuyente" class="java.lang.String"/>
+	<field name="nombreContribuyente" class="java.lang.String"/>
+	<field name="rfc" class="java.lang.String"/>
+	<field name="tipoPlaza" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="107" splitType="Stretch">
+			<staticText>
+				<reportElement x="9" y="9" width="734" height="18" uuid="af9bb83f-fc64-48ae-85cd-da1441cef8a3"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[PRESIDENCIA MUNICIPAL DE JALPA, ZAC.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="9" y="91" width="55" height="10" forecolor="#FFFFFF" backcolor="#000000" uuid="4f091157-f665-448e-b490-4a323f3af830">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8aa45632-1103-4e57-b78d-031e30a18deb"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Times New Roman" size="7"/>
+				</textElement>
+				<text><![CDATA[C. contribuyente]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="64" y="91" width="118" height="10" forecolor="#FFFFFF" backcolor="#000000" uuid="eb5fe856-4ffd-4aa1-8d15-ad5613dae1da">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8aa45632-1103-4e57-b78d-031e30a18deb"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Times New Roman" size="7"/>
+				</textElement>
+				<text><![CDATA[Nombre contribuyente]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="182" y="91" width="38" height="10" forecolor="#FFFFFF" backcolor="#000000" uuid="fcd671f6-4556-4d53-b6da-ed4e60899589">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8aa45632-1103-4e57-b78d-031e30a18deb"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Times New Roman" size="7"/>
+				</textElement>
+				<text><![CDATA[RFC]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="220" y="91" width="60" height="10" forecolor="#FFFFFF" backcolor="#000000" uuid="5d6138ec-3b79-445e-9af1-c2a0c10bdf1b">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="8aa45632-1103-4e57-b78d-031e30a18deb"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Times New Roman" size="7"/>
+				</textElement>
+				<text><![CDATA[T. plaza]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="9" y="29" width="734" height="18" uuid="c3e8cafe-4311-4758-aba2-9d4a4d58e6a0"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[TESORERÍA MUNICIPAL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="9" y="47" width="734" height="18" uuid="4105c1e5-36b1-483e-b20a-2e806e853a2b"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Contribuyentes]]></text>
+			</staticText>
+			<image scaleImage="FillFrame">
+				<reportElement x="650" y="4" width="71" height="61" uuid="66f7e00e-5f4e-4188-bcd1-343a19cef4ba"/>
+				<imageExpression><![CDATA[$P{logo}]]></imageExpression>
+			</image>
+			<textField pattern="MMMMM dd, yyyy">
+				<reportElement x="584" y="65" width="138" height="26" uuid="e43cb76d-bae4-4e60-b6e4-7c2f2ef99f95"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="17" splitType="Stretch">
+			<rectangle>
+				<reportElement x="7" y="2" width="736" height="10" backcolor="#F5F2F2" uuid="0c08d276-dc4e-4c75-adaa-cd4086077e34">
+					<printWhenExpression><![CDATA[new Boolean($V{REPORT_COUNT}.intValue() % 2 == 0)]]></printWhenExpression>
+				</reportElement>
+				<graphicElement>
+					<pen lineColor="#FFFFFF"/>
+				</graphicElement>
+			</rectangle>
+			<textField>
+				<reportElement x="9" y="2" width="55" height="10" uuid="f8ad0ec7-f03b-4533-95b4-4ba9af5dfbca">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="2d1f3e1f-24cd-4c4d-999d-eebc4bff59bc"/>
+				</reportElement>
+				<textElement textAlignment="Left">
+					<font fontName="Times New Roman" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{codigoContribuyente}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="64" y="2" width="118" height="10" uuid="cc3f518f-dca8-47b1-ad9d-f8e1e2e67d19">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="b28b82d9-4986-46e8-827c-b6783810a651"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Times New Roman" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nombreContribuyente}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="182" y="2" width="38" height="10" uuid="2a95f87d-0735-4d83-a8bb-5399f7251801">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="ad496b75-bd9d-4b88-961e-12c35e6abb06"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Times New Roman" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rfc}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="220" y="2" width="60" height="10" uuid="372e9b05-7822-4cc2-ab13-f7c327cd7184">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="285d356e-a19b-4704-8f2e-cd63b3e60ae8"/>
+				</reportElement>
+				<textElement>
+					<font fontName="Times New Roman" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tipoPlaza}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="64" splitType="Stretch"/>
+	</summary>
+</jasperReport>

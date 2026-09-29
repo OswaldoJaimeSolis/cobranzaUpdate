@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>{{encabezado}} </h2>
+
+<mat-dialog-content>
+
+  <div class="columns-container">
+
+    <mat-form-field>
+      <input matInput placeholder="Código: " [(ngModel)]="oFinal.codigoRecaudador" #data="ngModel" disabled={{editarId}}
+        readonly={{editarId}} required>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Nombre: " [(ngModel)]="oFinal.nombreRecaudador" #data="ngModel" required>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Contraseña: " [(ngModel)]="oFinal.passRecaudador" type="password" #data="ngModel"
+        required>
+    </mat-form-field>
+
+    <mat-checkbox class="check-container" [(ngModel)]="oFinal.activoRecaudador">Activo</mat-checkbox>
+    <button mat-raised-button color="primary" (click)="tiposPlazaRecaudador()" >TiposPlaza</button>
+
+  </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSave(oFinal)">Save</button>
+</mat-dialog-actions>

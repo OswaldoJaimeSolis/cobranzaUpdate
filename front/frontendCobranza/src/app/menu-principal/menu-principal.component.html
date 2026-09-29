@@ -1,0 +1,13 @@
+<button mat-button [matMenuTriggerFor]="catalogos">Catálogos</button>
+<mat-menu #catalogos="matMenu">
+  <button mat-menu-item [routerLink]="['contribuyentes']" onclick="">Contribuyentes</button>
+  <button mat-menu-item [routerLink]="['recaudadores']" onclick="">Recaudadores </button>
+  <button mat-menu-item [routerLink]="['tiposPlaza']" onclick="">Tipos de plaza </button>
+  <button mat-menu-item [routerLink]="['propietarioPlaza']" onclick="">Plazas </button>
+</mat-menu>
+
+<button mat-button [matMenuTriggerFor]="reportes">Reportes</button>
+<mat-menu #reportes="matMenu">
+  <button mat-menu-item [routerLink]="['reporteContribuciones']" onclick="">Reporte contribuciones</button>
+  <button mat-menu-item [routerLink]="['reporteContribuyentes']" onclick="">Reporte contribuyentes</button>
+</mat-menu>

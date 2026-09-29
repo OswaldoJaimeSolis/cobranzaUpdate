@@ -1,0 +1,126 @@
+<h3 class="centerText"> Reporte contribuciones</h3>
+<div>
+
+  <div class="centerText">
+    <mat-form-field>
+      <input matInput [matDatepicker]="picker1" placeholder="Fecha inicial" [(ngModel)]="fechaInicial">
+      <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+      <mat-datepicker #picker1></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field style="margin-left: 100px">
+      <input matInput [matDatepicker]="picker2" placeholder="Fecha final" [(ngModel)]="fechaFinal">
+      <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+      <mat-datepicker #picker2></mat-datepicker>
+    </mat-form-field>
+    <mat-divider>
+    </mat-divider>
+  </div>
+  
+
+
+  <div class="container" fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="10%" fxLayoutAlign="center">
+    <div fxflex="50%" class="centertText">
+      <h4 class="centerText">Estado pago</h4>
+      <div class="centerText">
+        <mat-form-field>
+          <mat-label>Estado</mat-label>
+          <mat-select [(value)]="estadoSelect">
+            <mat-option *ngFor="let estado of estadosPago" [value]="estado.value">
+              {{estado.viewValue}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    <div fxflex="50%" class="centertText">
+      <h4 class="centerText">Tipos de plaza</h4>
+      <div class="centerText">
+        <mat-checkbox name="todosTP" [(ngModel)]="todosTP" (change)="actualizarTodos(todosTP,true)">
+          Todos
+        </mat-checkbox>
+        <mat-form-field style="position: relative;text-align: right; margin-left: 50px">
+
+          <button mat-mini-fab color="primary" color="primary" (click)="buscarTipoPlaza()" disabled={{todosTP}}>
+            <mat-icon mat-list-icon>search</mat-icon>
+          </button>
+          <input name="codigoTipoPlaza" matInput placeholder="Tipo plaza: "
+            style="position: relative;text-align: left; margin-left: 50px" [(ngModel)]="tipoPlaza.codigoTipoPlaza"
+            #data="ngModel" readonly=true disabled={{todosTP}} required>
+        </mat-form-field>
+      </div>
+    </div>
+    <div style="margin-left: 100px" fxflex="50%" class="centertText">
+      <h4 class="centerText">Contribuyentes</h4>
+      <div class="centerText">
+        <mat-checkbox name="todosContribuyente" [(ngModel)]="todosContribuyente"
+          (change)="actualizarTodos(todosContribuyente,false)">
+          Todos
+        </mat-checkbox>
+        <mat-form-field style="position: relative;text-align: right; margin-left: 50px">
+          <button mat-mini-fab color="primary" (click)="buscarContribuyente()" disabled={{todosContribuyente}}>
+            <mat-icon mat-list-icon>search</mat-icon>
+          </button>
+          <input name="contribuyente" matInput placeholder="Contribuyent: "
+            [(ngModel)]="contribuyente.codigoContribuyente"
+            style="position: relative;text-align: left; margin-left: 50px" #data="ngModel" readonly=true
+            disabled={{todosContribuyente}} required>
+
+        </mat-form-field>
+      </div>
+    </div>
+    
+    </div>
+    <div class="centerText">
+      <h4 class="centerText">Recaudadores</h4>
+      <div class="centerText">
+        <mat-checkbox name="todosRecaudador" [(ngModel)]="todosRecaudador"
+          (change)="actualizarTodosR(todosRecaudador)">
+          Todos
+        </mat-checkbox>
+        <mat-form-field style="position: relative;text-align: right; margin-left: 50px">
+          <button mat-mini-fab color="primary" (click)="buscarRecaudador()" disabled={{todosRecaudador}}>
+            <mat-icon mat-list-icon>search</mat-icon>
+          </button>
+          <input name="recaudador" matInput placeholder="Recaudador: "
+            [(ngModel)]="recaudador.codigoRecaudador"
+            style="position: relative;text-align: left; margin-left: 50px" #data="ngModel" readonly=true
+            disabled={{todosRecaudador}} required>
+
+        </mat-form-field>
+      </div>
+  </div>
+
+
+
+
+
+
+
+  <mat-divider>
+  </mat-divider>
+
+  <div class="centerText" layout="row" layout-align="space-between center" flex>
+    <div fxflex="50%" class="centertText">
+
+      <div class="centerText">
+        <mat-form-field>
+          <mat-label>Formato reporte</mat-label>
+          <mat-select [(value)]="formatoSelect">
+            <mat-option *ngFor="let formato of formatos" [value]="formato.value">
+              {{formato.viewValue}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    <button mat-stroked-button disabled={{isLoading}} (click)="recuperaReporte(formatoSelect, true)">Reporte
+      contribuciones</button>
+    <button mat-stroked-button disabled={{isLoading}} (click)="recuperaReporte(formatoSelect,false)">Reporte movimientos
+    </button>
+    <span flex></span>
+    <span flex></span>
+  </div>
+  <div class="container" fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="10%" fxLayoutAlign="center">
+    <mat-progress-spinner mode="indeterminate" *ngIf="isLoading"></mat-progress-spinner>
+  </div>

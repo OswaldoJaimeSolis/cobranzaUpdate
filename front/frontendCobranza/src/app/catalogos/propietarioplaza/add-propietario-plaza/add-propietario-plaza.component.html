@@ -1,0 +1,53 @@
+<h2 mat-dialog-title>{{encabezado}} </h2>
+<form  #ppForm="ngForm">
+  <mat-dialog-content>
+
+    <div class="columns-container">
+
+      <mat-form-field>
+        <input matInput name="codigoPlaza" placeholder="Plaza: " [(ngModel)]="oFinal.plaza.codigoPlaza" #data="ngModel" disabled=true
+          readonly=true required>
+      </mat-form-field>
+      <mat-form-field style="position: relative;text-align: right">
+
+        <button mat-mini-fab color="primary" color="primary" (click)="buscarTipoPlaza()">
+          <mat-icon mat-list-icon>search</mat-icon>
+        </button>
+        <input name="codigoTipoPlaza" matInput placeholder="Tipo plaza: " style="position: relative;text-align: left"
+          [(ngModel)]="oFinal.tipoPlaza.codigoTipoPlaza" #data="ngModel" readonly=true required>
+
+      </mat-form-field>
+      <mat-form-field style="position: relative;text-align: right">
+        <button mat-mini-fab color="primary" (click)="buscarContribuyente()">
+          <mat-icon mat-list-icon>search</mat-icon>
+        </button>
+        <input name="contribuyente" matInput placeholder="Contribuyente: " [(ngModel)]="oFinal.contribuyente.codigoContribuyente"
+          style="position: relative;text-align: left" #data="ngModel" readonly=true  required>
+
+      </mat-form-field>
+
+      <mat-form-field>
+        <input name="fInicial" matInput [matDatepicker]="picker1" placeholder="Fecha inicial" [(ngModel)]="oFinal.vigenciaInicial"
+          readonly=true>
+        <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+        <mat-datepicker #picker1></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field>
+        <input name="fFinal" matInput placeholder="Giro: " [(ngModel)]="oFinal.giroDescripcion" #data="ngModel" required>
+      </mat-form-field>
+      <mat-form-field>
+        <input name="importe" type="number" matInput placeholder="Importe: " style="text-align: right" [(ngModel)]="oFinal.importe" #data="ngModel"
+          required={{!oFinal.tipoPlaza.porImporteGlobalTipoPlaza}}
+          disabled={{oFinal.tipoPlaza.porImporteGlobalTipoPlaza}}>
+      </mat-form-field>
+
+    </div>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="guardarPropietarioPlaza(oFinal)"  [disabled]="!ppForm.form.valid" >Save</button>
+  </mat-dialog-actions>
+</form>

@@ -1,0 +1,32 @@
+/* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.add-btn{
+    position: fixed;
+    right: 20px;
+ 
+}
+
+.centerTitle{
+    text-align: center;
+    right: 20px;
+}
+
+.centerText{
+    text-align: center;
+    
+}
+
+.centerContent{
+    justify-content: center;
+}
+
+.ng-valid[required], .ng-valid.required  {
+    border-left: 5px solid #42A948; /* green */
+  }
+  
+  .ng-invalid:not(form)  {
+    border-left: 5px solid #a94442; /* red */
+  }

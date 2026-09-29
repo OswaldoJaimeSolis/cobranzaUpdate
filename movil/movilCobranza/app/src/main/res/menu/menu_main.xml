@@ -1,0 +1,44 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.jalpa.cobranza.MainActivity">
+
+    <item
+        android:id="@+id/busqueda_contribuyente_setting"
+        android:orderInCategory="100"
+        android:title="Buscar contribuyente"
+        />
+    <item
+        android:id="@+id/busqueda_contribucion_setting"
+        android:orderInCategory="101"
+        android:title="Contribuciones"
+        />
+
+    <item
+        android:id="@+id/actualizar_catalogo_setting"
+        android:orderInCategory="102"
+        android:title="Actualizar catálogos"
+        />
+
+    <item
+        android:id="@+id/actualizar_catalogo_contribuciones_setting"
+        android:orderInCategory="103"
+        android:title="Recuperar contribuciones"
+        />
+
+    <item
+        android:id="@+id/agregar_contribuyente_setting"
+        android:orderInCategory="104"
+        android:title="Agregar contribuyente"
+        />
+    <item
+        android:id="@+id/datos_equipo_setting"
+        android:orderInCategory="105"
+        android:title="Datos equipo"
+        />
+    <item
+        android:id="@+id/forzar_envio_setting"
+        android:orderInCategory="106"
+        android:title="Forzar envío"
+        />
+</menu>

@@ -1,0 +1,31 @@
+<h2 mat-dialog-title class="centerTitle">{{encabezado}} </h2>
+
+<mat-dialog-content>
+
+  <div class="columns-container">
+
+    <mat-form-field>
+      <input matInput placeholder="Código: " [(ngModel)]="oFinal.codigoTipoPlaza" #data="ngModel" disabled={{noEditarId}}
+        readonly={{noEditarId}} required>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Descripción: " [(ngModel)]="oFinal.descripcionTipoPlaza" #data="ngModel" required>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Leyenda: " [(ngModel)]="oFinal.leyendaTipoPlaza" #data="ngModel" required>
+    </mat-form-field>
+
+    <mat-checkbox class="check-container" [(ngModel)]="oFinal.porImporteGlobalTipoPlaza" (change)="actualizarBtnPeriodo(oFinal.porImporteGlobalTipoPlaza)">Importe global</mat-checkbox>
+    <mat-checkbox class="check-container" [(ngModel)]="oFinal.addLocal">Permite agregar localmente</mat-checkbox>
+    <button mat-raised-button color="primary" (click)="mostrarPeriodos(oFinal)" disabled={{vigenciasHidde}} hidden={{vigenciasHidde}}>Períodos</button>
+
+
+
+  </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions class="centerContent">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSave(oFinal)">Save</button>
+</mat-dialog-actions>

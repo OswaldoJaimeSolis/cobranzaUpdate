@@ -1,0 +1,34 @@
+<h3 class="centerText"> Reporte contribuyentes</h3>
+<div class="container" fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="10%" fxLayoutAlign="center">
+
+  <div fxflex="50%" class="centertText">
+    <h4 class="centerText">Tipos de plaza</h4>
+    <div class="centerText">
+      <mat-checkbox name="todosTP" [(ngModel)]="todosTP" >
+        Todos
+      </mat-checkbox>
+      <mat-form-field style="position: relative;text-align: right; margin-left: 50px">
+
+        <button mat-mini-fab color="primary" color="primary" (click)="buscarTipoPlaza()" disabled={{todosTP}}>
+          <mat-icon mat-list-icon>search</mat-icon>
+        </button>
+        <input name="codigoTipoPlaza" matInput placeholder="Tipo plaza: "
+          style="position: relative;text-align: left; margin-left: 50px" [(ngModel)]="tipoPlaza.codigoTipoPlaza"
+          #data="ngModel" readonly=true disabled={{todosTP}} required>
+      </mat-form-field>
+    </div>
+  </div>
+</div>
+
+<mat-divider>
+</mat-divider>
+
+<div class="centerText" layout="row" layout-align="space-between center" flex>
+  <button mat-stroked-button disabled={{isLoading}} (click)="recuperaReporte(1)">Reporte pdf</button>
+  <button mat-stroked-button disabled={{isLoading}} (click)="recuperaReporte(2)">Reporte xls</button>
+  <span flex></span>
+  <span flex></span>
+</div>
+<div class="container" fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="10%" fxLayoutAlign="center">
+  <mat-progress-spinner mode="indeterminate" *ngIf="isLoading"></mat-progress-spinner>
+</div>

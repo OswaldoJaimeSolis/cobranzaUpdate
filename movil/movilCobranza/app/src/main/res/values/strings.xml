@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Cobranza</string>
+    <string name="action_settings">Opciones</string>
+    <string name="name_contribuyente">Contribuyente</string>
+    <string name="ms_scan_contribuyente">Lea el QR del contribuyente</string>
+    <string name="title_activity_logueo">LogueoActivity</string>
+    <string name="title_activity_datos_equipo">DatosEquipo</string>
+    <string name="title_activity_busqueda_contribuciones">BusquedaContribuciones</string>
+</resources>

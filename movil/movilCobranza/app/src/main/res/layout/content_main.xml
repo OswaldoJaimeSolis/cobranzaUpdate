@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".MainActivity"
+    tools:showIn="@layout/activity_main"
+    android:paddingTop="16dp"
+    android:paddingLeft="16dp">
+
+    <TextView
+        android:id="@+id/tvContribuyente"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/name_contribuyente"
+        android:layout_marginTop="20px"/>
+    <EditText
+        android:id="@+id/etContribuyente"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/tvContribuyente"
+        android:layout_marginLeft="5px"
+        android:ems="12"/>
+
+    <ImageButton
+        android:id="@+id/btnScan"
+        android:layout_width="160px"
+        android:layout_height="160px"
+        android:layout_marginLeft="7dp"
+        android:layout_marginTop="-50px"
+        android:layout_toRightOf="@+id/etContribuyente"
+        android:src="@drawable/im_qr"
+        android:tooltipText="@string/ms_scan_contribuyente"
+        android:background="@null"/>
+
+    <TextView
+        android:id="@+id/tvFecha"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5px"
+        android:layout_marginTop="20px"
+        android:text="Fecha"
+        android:layout_below="@id/etContribuyente"/>
+    <EditText
+        android:id="@+id/etDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="8"
+        android:layout_toRightOf="@+id/tvFecha"
+        android:layout_centerHorizontal="true"
+        android:inputType="date"
+        android:layout_marginLeft="100px"
+        android:layout_below="@id/etContribuyente"/>
+    <TextView
+        android:id="@+id/tvPlaza"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5px"
+        android:layout_marginTop="20px"
+        android:text="Plaza"
+        android:layout_below="@id/etDate"/>
+    <Spinner
+        android:id="@+id/cbPlaza"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/etDate"
+        android:layout_toRightOf="@id/tvPlaza"
+        android:layout_marginLeft="120px">
+
+    </Spinner>
+    <TextView
+        android:id="@+id/tvImporte"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5px"
+        android:layout_marginTop="40px"
+        android:text="Importe"
+        android:layout_below="@id/cbPlaza"/>
+    <EditText
+        android:id="@+id/etImporte"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="6"
+        android:layout_toRightOf="@+id/tvFecha"
+        android:gravity="right"
+        android:inputType="numberDecimal"
+        android:layout_marginLeft="100px"
+        android:layout_below="@id/cbPlaza"/>
+
+    <RadioGroup
+        android:id="@+id/rgEstado"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/etImporte"
+        android:layout_centerHorizontal="true">
+        <RadioButton
+            android:id="@+id/rbPagado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pagar"
+            android:enabled="true">
+
+        </RadioButton>
+        <RadioButton
+            android:id="@+id/rbPendiente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pendiente"/>
+        <RadioButton
+            android:id="@+id/rbAusente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ausente"/>
+    </RadioGroup>
+
+<Button
+    android:id="@+id/btnConfirmar"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/rgEstado"
+    android:layout_centerHorizontal="true"
+    android:layout_marginTop="100px"
+    android:text="Confirmar"/>
+
+    <Button
+        android:id="@+id/btnReimprimir"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnConfirmar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20px"
+        android:text="Reimprimir"/>
+
+    <Button
+        android:id="@+id/btnGenerarQR"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnReimprimir"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20px"
+        android:text="Generar QR"/>
+
+    <ProgressBar
+        android:id="@+id/pbActualizarCatalogos"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"
+        android:layout_above="@id/etContribuyente"/>
+
+    <ProgressBar
+        android:id="@+id/pbBusqueda"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"
+        android:layout_above="@id/cbPlaza"/>
+
+
+</RelativeLayout>

@@ -1,0 +1,10 @@
+<h2 mat-dialog-title class="centerText">{{title}}</h2>
+<mat-dialog-content class="centerText">
+  <div> {{message}}</div>
+</mat-dialog-content>
+
+<mat-dialog-actions style="justify-content: center">
+  <button mat-raised-button color="primary" (click)="cancelar()">NO</button>
+  <button mat-raised-button color="primary" (click)="aceptar()">SI</button>
+
+</mat-dialog-actions>
