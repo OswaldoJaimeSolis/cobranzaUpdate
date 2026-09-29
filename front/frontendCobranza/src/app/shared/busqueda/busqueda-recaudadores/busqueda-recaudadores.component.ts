@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TipoPlaza } from 'src/app/catalogos/tiposplaza/model/tipo-plaza';
-import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
 import { RecaudadorService } from 'src/app/catalogos/recaudador/service/recaudador.service';
 import { Recaudador } from 'src/app/catalogos/recaudador/model/recaudador';
 import { AddRecaudadorComponent } from 'src/app/catalogos/recaudador/add-recaudador/add-recaudador.component';

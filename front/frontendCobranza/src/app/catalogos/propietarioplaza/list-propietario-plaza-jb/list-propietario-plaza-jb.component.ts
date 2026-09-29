@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PropietarioPlaza } from '../model/propietario-plaza';
 import { PropietarioPlazaService } from '../service/propietario-plaza.service';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { AddPropietarioPlazaComponent } from '../add-propietario-plaza/add-propietario-plaza.component';
 import { DialogInformativoComponent } from 'src/app/shared/dialog-informativo/dialog-informativo.component';
 
