@@ -12,9 +12,9 @@ Maven wrapper is present (`mvnw` / `mvnw.cmd`) — use it instead of a global Ma
 - Run locally: `./mvnw spring-boot:run`, or run the built artifact with `java -jar target/*.war` after packaging
 - Run all tests: `./mvnw test`
 - Run a single test class: `./mvnw test -Dtest=CobranzaPlazasApplicationTests`
-- There is effectively one test (`src/test/java/com/cobranzaplazas/CobranzaPlazasApplicationTests.java`, JUnit 4 via `SpringRunner`), and it only asserts the Spring context loads — there is no real test coverage of business logic.
+- There is effectively one test (`src/test/java/com/cobranzaplazas/CobranzaPlazasApplicationTests.java`, JUnit 5), and it only asserts the Spring context loads — there is no real test coverage of business logic.
 
-Stack: Java 8, Spring Boot 2.1.7 (parent POM), packaged as WAR with `spring-boot-starter-tomcat` (deployable to an external servlet container as well as run standalone via `SpringBootServletInitializer`). Key libs: Spring Data JPA, Spring Security, Thymeleaf, MySQL Connector/J 5.1.6, JasperReports 6.8.1 (+ iText 2.1.7 for PDF), Apache POI (`poi` 4.1.0 / `poi-ooxml` 3.15) for Excel.
+Stack: Java 21, Spring Boot 3.5.16 (parent POM), packaged as WAR with `spring-boot-starter-tomcat` (deployable to an external servlet container as well as run standalone via `SpringBootServletInitializer`). Key libs: Spring Data JPA (Hibernate 6), Spring Security 6, Thymeleaf, MySQL Connector/J (`com.mysql:mysql-connector-j`, version managed by the Spring Boot BOM), JasperReports 6.21.5 (+ OpenPDF, pulled in by JasperReports, for PDF; BouncyCastle is required explicitly because the PDF export is encrypted), Apache POI 5.4.1 (`poi` / `poi-ooxml`) for Excel. ECJ is pinned to a Java 21 capable version because JasperReports 6.21.x otherwise pins one that cannot read Java 21 class files when compiling `.jrxml` at runtime. The codebase uses the `jakarta.*` namespace throughout.
 
 ## Architecture
 
@@ -32,10 +32,10 @@ Core entities and how they relate: `Contribuyente` (taxpayer) owns `PropietarioP
 Controller method → `@Autowired` `*Dao` (Spring Data `JpaRepository`) → Hibernate/JPA → MySQL. PUT-style "replace" handlers follow a `findById(...).map(existing -> { mutate fields; return dao.save(existing); }).orElseGet(() -> dao.save(newEntity))` pattern (update-if-exists, else insert) rather than distinct create/update paths for most entities. There is no `@ExceptionHandler`/`@ControllerAdvice` anywhere — lookups that miss throw a bare `new RuntimeException(id)`, and reporting endpoints catch broadly and just log or return `null` on failure. Error handling is inconsistent per-endpoint rather than centralized.
 
 ### Authentication / CORS
-`SpringSecurityConfig` (`WebSecurityConfigurerAdapter`) configures:
+`SpringSecurityConfig` (a `SecurityFilterChain` bean plus an `InMemoryUserDetailsManager` bean, Spring Security 6 component style) configures:
 - In-memory single user (`cobranza`/role `ADMIN`) via `NoOpPasswordEncoder` (plaintext password comparison) — no DB-backed user store, no JWT.
 - HTTP Basic auth, stateless sessions (`SessionCreationPolicy.STATELESS`), CSRF disabled.
-- `authorizeRequests().antMatchers("/**").permitAll()` — i.e. the matcher rule itself currently permits all paths, effectively neutralizing the auth requirement at the security-filter level (most controller methods also have `@Secured("ROLE_ADMIN")` commented out).
+- `authorizeHttpRequests().requestMatchers("/**").permitAll()` — i.e. the matcher rule itself currently permits all paths, effectively neutralizing the auth requirement at the security-filter level (most controller methods also have `@Secured("ROLE_ADMIN")` commented out).
 - CORS is handled per-endpoint via `@CrossOrigin(origins = "http://localhost:" + port)` repeated on nearly every controller method, hardcoded to `http://localhost:4200` (the Angular dev server) — there is no global CORS `WebMvcConfigurer`, so any change to allowed origins currently means editing every method.
 
 ### Reporting (JasperReports)
@@ -45,6 +45,6 @@ The three `*reporte` endpoints compile `.jrxml` templates from `src/main/resourc
 `poi`/`poi-ooxml` are on the classpath and `src/main/resources/padron_ambulante.xls` / `padron_tianguis_local.xls` are sample padron (registry) spreadsheets, but the `/UploadFromXLS` controller method that would parse them into `Contribuyente`/`PropietarioPlaza` records is entirely commented out in `CobranzaPlazasController`. Treat this feature as unimplemented/disabled rather than working code.
 
 ### Persistence / config
-`src/main/resources/application.properties` configures a MySQL datasource (`spring.jpa.database=mysql`, `com.mysql.jdbc.Driver`) pointed at a remote production-looking host, with `spring.jpa.hibernate.ddl-auto=update` commented out (disabled via a leading `!`, not a real Spring Boot syntax — effectively that property is unset) and `spring.cache.type=NONE`. There are no Flyway/Liquibase migrations; schema is whatever Hibernate/JPA infers from the `@Entity` annotations, and the property file mixes a live-looking DB URL/credentials with commented-out (`!`-prefixed) alternates for localhost and a second "_rastro" schema — treat the checked-in credentials as already-exposed/rotatable rather than copying or reusing them elsewhere. There is no Spring `@Profile`/multi-environment setup (dev/prod), just this single properties file.
+`src/main/resources/application.properties` configures a MySQL datasource (`spring.jpa.database=mysql`, `com.mysql.cj.jdbc.Driver`) pointed at a remote production-looking host, with `spring.jpa.hibernate.ddl-auto=update` commented out (disabled via a leading `!`, which `java.util.Properties` does treat as a comment character) and `spring.cache.type=NONE`. There are no Flyway/Liquibase migrations; schema is whatever Hibernate/JPA infers from the `@Entity` annotations, and the property file mixes a live-looking DB URL/credentials with commented-out (`!`-prefixed) alternates for localhost and a second "_rastro" schema — treat the checked-in credentials as already-exposed/rotatable rather than copying or reusing them elsewhere. There is no Spring `@Profile`/multi-environment setup (dev/prod), just this single properties file.
 
 Static/template resources: `src/main/resources/templates/` has two Thymeleaf templates (`greeting.html`, `UploadFromXLS.html`) that appear to be leftovers from the Spring Boot starter guide / the disabled upload feature rather than part of the live app (the controller is a pure `@RestController`, not `@Controller` returning views).
