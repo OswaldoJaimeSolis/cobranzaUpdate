@@ -1,25 +1,60 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    namespace = 'com.jalpa.cobranza'
+    // Se compila contra la última plataforma estable...
+    compileSdk = 36
+
     defaultConfig {
-        applicationId "com.jalpa.cobranza"
-        minSdkVersion 26
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        applicationId = "com.jalpa.cobranza"
+        minSdk = 26
+        // ...pero targetSdk se queda en 35: en 36 deja de poder desactivarse la
+        // imposición de "edge to edge" (ver res/values-v35/styles.xml) y los layouts
+        // heredados de esta app no aplican window insets. Subir a 36 requiere revisar
+        // cada Activity antes.
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+        coreLibraryDesugaringEnabled = true
+    }
+    packaging {
+        // The vendor Bixolon / JavaPOS / ICU / Xerces jars in app/libs ship duplicated
+        // licence and metadata entries that the modern packager refuses by default.
+        resources {
+            excludes += [
+                    'META-INF/LICENSE*',
+                    'META-INF/NOTICE*',
+                    'META-INF/DEPENDENCIES',
+                    'META-INF/*.kotlin_module',
+                    'META-INF/INDEX.LIST',
+                    'license/**',
+                    'README*'
+            ]
+            pickFirsts += ['**/*.properties']
+        }
+    }
+    lint {
+        // Keep `./gradlew lint` informative without failing on this legacy code base.
+        abortOnError = false
     }
 }
 
 dependencies {
     def room_version = "2.1.0-alpha04"
+
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.0.0-beta01'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
@@ -36,12 +71,6 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:16.0.0'
     implementation 'com.google.android.gms:play-services-base:16.0.1'
 
-    implementation files('libs/bixolon_printer_v130.jar')
-    implementation files('libs/jpos118-controls.jar')
-    implementation files('libs/icu4j-58_1.jar')
-    implementation files('libs/xerces.jar')
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.google.zxing:core:3.2.1'
-
-
 }
