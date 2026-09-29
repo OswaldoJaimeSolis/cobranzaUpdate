@@ -5,8 +5,7 @@ import {
 } from '@angular/material';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms';  //for the form element 
-import {FlexLayoutModule} from "@angular/flex-layout";
+import { FormsModule } from '@angular/forms';  //for the form element
 
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
@@ -97,7 +96,6 @@ import { BusquedaRecaudadoresComponent } from './shared/busqueda/busqueda-recaud
     FormsModule,
     BrowserModule,
     HttpClientModule,
-    FlexLayoutModule,
     MatProgressBarModule,
     MatProgressSpinnerModule
 
