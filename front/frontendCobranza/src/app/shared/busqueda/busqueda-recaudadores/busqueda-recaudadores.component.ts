@@ -7,9 +7,10 @@ import { Recaudador } from 'src/app/catalogos/recaudador/model/recaudador';
 import { AddRecaudadorComponent } from 'src/app/catalogos/recaudador/add-recaudador/add-recaudador.component';
 
 @Component({
-  selector: 'app-busqueda-recaudadores',
-  templateUrl: './busqueda-recaudadores.component.html',
-  styleUrls: ['./busqueda-recaudadores.component.css']
+    selector: 'app-busqueda-recaudadores',
+    templateUrl: './busqueda-recaudadores.component.html',
+    styleUrls: ['./busqueda-recaudadores.component.css'],
+    standalone: false
 })
 export class BusquedaRecaudadoresComponent implements OnInit {
   recaudadores: Recaudador[] = [];

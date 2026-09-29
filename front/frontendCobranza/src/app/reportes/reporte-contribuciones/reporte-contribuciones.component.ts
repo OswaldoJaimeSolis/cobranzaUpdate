@@ -25,9 +25,10 @@ export interface BusResultRecaudador {
   recaudadorSelect: Recaudador;
 }
 @Component({
-  selector: 'app-reporte-contribuciones',
-  templateUrl: './reporte-contribuciones.component.html',
-  styleUrls: ['./reporte-contribuciones.component.css']
+    selector: 'app-reporte-contribuciones',
+    templateUrl: './reporte-contribuciones.component.html',
+    styleUrls: ['./reporte-contribuciones.component.css'],
+    standalone: false
 })
 export class ReporteContribucionesComponent implements OnInit {
   fechaInicial: Date = new Date();

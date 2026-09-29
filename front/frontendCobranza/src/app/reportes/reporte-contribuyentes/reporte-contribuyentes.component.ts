@@ -8,9 +8,10 @@ export interface BusResultTP {
   tipoPlazaSelect: TipoPlaza;
 }
 @Component({
-  selector: 'app-reporte-contribuyentes',
-  templateUrl: './reporte-contribuyentes.component.html',
-  styleUrls: ['./reporte-contribuyentes.component.css']
+    selector: 'app-reporte-contribuyentes',
+    templateUrl: './reporte-contribuyentes.component.html',
+    styleUrls: ['./reporte-contribuyentes.component.css'],
+    standalone: false
 })
 export class ReporteContribuyentesComponent implements OnInit {
   tipoPlaza: TipoPlaza = new TipoPlaza();

@@ -6,9 +6,10 @@ import { AddContribuyenteComponent } from '../add-contribuyente/add-contribuyent
 import { DialgAnswerSiNoComponent } from 'src/app/shared/dialg-answer-si-no/dialg-answer-si-no.component';
 
 @Component({
-  selector: 'app-list-contribuyente',
-  templateUrl: './list-contribuyente.component.html',
-  styleUrls: ['./list-contribuyente.component.css']
+    selector: 'app-list-contribuyente',
+    templateUrl: './list-contribuyente.component.html',
+    styleUrls: ['./list-contribuyente.component.css'],
+    standalone: false
 })
 export class ListContribuyenteComponent implements OnInit {
   contribuyentes: Contribuyente[];

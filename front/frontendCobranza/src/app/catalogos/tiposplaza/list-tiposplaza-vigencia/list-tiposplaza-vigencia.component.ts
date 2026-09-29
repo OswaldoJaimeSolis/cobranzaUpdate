@@ -11,9 +11,10 @@ export interface DialogData {
   service: TiposplazaService;
 }
 @Component({
-  selector: 'app-list-tiposplaza-vigencia',
-  templateUrl: './list-tiposplaza-vigencia.component.html',
-  styleUrls: ['./list-tiposplaza-vigencia.component.css']
+    selector: 'app-list-tiposplaza-vigencia',
+    templateUrl: './list-tiposplaza-vigencia.component.html',
+    styleUrls: ['./list-tiposplaza-vigencia.component.css'],
+    standalone: false
 })
 export class ListTiposplazaVigenciaComponent implements OnInit {
   tipoPlaza: TipoPlaza;

@@ -8,9 +8,10 @@ export interface DialogData {
 }
 
 @Component({
-  selector: 'app-add-tiposplaza',
-  templateUrl: './add-tiposplaza.component.html',
-  styleUrls: ['./add-tiposplaza.component.css']
+    selector: 'app-add-tiposplaza',
+    templateUrl: './add-tiposplaza.component.html',
+    styleUrls: ['./add-tiposplaza.component.css'],
+    standalone: false
 })
 export class AddTiposplazaComponent implements OnInit {
   oFinal: TipoPlaza = new  TipoPlaza();

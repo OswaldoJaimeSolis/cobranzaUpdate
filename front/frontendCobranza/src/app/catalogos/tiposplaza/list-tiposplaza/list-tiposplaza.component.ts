@@ -5,9 +5,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddTiposplazaComponent } from '../add-tiposplaza/add-tiposplaza.component';
 
 @Component({
-  selector: 'app-list-tiposplaza',
-  templateUrl: './list-tiposplaza.component.html',
-  styleUrls: ['./list-tiposplaza.component.css']
+    selector: 'app-list-tiposplaza',
+    templateUrl: './list-tiposplaza.component.html',
+    styleUrls: ['./list-tiposplaza.component.css'],
+    standalone: false
 })
 export class ListTiposplazaComponent implements OnInit {
   tiposPlaza: TipoPlaza[];

@@ -12,9 +12,10 @@ export interface DialogData {
 
 
 @Component({
-  selector: 'app-add-tiposplaza-vigencia',
-  templateUrl: './add-tiposplaza-vigencia.component.html',
-  styleUrls: ['./add-tiposplaza-vigencia.component.css']
+    selector: 'app-add-tiposplaza-vigencia',
+    templateUrl: './add-tiposplaza-vigencia.component.html',
+    styleUrls: ['./add-tiposplaza-vigencia.component.css'],
+    standalone: false
 })
 export class AddTiposplazaVigenciaComponent implements OnInit {
   vigencias: TipoPlazaVigencia[];

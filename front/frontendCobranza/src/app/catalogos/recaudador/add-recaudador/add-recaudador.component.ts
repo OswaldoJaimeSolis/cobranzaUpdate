@@ -15,9 +15,10 @@ export interface BusResult {
 }
 
 @Component({
-  selector: 'app-add-recaudador',
-  templateUrl: './add-recaudador.component.html',
-  styleUrls: ['./add-recaudador.component.css']
+    selector: 'app-add-recaudador',
+    templateUrl: './add-recaudador.component.html',
+    styleUrls: ['./add-recaudador.component.css'],
+    standalone: false
 })
 
 

@@ -6,9 +6,10 @@ export interface DialogData {
 }
 
 @Component({
-  selector: 'app-dialog-informativo',
-  templateUrl: './dialog-informativo.component.html',
-  styleUrls: ['./dialog-informativo.component.css']
+    selector: 'app-dialog-informativo',
+    templateUrl: './dialog-informativo.component.html',
+    styleUrls: ['./dialog-informativo.component.css'],
+    standalone: false
 })
 export class DialogInformativoComponent implements OnInit {
   message: string;

@@ -6,9 +6,10 @@ import { ContribuyenteService } from 'src/app/catalogos/contribuyente/service/co
 import { AddContribuyenteComponent } from 'src/app/catalogos/contribuyente/add-contribuyente/add-contribuyente.component';
 
 @Component({
-  selector: 'app-busqueda-contribuyentes',
-  templateUrl: './busqueda-contribuyentes.component.html',
-  styleUrls: ['./busqueda-contribuyentes.component.css']
+    selector: 'app-busqueda-contribuyentes',
+    templateUrl: './busqueda-contribuyentes.component.html',
+    styleUrls: ['./busqueda-contribuyentes.component.css'],
+    standalone: false
 })
 export class BusquedaContribuyentesComponent implements OnInit {
   contribuyentes: Contribuyente[] = [];

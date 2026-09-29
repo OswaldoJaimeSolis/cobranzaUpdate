@@ -6,9 +6,10 @@ import { AddPropietarioPlazaComponent } from '../add-propietario-plaza/add-propi
 import { DialogInformativoComponent } from 'src/app/shared/dialog-informativo/dialog-informativo.component';
 
 @Component({
-  selector: 'app-list-propietario-plaza-jb',
-  templateUrl: './list-propietario-plaza-jb.component.html',
-  styleUrls: ['./list-propietario-plaza-jb.component.css']
+    selector: 'app-list-propietario-plaza-jb',
+    templateUrl: './list-propietario-plaza-jb.component.html',
+    styleUrls: ['./list-propietario-plaza-jb.component.css'],
+    standalone: false
 })
 export class ListPropietarioPlazaJbComponent implements OnInit {
   propietariosPlaza: PropietarioPlaza[];

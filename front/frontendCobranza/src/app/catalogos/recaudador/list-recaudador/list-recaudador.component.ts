@@ -6,9 +6,10 @@ import { AddRecaudadorComponent } from '../add-recaudador/add-recaudador.compone
 import { DialgAnswerSiNoComponent } from 'src/app/shared/dialg-answer-si-no/dialg-answer-si-no.component';
 
 @Component({
-  selector: 'app-list-recaudador',
-  templateUrl: './list-recaudador.component.html',
-  styleUrls: ['./list-recaudador.component.css']
+    selector: 'app-list-recaudador',
+    templateUrl: './list-recaudador.component.html',
+    styleUrls: ['./list-recaudador.component.css'],
+    standalone: false
 })
 export class ListRecaudadorComponent implements OnInit {
 

@@ -19,9 +19,10 @@ export interface DialogData {
   propietarioPlaza: PropietarioPlaza;
 }
 @Component({
-  selector: 'app-add-propietario-plaza',
-  templateUrl: './add-propietario-plaza.component.html',
-  styleUrls: ['./add-propietario-plaza.component.css']
+    selector: 'app-add-propietario-plaza',
+    templateUrl: './add-propietario-plaza.component.html',
+    styleUrls: ['./add-propietario-plaza.component.css'],
+    standalone: false
 })
 export class AddPropietarioPlazaComponent implements OnInit {
   oOriginal: PropietarioPlaza;

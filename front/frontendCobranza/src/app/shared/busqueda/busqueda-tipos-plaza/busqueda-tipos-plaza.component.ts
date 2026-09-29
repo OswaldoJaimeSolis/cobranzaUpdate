@@ -7,9 +7,10 @@ import { AddContribuyenteComponent } from 'src/app/catalogos/contribuyente/add-c
 import { AddTiposplazaComponent } from 'src/app/catalogos/tiposplaza/add-tiposplaza/add-tiposplaza.component';
 
 @Component({
-  selector: 'app-busqueda-tipos-plaza',
-  templateUrl: './busqueda-tipos-plaza.component.html',
-  styleUrls: ['./busqueda-tipos-plaza.component.css']
+    selector: 'app-busqueda-tipos-plaza',
+    templateUrl: './busqueda-tipos-plaza.component.html',
+    styleUrls: ['./busqueda-tipos-plaza.component.css'],
+    standalone: false
 })
 export class BusquedaTiposPlazaComponent implements OnInit {
   tiposPlaza: TipoPlaza[] = [];

@@ -9,9 +9,10 @@ export interface DialogData {
 }
 
 @Component({
-  selector: 'app-add-contribuyente',
-  templateUrl: './add-contribuyente.component.html',
-  styleUrls: ['./add-contribuyente.component.css']
+    selector: 'app-add-contribuyente',
+    templateUrl: './add-contribuyente.component.html',
+    styleUrls: ['./add-contribuyente.component.css'],
+    standalone: false
 })
 export class AddContribuyenteComponent implements OnInit {
   conFinal: Contribuyente = new Contribuyente();

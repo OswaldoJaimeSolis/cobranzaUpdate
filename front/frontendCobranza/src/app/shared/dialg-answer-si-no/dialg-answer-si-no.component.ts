@@ -6,9 +6,10 @@ export interface DialogData {
   respuesta: boolean;
 }
 @Component({
-  selector: 'app-dialg-answer-si-no',
-  templateUrl: './dialg-answer-si-no.component.html',
-  styleUrls: ['./dialg-answer-si-no.component.css']
+    selector: 'app-dialg-answer-si-no',
+    templateUrl: './dialg-answer-si-no.component.html',
+    styleUrls: ['./dialg-answer-si-no.component.css'],
+    standalone: false
 })
 export class DialgAnswerSiNoComponent implements OnInit {
   message: string;

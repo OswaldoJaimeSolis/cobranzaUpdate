@@ -16,9 +16,10 @@ export interface DialogData {
 }
 
 @Component({
-  selector: 'app-list-tipo-plaza-recaudador',
-  templateUrl: './list-tipo-plaza-recaudador.component.html',
-  styleUrls: ['./list-tipo-plaza-recaudador.component.css']
+    selector: 'app-list-tipo-plaza-recaudador',
+    templateUrl: './list-tipo-plaza-recaudador.component.html',
+    styleUrls: ['./list-tipo-plaza-recaudador.component.css'],
+    standalone: false
 })
 export class ListTipoPlazaRecaudadorComponent implements OnInit {
   recaudador: Recaudador;
