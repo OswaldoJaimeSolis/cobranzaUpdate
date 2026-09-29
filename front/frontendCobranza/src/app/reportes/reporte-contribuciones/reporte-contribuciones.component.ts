@@ -131,7 +131,9 @@ export class ReporteContribucionesComponent implements OnInit {
 
                 if (ie || oldIE || ieEDGE) {
                   var fileName = name + extension;
-                  window.navigator.msSaveBlob(blob, fileName);
+                  // msSaveBlob only ever existed on IE / legacy Edge and was dropped from
+                  // TypeScript's DOM typings; the runtime branch is kept as-is.
+                  (window.navigator as any).msSaveBlob(blob, fileName);
                 }
                 else {
                   var file = new Blob([data], {
