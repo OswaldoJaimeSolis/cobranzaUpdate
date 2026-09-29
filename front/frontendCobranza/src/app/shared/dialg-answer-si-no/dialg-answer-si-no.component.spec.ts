@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { DialgAnswerSiNoComponent } from './dialg-answer-si-no.component';
 
@@ -6,7 +6,7 @@ describe('DialgAnswerSiNoComponent', () => {
   let component: DialgAnswerSiNoComponent;
   let fixture: ComponentFixture<DialgAnswerSiNoComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ DialgAnswerSiNoComponent ]
     })
