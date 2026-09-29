@@ -98,9 +98,21 @@
               "src/assets"
             ]
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
         }
       }
     }
   },
-  "defaultProject": "cobranzaCli"
+  "defaultProject": "cobranzaCli",
+  "cli": {
+    "defaultCollection": "@angular-eslint/schematics"
+  }
 }
