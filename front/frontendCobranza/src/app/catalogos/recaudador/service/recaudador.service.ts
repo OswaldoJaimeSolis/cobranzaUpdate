@@ -9,7 +9,7 @@ import { RecuadadorTipoPlaza } from '../model/recuadador-tipo-plaza';
   providedIn: 'root'
 })
 export class RecaudadorService {
-  base_url = Constantes.base_url + "/recaudadores/";
+  base_url = Constantes.base_url + "/recaudadores";
   base_url_tp = Constantes.base_url + "/recaudadoresTP";
   constructor(private http: HttpClient) { }
 

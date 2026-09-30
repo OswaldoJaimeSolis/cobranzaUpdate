@@ -1,7 +1,7 @@
 <mat-list>
   <div class="add-btn">
     <button mat-fab color="primary" (click)="openDialog()">
-      <mat-icon mat-list-icon>add</mat-icon>
+      <mat-icon>add</mat-icon>
     </button>
   </div>
 
@@ -18,17 +18,19 @@
     </div>
     @for (o of recaudadores| filterRecaudadores: stringBusqueda; track o) {
       <mat-list-item>
-        <mat-icon mat-list-icon>watch_later</mat-icon>
-        <h4 mat-line>{{o.codigoRecaudador}} </h4>
-        <p mat-line> {{o.nombreRecaudador}} </p>
-        <button mat-mini-fab color="primary" (click)="openDialogEdit(o)">
-          <mat-icon mat-list-icon>edit</mat-icon>
-        </button>
-        <button mat-mini-fab color="primary" (click)="deleteRecaudador(o.codigoRecaudador)">
-          <mat-icon mat-list-icon>delete</mat-icon>
-        </button>
-        <mat-divider></mat-divider>
+        <mat-icon matListItemIcon>watch_later</mat-icon>
+        <span matListItemTitle>{{o.codigoRecaudador}}</span>
+        <span matListItemLine>{{o.nombreRecaudador}}</span>
+        <div matListItemMeta>
+          <button mat-mini-fab color="primary" (click)="openDialogEdit(o)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-mini-fab color="primary" (click)="deleteRecaudador(o.codigoRecaudador)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
       </mat-list-item>
+      <mat-divider></mat-divider>
     }
   }
 

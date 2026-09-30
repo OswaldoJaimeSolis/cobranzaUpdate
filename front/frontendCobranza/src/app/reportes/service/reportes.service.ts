@@ -6,9 +6,9 @@ import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
   providedIn: 'root'
 })
 export class ReportesService {
-  base_url_reporte = Constantes.base_url + "/contribucionesreporte/"
-  base_url_reporte_mov = Constantes.base_url + "/contribucionespagoreporte/"
-  base_url_reporte_contribuyentes = Constantes.base_url + "/contribuyentesreporte/"
+  base_url_reporte = Constantes.base_url + "/contribucionesreporte"
+  base_url_reporte_mov = Constantes.base_url + "/contribucionespagoreporte"
+  base_url_reporte_contribuyentes = Constantes.base_url + "/contribuyentesreporte"
   constructor(private http: HttpClient) { }
 
   getContribucionesPeriodoReporte(_fechaInicial: string, _fechaFinal: string,

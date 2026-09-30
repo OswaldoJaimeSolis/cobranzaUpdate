@@ -44,7 +44,7 @@
         <mat-form-field style="position: relative;text-align: right; margin-left: 50px">
 
           <button mat-mini-fab color="primary" color="primary" (click)="buscarTipoPlaza()" disabled={{todosTP}}>
-            <mat-icon mat-list-icon>search</mat-icon>
+            <mat-icon>search</mat-icon>
           </button>
           <input name="codigoTipoPlaza" matInput placeholder="Tipo plaza: "
             style="position: relative;text-align: left; margin-left: 50px" [(ngModel)]="tipoPlaza.codigoTipoPlaza"
@@ -61,7 +61,7 @@
         </mat-checkbox>
         <mat-form-field style="position: relative;text-align: right; margin-left: 50px">
           <button mat-mini-fab color="primary" (click)="buscarContribuyente()" disabled={{todosContribuyente}}>
-            <mat-icon mat-list-icon>search</mat-icon>
+            <mat-icon>search</mat-icon>
           </button>
           <input name="contribuyente" matInput placeholder="Contribuyent: "
             [(ngModel)]="contribuyente.codigoContribuyente"
@@ -82,7 +82,7 @@
       </mat-checkbox>
       <mat-form-field style="position: relative;text-align: right; margin-left: 50px">
         <button mat-mini-fab color="primary" (click)="buscarRecaudador()" disabled={{todosRecaudador}}>
-          <mat-icon mat-list-icon>search</mat-icon>
+          <mat-icon>search</mat-icon>
         </button>
         <input name="recaudador" matInput placeholder="Recaudador: "
           [(ngModel)]="recaudador.codigoRecaudador"

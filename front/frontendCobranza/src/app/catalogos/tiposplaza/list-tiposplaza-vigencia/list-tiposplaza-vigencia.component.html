@@ -7,7 +7,7 @@
   </div>
   <div class="centerTitle">
     <button mat-fab color="primary" (click)="openDialog()">
-      <mat-icon mat-list-icon>add</mat-icon>
+      <mat-icon>add</mat-icon>
     </button>
   </div>
   @if (displayOrNot) {
@@ -15,14 +15,16 @@
   } @else {
     @for (o of vigencias; track o) {
       <mat-list-item>
-        <mat-icon mat-list-icon>watch_later</mat-icon>
-        <h4 mat-line>De {{o.vigenciaInicial|date: 'dd/MM/yyyy'}} al {{o.vigenciaFinal|date: 'dd/MM/yyyy'}} Importe:
-        {{o.importe }} </h4>
-        <button mat-raised-button color="primary" (click)="deleteO(o.idTipoPlazaVigencia)">
-          Eliminar
-        </button>
-        <mat-divider></mat-divider>
+        <mat-icon matListItemIcon>watch_later</mat-icon>
+        <span matListItemTitle>De {{o.vigenciaInicial|date: 'dd/MM/yyyy'}} al {{o.vigenciaFinal|date: 'dd/MM/yyyy'}} Importe:
+        {{o.importe }}</span>
+        <div matListItemMeta>
+          <button mat-raised-button color="primary" (click)="deleteO(o.idTipoPlazaVigencia)">
+            Eliminar
+          </button>
+        </div>
       </mat-list-item>
+      <mat-divider></mat-divider>
     }
   }
 
