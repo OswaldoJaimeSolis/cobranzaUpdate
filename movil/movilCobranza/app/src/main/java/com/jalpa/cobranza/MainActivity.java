@@ -41,7 +41,6 @@ import android.widget.Toast;
 
 import com.bxl.BXLConst;
 import com.bxl.config.editor.BXLConfigLoader;
-import com.google.android.gms.vision.barcode.Barcode;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
@@ -505,11 +504,11 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==REQUEST_SCAN_CONTRIBUYENTE){
             if(data!=null){
-                final Barcode barcode= data.getParcelableExtra("barCode");
+                final String barcode= data.getStringExtra("barCode");
                 etContribuyente.post(new Runnable() {
                     @Override
                     public void run() {
-                        etContribuyente.setText(barcode.displayValue);
+                        etContribuyente.setText(barcode);
 
                     }
                 });

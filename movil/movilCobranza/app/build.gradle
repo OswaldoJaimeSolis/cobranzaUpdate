@@ -67,9 +67,16 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
 
-    // Barcode/QR scanning (ScanActivity). This used to arrive transitively through the
-    // now-removed firebase-ml-vision dependency; it is declared explicitly now.
-    implementation 'com.google.android.gms:play-services-vision:20.1.3'
+    // Barcode/QR scanning (ScanActivity): CameraX supplies the camera frames, MLKit's
+    // on-device barcode scanner reads them. Replaces the deprecated Play Services
+    // Vision API (com.google.android.gms:play-services-vision), which Google no longer
+    // updates and which is not available for new integrations.
+    def camerax_version = "1.6.2"
+    implementation "androidx.camera:camera-core:$camerax_version"
+    implementation "androidx.camera:camera-camera2:$camerax_version"
+    implementation "androidx.camera:camera-lifecycle:$camerax_version"
+    implementation "androidx.camera:camera-view:$camerax_version"
+    implementation 'com.google.mlkit:barcode-scanning:17.3.0'
     implementation 'com.google.android.gms:play-services-location:21.4.0'
     implementation 'com.google.android.gms:play-services-base:18.11.0'
 
