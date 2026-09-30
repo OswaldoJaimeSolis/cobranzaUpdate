@@ -37,10 +37,16 @@ import java.util.List;
 import javax.net.ssl.HttpsURLConnection;
 
 public class WebService {
-private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
+    // Antes apuntaba a los scripts PHP de producción (https://jalpa.gob.mx/cobranza/*.php);
+    // ahora apunta al backend local (backendCobranza), que expone el mismo contrato bajo
+    // los mismos nombres mostrados abajo pero sin ".php". 10.0.2.2 es el alias que el
+    // emulador de Android usa para llegar al localhost de la máquina anfitriona; en un
+    // dispositivo físico en la misma red hay que sustituirlo por la IP LAN del backend.
+    private final String URL_BASE="http://10.0.2.2:8080/cobranzaPlaza/";
+    //private final String URL_BASE="http://192.168.1.X:8080/cobranzaPlaza/";
     protected List<TipoPlaza> getTiposPlaza(String url, int timeOut) {
         List<TipoPlaza> tiposPlaza= new ArrayList<>();
-        url=URL_BASE+"getTipoPlaza.php";
+        url=URL_BASE+"getTipoPlaza";
         timeOut=30;
         HttpURLConnection c = null;
 
@@ -126,7 +132,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
     protected AuxActualizacionRemota getContribuyentesPlazas(String url, int timeOut, Date fecha, List<TipoPlaza> tiposPlaza) {
         SimpleDateFormat spdf=  new SimpleDateFormat("yyyy-MM-dd");
         AuxActualizacionRemota aux= new AuxActualizacionRemota();
-        url=URL_BASE+"getContribuyentes.php";
+        url=URL_BASE+"getContribuyentes";
         timeOut=30;
         HttpURLConnection c = null;
 
@@ -264,7 +270,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
     protected List<Contribucion> getContribucionesRemotas(String url, int timeOut, Date fechaInicial, String codigoTP, String codigoEquipoRecaudador) {
         SimpleDateFormat spdf=  new SimpleDateFormat("yyyy-MM-dd");
         List<Contribucion> contribucionesR= new ArrayList<>();
-        url=URL_BASE+"getContribuciones.php";
+        url=URL_BASE+"getContribuciones";
         timeOut=30;
         HttpURLConnection c = null;
 
@@ -378,7 +384,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
 
     protected List<Recaudador> getRecaudadores(String url, int timeOut) {
         List<Recaudador> recaudadores= new ArrayList<>();
-        url=URL_BASE+"getRecaudadores.php";
+        url=URL_BASE+"getRecaudadores";
         timeOut=30;
         HttpURLConnection c = null;
 
@@ -464,7 +470,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
 
 
     public JSONArray insertarContribucionesServidor(JSONArray aj){
-        String requestURL=URL_BASE+"insert_contribuciones.php";
+        String requestURL=URL_BASE+"insert_contribuciones";
         //String requestURL="http://192.168.1.82/combustible/insert_cargo.php";
 
 
@@ -519,7 +525,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
 
 
     public String insertarEquipoRecaudadorServidor(String jsonEquipoRecaudador){
-        String requestURL=URL_BASE+"insert_equipo_recaudador.php";
+        String requestURL=URL_BASE+"insert_equipo_recaudador";
         //String requestURL="http://192.168.1.82/combustible/insert_cargo.php";
 
 
@@ -573,7 +579,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
     }
 
     public JSONArray insertarPlazas(JSONArray aj){
-        String requestURL=URL_BASE+"insert_plazas.php";
+        String requestURL=URL_BASE+"insert_plazas";
         String response = "";
         try {
             URL url = new URL(requestURL);
@@ -625,7 +631,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
     }
 
     public JSONArray insertarContribuyentes(JSONArray aj){
-        String requestURL=URL_BASE+"insert_contribuyentes.php";
+        String requestURL=URL_BASE+"insert_contribuyentes";
         String response = "";
         try {
             URL url = new URL(requestURL);
@@ -676,7 +682,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
     }
 
     public JSONArray insertarPropietarioPlaza(JSONArray aj){
-        String requestURL=URL_BASE+"insert_propietario_plaza.php";
+        String requestURL=URL_BASE+"insert_propietario_plaza";
         String response = "";
         try {
             URL url = new URL(requestURL);
