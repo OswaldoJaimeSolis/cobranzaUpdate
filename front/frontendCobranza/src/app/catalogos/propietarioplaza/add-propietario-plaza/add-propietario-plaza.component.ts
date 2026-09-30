@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { PropietarioPlaza } from '../model/propietario-plaza';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { Contribuyente } from '../../contribuyente/model/contribuyente';
@@ -22,6 +22,7 @@ export interface DialogData {
     selector: 'app-add-propietario-plaza',
     templateUrl: './add-propietario-plaza.component.html',
     styleUrls: ['./add-propietario-plaza.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class AddPropietarioPlazaComponent implements OnInit {

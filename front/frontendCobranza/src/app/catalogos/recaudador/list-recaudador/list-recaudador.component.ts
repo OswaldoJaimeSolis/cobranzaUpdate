@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Recaudador } from '../model/recaudador';
 import { RecaudadorService } from '../service/recaudador.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
@@ -9,6 +9,7 @@ import { DialgAnswerSiNoComponent } from 'src/app/shared/dialg-answer-si-no/dial
     selector: 'app-list-recaudador',
     templateUrl: './list-recaudador.component.html',
     styleUrls: ['./list-recaudador.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ListRecaudadorComponent implements OnInit {

@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';  //for the form element
 
@@ -101,5 +101,5 @@ import { BusquedaRecaudadoresComponent } from './shared/busqueda/busqueda-recaud
         FormsModule,
         BrowserModule,
         MatProgressBarModule,
-        MatProgressSpinnerModule], providers: [ContribuyenteService, RecaudadorService, TiposplazaService, PropietarioPlazaService, ReportesService, { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, DatePipe, provideHttpClient(withInterceptorsFromDi())] })
+        MatProgressSpinnerModule], providers: [ContribuyenteService, RecaudadorService, TiposplazaService, PropietarioPlazaService, ReportesService, { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, DatePipe, provideHttpClient(withXhr(), withInterceptorsFromDi())] })
 export class AppModule { }

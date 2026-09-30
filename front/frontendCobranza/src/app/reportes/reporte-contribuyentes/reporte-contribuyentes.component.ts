@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TipoPlaza } from 'src/app/catalogos/tiposplaza/model/tipo-plaza';
 import { BusquedaTiposPlazaComponent } from 'src/app/shared/busqueda/busqueda-tipos-plaza/busqueda-tipos-plaza.component';
@@ -11,6 +11,7 @@ export interface BusResultTP {
     selector: 'app-reporte-contribuyentes',
     templateUrl: './reporte-contribuyentes.component.html',
     styleUrls: ['./reporte-contribuyentes.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ReporteContribuyentesComponent implements OnInit {

@@ -76,6 +76,10 @@ module.exports = tseslint.config(
       // otherwise flag every component in the project.
       '@angular-eslint/prefer-standalone': 'off',
       '@angular-eslint/prefer-inject': 'off',
+      // Switching to OnPush would change when the views re-render; these
+      // components mutate their arrays in place and rely on default change
+      // detection.
+      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
 
       // --- rules tslint:recommended had switched off for this project ---
       '@typescript-eslint/explicit-member-accessibility': 'off',

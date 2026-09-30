@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Contribuyente } from 'src/app/catalogos/contribuyente/model/contribuyente';
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
@@ -9,6 +9,7 @@ import { AddContribuyenteComponent } from 'src/app/catalogos/contribuyente/add-c
     selector: 'app-busqueda-contribuyentes',
     templateUrl: './busqueda-contribuyentes.component.html',
     styleUrls: ['./busqueda-contribuyentes.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class BusquedaContribuyentesComponent implements OnInit {

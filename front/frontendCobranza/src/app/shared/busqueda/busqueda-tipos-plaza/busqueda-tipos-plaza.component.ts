@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TiposplazaService } from 'src/app/catalogos/tiposplaza/service/tiposplaza.service';
 import { TipoPlaza } from 'src/app/catalogos/tiposplaza/model/tipo-plaza';
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
@@ -10,6 +10,7 @@ import { AddTiposplazaComponent } from 'src/app/catalogos/tiposplaza/add-tipospl
     selector: 'app-busqueda-tipos-plaza',
     templateUrl: './busqueda-tipos-plaza.component.html',
     styleUrls: ['./busqueda-tipos-plaza.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class BusquedaTiposPlazaComponent implements OnInit {

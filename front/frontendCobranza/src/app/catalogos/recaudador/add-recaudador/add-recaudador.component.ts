@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { Recaudador } from '../model/recaudador';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { RecaudadorService } from '../service/recaudador.service';
@@ -18,6 +18,7 @@ export interface BusResult {
     selector: 'app-add-recaudador',
     templateUrl: './add-recaudador.component.html',
     styleUrls: ['./add-recaudador.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

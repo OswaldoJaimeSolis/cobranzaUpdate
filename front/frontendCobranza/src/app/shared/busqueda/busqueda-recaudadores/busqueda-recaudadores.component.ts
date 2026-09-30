@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TipoPlaza } from 'src/app/catalogos/tiposplaza/model/tipo-plaza';
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
@@ -10,6 +10,7 @@ import { AddRecaudadorComponent } from 'src/app/catalogos/recaudador/add-recauda
     selector: 'app-busqueda-recaudadores',
     templateUrl: './busqueda-recaudadores.component.html',
     styleUrls: ['./busqueda-recaudadores.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class BusquedaRecaudadoresComponent implements OnInit {

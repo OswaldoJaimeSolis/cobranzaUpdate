@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 export interface DialogData {
   message: string;
@@ -9,6 +9,7 @@ export interface DialogData {
     selector: 'app-dialog-informativo',
     templateUrl: './dialog-informativo.component.html',
     styleUrls: ['./dialog-informativo.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DialogInformativoComponent implements OnInit {

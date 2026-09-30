@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Recaudador } from '../model/recaudador';
 import { RecuadadorTipoPlaza } from '../model/recuadador-tipo-plaza';
@@ -19,6 +19,7 @@ export interface DialogData {
     selector: 'app-list-tipo-plaza-recaudador',
     templateUrl: './list-tipo-plaza-recaudador.component.html',
     styleUrls: ['./list-tipo-plaza-recaudador.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ListTipoPlazaRecaudadorComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Contribuyente } from '../model/contribuyente';
 import { ContribuyenteService } from '../service/contribuyente.service';
@@ -12,6 +12,7 @@ export interface DialogData {
     selector: 'app-add-contribuyente',
     templateUrl: './add-contribuyente.component.html',
     styleUrls: ['./add-contribuyente.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class AddContribuyenteComponent implements OnInit {

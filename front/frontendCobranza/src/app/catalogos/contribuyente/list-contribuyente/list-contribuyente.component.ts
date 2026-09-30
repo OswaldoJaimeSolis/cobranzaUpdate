@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Contribuyente } from '../model/contribuyente';
 import { ContribuyenteService } from '../service/contribuyente.service';
@@ -9,6 +9,7 @@ import { DialgAnswerSiNoComponent } from 'src/app/shared/dialg-answer-si-no/dial
     selector: 'app-list-contribuyente',
     templateUrl: './list-contribuyente.component.html',
     styleUrls: ['./list-contribuyente.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ListContribuyenteComponent implements OnInit {

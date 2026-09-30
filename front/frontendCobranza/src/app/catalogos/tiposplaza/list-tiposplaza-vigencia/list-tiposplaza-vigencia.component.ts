@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { TipoPlaza } from '../model/tipo-plaza';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { TiposplazaService } from '../service/tiposplaza.service';
@@ -14,6 +14,7 @@ export interface DialogData {
     selector: 'app-list-tiposplaza-vigencia',
     templateUrl: './list-tiposplaza-vigencia.component.html',
     styleUrls: ['./list-tiposplaza-vigencia.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ListTiposplazaVigenciaComponent implements OnInit {
