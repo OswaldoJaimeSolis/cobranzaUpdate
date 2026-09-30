@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -60,9 +60,12 @@ import com.cobranzaplazas.model.GeneradorCodigos;
 import com.cobranzaplazas.model.JBContribucionReporte;
 import com.cobranzaplazas.model.JBContribuyente;
 import com.cobranzaplazas.model.JBPropietarioPlaza;
+import com.cobranzaplazas.repo.Contribucion;
 import com.cobranzaplazas.repo.ContribucionDao;
 import com.cobranzaplazas.repo.Contribuyente;
 import com.cobranzaplazas.repo.ContribuyenteDao;
+import com.cobranzaplazas.repo.EquipoRecaudador;
+import com.cobranzaplazas.repo.EquipoRecaudadorDao;
 import com.cobranzaplazas.repo.Folio;
 import com.cobranzaplazas.repo.FolioDao;
 import com.cobranzaplazas.repo.Plaza;
@@ -77,6 +80,9 @@ import com.cobranzaplazas.repo.TipoPlaza;
 import com.cobranzaplazas.repo.TipoPlazaDao;
 import com.cobranzaplazas.repo.TipoPlazaVigencia;
 import com.cobranzaplazas.repo.TipoPlazaVigenciaDao;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.sf.jasperreports.engine.JRExporter;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -125,6 +131,9 @@ public class CobranzaPlazasController {
 
 	@Autowired
 	ContribucionDao contribucionDao;
+
+	@Autowired
+	EquipoRecaudadorDao equipoRecaudadorDao;
 
 	private SimpleDateFormat spdf;
 	private GeneradorCodigos generadorCodigos;
@@ -438,7 +447,7 @@ public class CobranzaPlazasController {
 	@CrossOrigin(origins = "http://localhost:" + port)
 	PropietarioPlaza propietarioPlazaEditar(@RequestBody PropietarioPlaza propietarioPlaza,
 			@PathVariable String idPropietarioPlaza) {
-		PropietarioPlaza ppOld = propietarioPlazaDao.getOne(idPropietarioPlaza);
+		PropietarioPlaza ppOld = propietarioPlazaDao.getReferenceById(idPropietarioPlaza);
 		System.out.println("EEEEEEEEEEEEEEE" + idPropietarioPlaza);
 		ppOld.setVigenciaFinal(getVigenciaFinalFromVINew(propietarioPlaza.getVigenciaInicial()));
 		propietarioPlazaDao.save(ppOld);
@@ -461,6 +470,281 @@ public class CobranzaPlazasController {
 
 		return propietarioPlazaDao.save(propietarioPlaza);
 
+	}
+
+	// --- Sincronización con la app móvil (movilCobranza / WebService.java) ---
+	// Estos 9 endpoints reproducen el contrato de los antiguos scripts PHP en
+	// https://jalpa.gob.mx/cobranza/*.php que la app usaba directamente. Los
+	// nombres y tipos de campo (p. ej. cadenas "1"/"0" en vez de booleanos,
+	// nombres URL-encoded) se conservan tal cual porque WebService.java los
+	// parsea así y no se modificó ese lado.
+
+	@GetMapping("/getTipoPlaza")
+	public List<Map<String, Object>> getTipoPlazaMovil() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		List<Map<String, Object>> filas = new ArrayList<>();
+		for (TipoPlaza tp : tipoPlazaDao.findAll()) {
+			boolean global = Boolean.TRUE.equals(tp.getPorImporteGlobalTipoPlaza());
+			if (global) {
+				Collection<TipoPlazaVigencia> historial = tipoPlazaVigenciaDao.historialTipoPlaza(tp.getCodigoTipoPlaza());
+				if (historial.isEmpty()) {
+					filas.add(filaTipoPlaza(tp, null, sdf));
+				} else {
+					for (TipoPlazaVigencia vigencia : historial) {
+						filas.add(filaTipoPlaza(tp, vigencia, sdf));
+					}
+				}
+			} else {
+				filas.add(filaTipoPlaza(tp, null, sdf));
+			}
+		}
+		return filas;
+	}
+
+	private Map<String, Object> filaTipoPlaza(TipoPlaza tp, TipoPlazaVigencia vigencia, SimpleDateFormat sdf) {
+		Map<String, Object> fila = new HashMap<>();
+		fila.put("codigoTipoPlaza", tp.getCodigoTipoPlaza());
+		fila.put("descripcionTipoPlaza", tp.getDescripcionTipoPlaza());
+		fila.put("porImporteGlobal", Boolean.TRUE.equals(tp.getPorImporteGlobalTipoPlaza()) ? "1" : "0");
+		fila.put("addLocal", Boolean.TRUE.equals(tp.getAddLocal()) ? "1" : "0");
+		if (vigencia != null) {
+			fila.put("vigenciaInicial", sdf.format(vigencia.getVigenciaInicial()));
+			fila.put("vigenciaFinal", sdf.format(vigencia.getVigenciaFinal()));
+			fila.put("importe", vigencia.getImporte());
+		}
+		return fila;
+	}
+
+	// La app pide "lo nuevo desde fechaRecuperar"; a falta del script PHP original
+	// se interpreta como propietarioPlaza cuya vigenciaInicial sea posterior a esa fecha.
+	@PostMapping("/getContribuyentes")
+	public List<Map<String, Object>> getContribuyentesMovil(@RequestParam String fechaRecuperar) throws Exception {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Date desde = sdf.parse(fechaRecuperar);
+		List<Map<String, Object>> filas = new ArrayList<>();
+		for (PropietarioPlaza pp : propietarioPlazaDao.findAll()) {
+			if (pp.getVigenciaInicial() == null || pp.getVigenciaInicial().before(desde)) {
+				continue;
+			}
+			Contribuyente con = pp.getContribuyente();
+			Plaza plaza = pp.getPlaza();
+			TipoPlaza tp = pp.getTipoPlaza();
+			Map<String, Object> fila = new HashMap<>();
+			fila.put("codigoContribuyente", con.getCodigoContribuyente());
+			fila.put("nombre", urlEncode(con.getNombre()));
+			fila.put("apePaterno", urlEncode(con.getApePaterno()));
+			fila.put("apeMaterno", urlEncode(con.getApeMaterno()));
+			fila.put("rfc", con.getRfcContribuyente());
+			fila.put("codigoPlaza", plaza.getCodigoPlaza());
+			fila.put("longitudPlaza", plaza.getLongitudPlaza() != null ? plaza.getLongitudPlaza().toString() : "");
+			fila.put("latitudPlaza", plaza.getLatitudPlaza() != null ? plaza.getLatitudPlaza().toString() : "");
+			fila.put("codigoTipoPlaza", tp.getCodigoTipoPlaza());
+			fila.put("codigoPropietarioPlaza", pp.getIdPropietarioPlaza());
+			fila.put("vigenciaInicial", sdf.format(pp.getVigenciaInicial()));
+			fila.put("vigenciaFinal", sdf.format(pp.getVigenciaFinal()));
+			fila.put("importe", pp.getImporte() != null ? pp.getImporte().toString() : "");
+			fila.put("giro", pp.getGiroDescripcion());
+			filas.add(fila);
+		}
+		return filas;
+	}
+
+	// Sólo contribuciones del tipo de plaza y fecha pedidos que NO hayan sido
+	// capturadas por este mismo equipo recaudador (ver el javadoc original en
+	// WebService.getContribucionesRemotas): sirven para que un equipo absorba
+	// lo que capturaron otros equipos.
+	@PostMapping("/getContribuciones")
+	public List<Map<String, Object>> getContribucionesMovil(@RequestParam String fechaRecuperar,
+			@RequestParam String codigoTipoPlaza, @RequestParam String codigoEquipo) throws Exception {
+		SimpleDateFormat sdfDia = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat sdfHora = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date desde = sdfDia.parse(fechaRecuperar);
+		List<Map<String, Object>> filas = new ArrayList<>();
+		for (Contribucion c : contribucionDao.findAll()) {
+			if (c.getTipoPlaza() == null || !codigoTipoPlaza.equals(c.getTipoPlaza().getCodigoTipoPlaza())) {
+				continue;
+			}
+			if (c.getFechaContribucion() == null || c.getFechaContribucion().before(desde)) {
+				continue;
+			}
+			String equipo = c.getEquipoRecaudador() != null ? c.getEquipoRecaudador().getCodigoEquipoRec() : null;
+			if (codigoEquipo.equals(equipo)) {
+				continue;
+			}
+			Map<String, Object> fila = new HashMap<>();
+			fila.put("codigoContribuyente", c.getContribuyente().getCodigoContribuyente());
+			fila.put("codigoPlaza", c.getPlaza().getCodigoPlaza());
+			fila.put("ctipoPlaza", c.getTipoPlaza().getCodigoTipoPlaza());
+			fila.put("codigoEquipo", equipo);
+			fila.put("codigoRecaudador", c.getRecaudador() != null ? c.getRecaudador().getCodigoRecaudador() : null);
+			fila.put("folioDedicado", c.getIdContribucionLocal());
+			fila.put("fContribucion", sdfDia.format(c.getFechaContribucion()));
+			fila.put("fModificacion", sdfHora.format(c.getFechaModificacion()));
+			fila.put("importe", c.getImporteContribucion() != null ? c.getImporteContribucion().toString() : "0");
+			fila.put("estadoPago", c.getEstadoPago() != null ? c.getEstadoPago().toString() : "0");
+			filas.add(fila);
+		}
+		return filas;
+	}
+
+	@GetMapping("/getRecaudadores")
+	public List<Map<String, Object>> getRecaudadoresMovil() {
+		List<Map<String, Object>> filas = new ArrayList<>();
+		for (Recaudador r : recaudadorDao.findAll()) {
+			Collection<RecaudadorTipoPlaza> asignaciones = recaudadorTipoPlazaDao.recaudadorTiposPlaza(r.getCodigoRecaudador());
+			if (asignaciones.isEmpty()) {
+				filas.add(filaRecaudador(r, null));
+			} else {
+				for (RecaudadorTipoPlaza rtp : asignaciones) {
+					filas.add(filaRecaudador(r, rtp.getTipoPlaza()));
+				}
+			}
+		}
+		return filas;
+	}
+
+	private Map<String, Object> filaRecaudador(Recaudador r, TipoPlaza tp) {
+		Map<String, Object> fila = new HashMap<>();
+		fila.put("codigoR", r.getCodigoRecaudador());
+		fila.put("passR", r.getPassRecaudador());
+		fila.put("nombreR", urlEncode(r.getNombreRecaudador()));
+		fila.put("activoR", Boolean.TRUE.equals(r.getActivoRecaudador()) ? "1" : "0");
+		fila.put("tipoPlaza", tp != null ? tp.getCodigoTipoPlaza() : "");
+		return fila;
+	}
+
+	private String urlEncode(String valor) {
+		if (valor == null) {
+			return "";
+		}
+		try {
+			return java.net.URLEncoder.encode(valor, "UTF-8");
+		} catch (java.io.UnsupportedEncodingException e) {
+			return valor;
+		}
+	}
+
+	// Los 5 endpoints insert_*.php originales sólo respondían el texto plano
+	// "correcto"; WebService.java comprueba exactamente esa cadena y, si
+	// coincide, le hace eco al llamador de los datos que él mismo envió (no
+	// hay nada más que parsear en la respuesta), así que aquí se conserva el
+	// mismo contrato mínimo.
+
+	@PostMapping("/insert_contribuciones")
+	public String insertarContribucionesMovil(@RequestParam String contribuciones) {
+		try {
+			JsonNode arreglo = new ObjectMapper().readTree(contribuciones);
+			SimpleDateFormat sdfHora = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			for (JsonNode jo : arreglo) {
+				Contribucion c = new Contribucion();
+				c.setIdContribucionLocal(jo.path("idContribucion").asText(null));
+				c.setEstadoPago(jo.has("estadoPago") ? Integer.parseInt(jo.get("estadoPago").asText()) : null);
+				c.setFechaContribucion(sdfHora.parse(jo.path("fecha").asText()));
+				c.setFechaModificacion(sdfHora.parse(jo.path("fechaModificacion").asText()));
+				c.setTipoPlaza(tipoPlazaDao.findById(jo.path("tipoPlaza").asText()).orElse(null));
+				c.setPlaza(plazaDao.findById(jo.path("plaza").asText()).orElse(null));
+				c.setContribuyente(contribuyenteDao.findById(jo.path("contribuyente").asText()).orElse(null));
+				String codigoRecaudador = jo.path("recaudador").asText(null);
+				if (codigoRecaudador != null) {
+					c.setRecaudador(recaudadorDao.findById(codigoRecaudador).orElse(null));
+				}
+				String codigoEquipo = jo.path("equipoRecaudador").asText(null);
+				if (codigoEquipo != null) {
+					c.setEquipoRecaudador(equipoRecaudadorDao.findById(codigoEquipo).orElse(null));
+				}
+				c.setImporteContribucion(Double.parseDouble(jo.path("importe").asText()));
+				c.setEstadoServidor(true);
+				contribucionDao.save(c);
+			}
+			return "correcto";
+		} catch (Exception e) {
+			return "error";
+		}
+	}
+
+	@PostMapping("/insert_equipo_recaudador")
+	public String insertarEquipoRecaudadorMovil(@RequestParam String equipoRecaudador) {
+		try {
+			JsonNode jo = new ObjectMapper().readTree(equipoRecaudador);
+			String codigo = jo.path("codigoEquipo").asText(null);
+			EquipoRecaudador eq = equipoRecaudadorDao.findById(codigo).orElse(new EquipoRecaudador());
+			eq.setCodigoEquipoRec(codigo);
+			eq.setDescripcionEquipoRec(jo.path("descripcionEquipo").asText(null));
+			equipoRecaudadorDao.save(eq);
+			return "correcto";
+		} catch (Exception e) {
+			return "error";
+		}
+	}
+
+	@PostMapping("/insert_plazas")
+	public String insertarPlazasMovil(@RequestParam(required = false) String user, @RequestParam String plazas) {
+		try {
+			JsonNode arreglo = new ObjectMapper().readTree(plazas);
+			for (JsonNode jo : arreglo) {
+				String codigo = jo.path("codigoPlaza").asText(null);
+				Plaza plaza = plazaDao.findById(codigo).orElse(new Plaza());
+				plaza.setCodigoPlaza(codigo);
+				if (jo.hasNonNull("latitud")) {
+					plaza.setLatitudPlaza(jo.get("latitud").asDouble());
+				}
+				if (jo.hasNonNull("longitud")) {
+					plaza.setLongitudPlaza(jo.get("longitud").asDouble());
+				}
+				plazaDao.save(plaza);
+			}
+			return "correcto";
+		} catch (Exception e) {
+			return "error";
+		}
+	}
+
+	@PostMapping("/insert_contribuyentes")
+	public String insertarContribuyentesMovil(@RequestParam(required = false) String user,
+			@RequestParam String contribuyentes) {
+		try {
+			JsonNode arreglo = new ObjectMapper().readTree(contribuyentes);
+			for (JsonNode jo : arreglo) {
+				String codigo = jo.path("codigoContribuyente").asText(null);
+				Contribuyente con = contribuyenteDao.findById(codigo).orElse(new Contribuyente());
+				con.setCodigoContribuyente(codigo);
+				con.setNombre(jo.path("nombre").asText(null));
+				con.setApePaterno(jo.path("apePaterno").asText(null));
+				con.setApeMaterno(jo.path("apeMaterno").asText(null));
+				con.setRfcContribuyente(jo.path("rfc").asText(null));
+				contribuyenteDao.save(con);
+			}
+			return "correcto";
+		} catch (Exception e) {
+			return "error";
+		}
+	}
+
+	@PostMapping("/insert_propietario_plaza")
+	public String insertarPropietarioPlazaMovil(@RequestParam(required = false) String user,
+			@RequestParam("propietarioplaza") String propietarioPlazaJson) {
+		try {
+			JsonNode arreglo = new ObjectMapper().readTree(propietarioPlazaJson);
+			SimpleDateFormat sdfHora = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			for (JsonNode jo : arreglo) {
+				String id = jo.path("codigoPropietarioPlaza").asText(null);
+				PropietarioPlaza pp = propietarioPlazaDao.findById(id).orElse(new PropietarioPlaza());
+				pp.setIdPropietarioPlaza(id);
+				pp.setPlaza(plazaDao.findById(jo.path("plaza").asText()).orElse(null));
+				pp.setTipoPlaza(tipoPlazaDao.findById(jo.path("tipoPlaza").asText()).orElse(null));
+				pp.setContribuyente(contribuyenteDao.findById(jo.path("contribuyente").asText()).orElse(null));
+				pp.setGiroDescripcion(jo.path("giro").asText(null));
+				pp.setVigenciaInicial(sdfHora.parse(jo.path("vigenciaInicial").asText()));
+				pp.setVigenciaFinal(sdfHora.parse(jo.path("vigenciaFinal").asText()));
+				if (jo.hasNonNull("importe")) {
+					pp.setImporte(jo.get("importe").asDouble());
+				}
+				propietarioPlazaDao.save(pp);
+			}
+			return "correcto";
+		} catch (Exception e) {
+			return "error";
+		}
 	}
 
 	@RequestMapping(value = "/contribucionesreporte", method = RequestMethod.GET)
