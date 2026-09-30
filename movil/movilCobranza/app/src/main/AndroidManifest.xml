@@ -1,18 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jalpa.cobranza">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <uses-feature android:name="android.hardware.camera" />
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <!-- Legacy storage permissions. From API 29 the app writes/reads only inside its
+         own external files dir, which needs no permission, so these are capped. -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+    <!-- Bluetooth for the Bixolon SPP-R310 receipt printer.
+         API <= 30 uses the legacy permissions; API 31+ needs BLUETOOTH_CONNECT
+         (only bonded/paired devices are read, so no BLUETOOTH_SCAN is required). -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
     <application
         android:allowBackup="true"
@@ -23,24 +38,33 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".busqueda.contribuciones.BusquedaContribuciones"
+            android:exported="false"
             android:label="@string/title_activity_busqueda_contribuciones"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".DatosEquipoActivity"
+            android:exported="false"
             android:label="@string/title_activity_datos_equipo"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".LogueoActivity"
+            android:exported="false"
             android:label="@string/title_activity_logueo"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ScanActivity" />
-        <activity android:name=".contribuyente.ContribuyenteActivity" />
+        <activity
+            android:name=".ScanActivity"
+            android:exported="false" />
+        <activity
+            android:name=".contribuyente.ContribuyenteActivity"
+            android:exported="false" />
         <activity
             android:name=".ActualizarContribucionesRemotasActivity"
+            android:exported="false"
             android:label="ContribucionesRemotas"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".busqueda.BusquedaContribuyente"
+            android:exported="false"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -51,10 +75,13 @@
                 android:resource="@xml/searchable" />
         </activity>
 
-        <service android:name=".ServiceUpload" />
+        <service
+            android:name=".ServiceUpload"
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity"
+            android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
