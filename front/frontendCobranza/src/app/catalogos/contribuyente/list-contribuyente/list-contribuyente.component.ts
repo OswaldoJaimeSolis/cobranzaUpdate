@@ -1,14 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialog, MatDialogConfig } from '@angular/material';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Contribuyente } from '../model/contribuyente';
 import { ContribuyenteService } from '../service/contribuyente.service';
 import { AddContribuyenteComponent } from '../add-contribuyente/add-contribuyente.component';
 import { DialgAnswerSiNoComponent } from 'src/app/shared/dialg-answer-si-no/dialg-answer-si-no.component';
 
 @Component({
-  selector: 'app-list-contribuyente',
-  templateUrl: './list-contribuyente.component.html',
-  styleUrls: ['./list-contribuyente.component.css']
+    selector: 'app-list-contribuyente',
+    templateUrl: './list-contribuyente.component.html',
+    styleUrls: ['./list-contribuyente.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ListContribuyenteComponent implements OnInit {
   contribuyentes: Contribuyente[];

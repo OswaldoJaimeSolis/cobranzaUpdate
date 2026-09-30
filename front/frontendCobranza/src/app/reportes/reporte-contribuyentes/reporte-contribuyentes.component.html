@@ -1,5 +1,5 @@
 <h3 class="centerText"> Reporte contribuyentes</h3>
-<div class="container" fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="10%" fxLayoutAlign="center">
+<div class="container">
 
   <div fxflex="50%" class="centertText">
     <h4 class="centerText">Tipos de plaza</h4>
@@ -29,6 +29,8 @@
   <span flex></span>
   <span flex></span>
 </div>
-<div class="container" fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="10%" fxLayoutAlign="center">
-  <mat-progress-spinner mode="indeterminate" *ngIf="isLoading"></mat-progress-spinner>
+<div class="container">
+  @if (isLoading) {
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+  }
 </div>

@@ -1,14 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { PropietarioPlaza } from '../model/propietario-plaza';
 import { PropietarioPlazaService } from '../service/propietario-plaza.service';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { AddPropietarioPlazaComponent } from '../add-propietario-plaza/add-propietario-plaza.component';
 import { DialogInformativoComponent } from 'src/app/shared/dialog-informativo/dialog-informativo.component';
 
 @Component({
-  selector: 'app-list-propietario-plaza-jb',
-  templateUrl: './list-propietario-plaza-jb.component.html',
-  styleUrls: ['./list-propietario-plaza-jb.component.css']
+    selector: 'app-list-propietario-plaza-jb',
+    templateUrl: './list-propietario-plaza-jb.component.html',
+    styleUrls: ['./list-propietario-plaza-jb.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ListPropietarioPlazaJbComponent implements OnInit {
   propietariosPlaza: PropietarioPlaza[];

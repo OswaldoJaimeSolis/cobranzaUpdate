@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { TipoPlaza } from '../model/tipo-plaza';
 
 @Pipe({
-  name: 'filterTiposPlaza'
+    name: 'filterTiposPlaza',
+    standalone: false
 })
 export class TiposplazaPipe implements PipeTransform {
 

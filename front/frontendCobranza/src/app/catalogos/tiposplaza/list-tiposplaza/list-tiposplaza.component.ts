@@ -1,13 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TipoPlaza } from '../model/tipo-plaza';
 import { TiposplazaService } from '../service/tiposplaza.service';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { AddTiposplazaComponent } from '../add-tiposplaza/add-tiposplaza.component';
 
 @Component({
-  selector: 'app-list-tiposplaza',
-  templateUrl: './list-tiposplaza.component.html',
-  styleUrls: ['./list-tiposplaza.component.css']
+    selector: 'app-list-tiposplaza',
+    templateUrl: './list-tiposplaza.component.html',
+    styleUrls: ['./list-tiposplaza.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ListTiposplazaComponent implements OnInit {
   tiposPlaza: TipoPlaza[];

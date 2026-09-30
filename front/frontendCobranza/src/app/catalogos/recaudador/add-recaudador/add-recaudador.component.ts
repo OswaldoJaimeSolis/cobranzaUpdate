@@ -1,6 +1,6 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { Recaudador } from '../model/recaudador';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { RecaudadorService } from '../service/recaudador.service';
 import { BusquedaTiposPlazaComponent } from 'src/app/shared/busqueda/busqueda-tipos-plaza/busqueda-tipos-plaza.component';
 import { TipoPlaza } from '../../tiposplaza/model/tipo-plaza';
@@ -15,9 +15,11 @@ export interface BusResult {
 }
 
 @Component({
-  selector: 'app-add-recaudador',
-  templateUrl: './add-recaudador.component.html',
-  styleUrls: ['./add-recaudador.component.css']
+    selector: 'app-add-recaudador',
+    templateUrl: './add-recaudador.component.html',
+    styleUrls: ['./add-recaudador.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 

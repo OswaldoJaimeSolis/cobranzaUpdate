@@ -1,6 +1,6 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { PropietarioPlaza } from '../model/propietario-plaza';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { Contribuyente } from '../../contribuyente/model/contribuyente';
 import { PropietarioPlazaService } from '../service/propietario-plaza.service';
 import { BusquedaTiposPlazaComponent } from 'src/app/shared/busqueda/busqueda-tipos-plaza/busqueda-tipos-plaza.component';
@@ -8,7 +8,7 @@ import { TipoPlaza } from '../../tiposplaza/model/tipo-plaza';
 import { BusquedaContribuyentesComponent } from 'src/app/shared/busqueda/busqueda-contribuyentes/busqueda-contribuyentes.component';
 import { DialogInformativoComponent } from 'src/app/shared/dialog-informativo/dialog-informativo.component';
 import { DatePipe } from '@angular/common';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 export interface BusResultTP {
   tipoPlazaSelect: TipoPlaza
 }
@@ -19,16 +19,18 @@ export interface DialogData {
   propietarioPlaza: PropietarioPlaza;
 }
 @Component({
-  selector: 'app-add-propietario-plaza',
-  templateUrl: './add-propietario-plaza.component.html',
-  styleUrls: ['./add-propietario-plaza.component.css']
+    selector: 'app-add-propietario-plaza',
+    templateUrl: './add-propietario-plaza.component.html',
+    styleUrls: ['./add-propietario-plaza.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class AddPropietarioPlazaComponent implements OnInit {
   oOriginal: PropietarioPlaza;
   oFinal: PropietarioPlaza = new PropietarioPlaza();
   encabezado = "Agregar propietario";
   nuevo = true;
-  formPropietarioPlaza: FormGroup;
+  formPropietarioPlaza: UntypedFormGroup;
 
   constructor(private dialogRef: MatDialogRef<AddPropietarioPlazaComponent>,
     @Inject(MAT_DIALOG_DATA) dd: DialogData, private dialog: MatDialog, private service: PropietarioPlazaService, public datePipe: DatePipe) {

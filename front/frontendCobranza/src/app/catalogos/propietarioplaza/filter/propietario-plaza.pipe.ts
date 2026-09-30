@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { PropietarioPlaza } from '../model/propietario-plaza';
 
 @Pipe({
-  name: 'filterPropietarioPlaza'
+    name: 'filterPropietarioPlaza',
+    standalone: false
 })
 export class PropietarioPlazaPipe implements PipeTransform {
 

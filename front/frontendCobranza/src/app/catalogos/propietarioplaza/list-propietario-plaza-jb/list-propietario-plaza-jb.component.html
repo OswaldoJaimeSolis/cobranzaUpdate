@@ -7,32 +7,32 @@
   <div class="centerTitle">
     <h2>Propietario plazas</h2>
   </div>
-  <span *ngIf="displayOrNot; then condition1 else condition2"></span>
-  <ng-template #condition1>
+  @if (displayOrNot) {
     <h2 mat-subheader>No hay plazas con propietario</h2>
-  </ng-template>
-
-
-  <ng-template #condition2>
+  } @else {
     <div>
       <mat-form-field>
         <input matInput #myInput placeholder="Búsqueda..." [(ngModel)]="stringBusqueda">
       </mat-form-field>
     </div>
-
-    <mat-list-item *ngFor="let pp of propietariosPlaza | filterPropietarioPlaza: stringBusqueda">
-      <mat-icon mat-list-icon>watch_later</mat-icon>
-      <h4 mat-line>{{pp.plaza}} </h4>
-      <p mat-line> {{pp.tipoPlaza}} {{pp.contribuyente}}  {{pp.vigenciaInicial|date: 'dd/MM/yyyy'}} al
+    @for (pp of propietariosPlaza | filterPropietarioPlaza: stringBusqueda; track pp) {
+      <mat-list-item>
+        <mat-icon mat-list-icon>watch_later</mat-icon>
+        <h4 mat-line>{{pp.plaza}} </h4>
+        <p mat-line> {{pp.tipoPlaza}} {{pp.contribuyente}}  {{pp.vigenciaInicial|date: 'dd/MM/yyyy'}} al
         {{pp.vigenciaFinal|date: 'dd/MM/yyyy'}} </p>
-      <button mat-mini-fab color="primary" (click)="openDialogEdit(pp)">
-        <mat-icon mat-list-icon>edit</mat-icon>
-      </button>
+        <button mat-mini-fab color="primary" (click)="openDialogEdit(pp)">
+          <mat-icon mat-list-icon>edit</mat-icon>
+        </button>
+        <mat-divider></mat-divider>
+      </mat-list-item>
+    }
+  }
 
-      <mat-divider></mat-divider>
-    </mat-list-item>
-  </ng-template>
+
 </mat-list>
-<div class="container" fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="10%" fxLayoutAlign="center">
-  <mat-progress-spinner mode="indeterminate"  *ngIf="isLoading" ></mat-progress-spinner>  
+<div class="container">
+  @if (isLoading) {
+    <mat-progress-spinner mode="indeterminate"  ></mat-progress-spinner>
+  }
 </div>

@@ -3,6 +3,27 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+/*
+ * Replacement for the former @angular/flex-layout directives that used to be
+ * applied to `.container`:
+ *   fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="10%" fxLayoutAlign="center"
+ * `xs` was flex-layout's breakpoint for viewports up to 599.98px.
+ */
+.container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10%;
+    justify-content: center;
+    align-items: stretch;
+}
+
+@media screen and (max-width: 599.98px) {
+    .container {
+        flex-direction: column;
+    }
+}
+
 .add-btn{
     position: fixed;
     right: 20px;
