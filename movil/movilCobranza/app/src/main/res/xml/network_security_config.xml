@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+    <!--
+        Since Android 9 (API 28), plain HTTP (cleartext) is blocked by default once
+        targetSdkVersion reaches that level (this app targets 35). WebService now talks to
+        a local http:// backend for development (see URL_BASE in WebService.java), so that
+        host needs to be explicitly allowed here or every request fails immediately with a
+        CLEARTEXT communication not permitted exception, regardless of whether the backend
+        itself is reachable.
+    -->
     <domain-config cleartextTrafficPermitted="true">
-
-        <domain includeSubdomains="true">http://jalpa.gob.mx/cobranza</domain>
-        <domain includeSubdomains="true">http://192.168.1.82/combustible/insert_cargo.php</domain>
-
+        <!-- Android emulator's alias for the host machine's localhost. -->
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <!-- Backend's LAN IP, for a physical device on the same network. Must match
+             URL_BASE in WebService. -->
+        <domain includeSubdomains="false">192.168.1.101</domain>
     </domain-config>
 </network-security-config>

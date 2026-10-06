@@ -515,15 +515,19 @@ public class CobranzaPlazasController {
 		return fila;
 	}
 
-	// La app pide "lo nuevo desde fechaRecuperar"; a falta del script PHP original
-	// se interpreta como propietarioPlaza cuya vigenciaInicial sea posterior a esa fecha.
+	// La app manda la fecha de hoy (MainActivity.actualizarCatalogosRemoto) y espera el
+	// catálogo de asignaciones con el que va a cobrar, así que se devuelven las
+	// propietarioPlaza que no han vencido a esa fecha (vigentes o que inician después).
+	// La app inserta con REPLACE, por lo que recibir el catálogo completo es seguro.
 	@PostMapping("/getContribuyentes")
 	public List<Map<String, Object>> getContribuyentesMovil(@RequestParam String fechaRecuperar) throws Exception {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		Date desde = sdf.parse(fechaRecuperar);
+		Date fecha = sdf.parse(fechaRecuperar);
 		List<Map<String, Object>> filas = new ArrayList<>();
 		for (PropietarioPlaza pp : propietarioPlazaDao.findAll()) {
-			if (pp.getVigenciaInicial() == null || pp.getVigenciaInicial().before(desde)) {
+			// La app parsea ambas fechas; sin ellas el registro rompería toda la sincronización.
+			if (pp.getVigenciaInicial() == null || pp.getVigenciaFinal() == null
+					|| pp.getVigenciaFinal().before(fecha)) {
 				continue;
 			}
 			Contribuyente con = pp.getContribuyente();
@@ -534,7 +538,7 @@ public class CobranzaPlazasController {
 			fila.put("nombre", urlEncode(con.getNombre()));
 			fila.put("apePaterno", urlEncode(con.getApePaterno()));
 			fila.put("apeMaterno", urlEncode(con.getApeMaterno()));
-			fila.put("rfc", con.getRfcContribuyente());
+			fila.put("rfc", con.getRfcContribuyente() != null ? con.getRfcContribuyente() : "");
 			fila.put("codigoPlaza", plaza.getCodigoPlaza());
 			fila.put("longitudPlaza", plaza.getLongitudPlaza() != null ? plaza.getLongitudPlaza().toString() : "");
 			fila.put("latitudPlaza", plaza.getLatitudPlaza() != null ? plaza.getLatitudPlaza().toString() : "");
@@ -543,7 +547,7 @@ public class CobranzaPlazasController {
 			fila.put("vigenciaInicial", sdf.format(pp.getVigenciaInicial()));
 			fila.put("vigenciaFinal", sdf.format(pp.getVigenciaFinal()));
 			fila.put("importe", pp.getImporte() != null ? pp.getImporte().toString() : "");
-			fila.put("giro", pp.getGiroDescripcion());
+			fila.put("giro", pp.getGiroDescripcion() != null ? pp.getGiroDescripcion() : "");
 			filas.add(fila);
 		}
 		return filas;

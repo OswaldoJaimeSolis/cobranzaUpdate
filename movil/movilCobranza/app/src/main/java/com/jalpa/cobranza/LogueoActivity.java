@@ -48,7 +48,8 @@ public class LogueoActivity extends AppCompatActivity {
      * Android: desde API 29 la app sólo escribe en su propio directorio externo (no
      * necesita permisos de almacenamiento) y desde API 31 el Bluetooth clásico requiere
      * BLUETOOTH_CONNECT en lugar de los antiguos BLUETOOTH / BLUETOOTH_ADMIN, que ya no
-     * son permisos solicitables.
+     * son permisos solicitables, y BLUETOOTH_SCAN porque el SDK de Bixolon llama a
+     * cancelDiscovery() al abrir la impresora.
      */
     private static String[] permisosRequeridos() {
         List<String> permisos = new ArrayList<>();
@@ -63,6 +64,7 @@ public class LogueoActivity extends AppCompatActivity {
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             permisos.add(Manifest.permission.BLUETOOTH_CONNECT);
+            permisos.add(Manifest.permission.BLUETOOTH_SCAN);
         } else {
             permisos.add(Manifest.permission.BLUETOOTH);
         }
