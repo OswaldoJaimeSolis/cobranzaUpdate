@@ -1,51 +1,48 @@
 <mat-list>
-    <div class="add-btn">
-      <button mat-fab color="primary" (click)="openDialog()">
-        <mat-icon mat-list-icon>add</mat-icon>
-      </button>
-    </div>
-  
-    <span *ngIf="displayOrNot; then condition1 else condition2"></span>
-    <ng-template #condition1>
-      <h2 mat-subheader>No hay recaudadores</h2>
-    </ng-template>
-  
-    <div>
-      <!-- for the add button -->
-  
-    </div>
-  
-    <ng-template #condition2>
-      <div class="centerTitle">
-        <h2>Recaudadores</h2>
-      </div>
-  
-      <div>
-        <mat-form-field>
-          <input matInput #myInput placeholder="Búsqueda..." [(ngModel)]="stringBusqueda">
-        </mat-form-field>
-  
-  
-  
-      </div>
-  
-  
-      <mat-list-item *ngFor="let o of recaudadores| filterRecaudadores: stringBusqueda">
-        <mat-icon mat-list-icon>watch_later</mat-icon>
-        <h4 mat-line>{{o.codigoRecaudador}} </h4>
-        <p mat-line> {{o.nombreRecaudador}} </p>
-        <button mat-mini-fab color="primary" (click)="openDialogEdit(o)">
-          <mat-icon mat-list-icon>edit</mat-icon>
-        </button>
-        <button mat-mini-fab color="primary" (click)="deleteRecaudador(o.codigoRecaudador)">
-          <mat-icon mat-list-icon>delete</mat-icon>
-        </button>
-  
-        <mat-divider></mat-divider>
-      </mat-list-item>
-    </ng-template>
-  </mat-list>
-
-  <div class="container" fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="10%" fxLayoutAlign="center">
-    <mat-progress-spinner mode="indeterminate"  *ngIf="isLoading" ></mat-progress-spinner>  
+  <div class="add-btn">
+    <button mat-fab color="primary" (click)="openDialog()">
+      <mat-icon>add</mat-icon>
+    </button>
   </div>
+
+  @if (displayOrNot) {
+    <h2 mat-subheader>No hay recaudadores</h2>
+  } @else {
+    <div class="centerTitle">
+      <h2>Recaudadores</h2>
+    </div>
+    <div>
+      <mat-form-field>
+        <input matInput #myInput placeholder="Búsqueda..." [(ngModel)]="stringBusqueda">
+      </mat-form-field>
+    </div>
+    @for (o of recaudadores| filterRecaudadores: stringBusqueda; track o) {
+      <mat-list-item>
+        <mat-icon matListItemIcon>watch_later</mat-icon>
+        <span matListItemTitle>{{o.codigoRecaudador}}</span>
+        <span matListItemLine>{{o.nombreRecaudador}}</span>
+        <div matListItemMeta>
+          <button mat-mini-fab color="primary" (click)="openDialogEdit(o)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-mini-fab color="primary" (click)="deleteRecaudador(o.codigoRecaudador)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </mat-list-item>
+      <mat-divider></mat-divider>
+    }
+  }
+
+  <div>
+    <!-- for the add button -->
+
+  </div>
+
+</mat-list>
+
+<div class="container">
+  @if (isLoading) {
+    <mat-progress-spinner mode="indeterminate"  ></mat-progress-spinner>
+  }
+</div>

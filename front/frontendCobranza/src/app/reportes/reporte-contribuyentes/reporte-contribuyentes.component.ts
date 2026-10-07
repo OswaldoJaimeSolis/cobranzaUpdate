@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { TipoPlaza } from 'src/app/catalogos/tiposplaza/model/tipo-plaza';
 import { BusquedaTiposPlazaComponent } from 'src/app/shared/busqueda/busqueda-tipos-plaza/busqueda-tipos-plaza.component';
 import { ReportesService } from '../service/reportes.service';
@@ -8,9 +8,11 @@ export interface BusResultTP {
   tipoPlazaSelect: TipoPlaza;
 }
 @Component({
-  selector: 'app-reporte-contribuyentes',
-  templateUrl: './reporte-contribuyentes.component.html',
-  styleUrls: ['./reporte-contribuyentes.component.css']
+    selector: 'app-reporte-contribuyentes',
+    templateUrl: './reporte-contribuyentes.component.html',
+    styleUrls: ['./reporte-contribuyentes.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ReporteContribuyentesComponent implements OnInit {
   tipoPlaza: TipoPlaza = new TipoPlaza();
@@ -63,7 +65,9 @@ export class ReporteContribuyentesComponent implements OnInit {
 
           if (ie || oldIE || ieEDGE) {
             var fileName = name + extension;
-            window.navigator.msSaveBlob(blob, fileName);
+            // msSaveBlob only ever existed on IE / legacy Edge and was dropped from
+            // TypeScript's DOM typings; the runtime branch is kept as-is.
+            (window.navigator as any).msSaveBlob(blob, fileName);
           }
           else {
             var file = new Blob([data], {

@@ -32,15 +32,26 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.net.ssl.HttpsURLConnection;
 
 public class WebService {
-private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
+    // Antes apuntaba a los scripts PHP de producción (https://jalpa.gob.mx/cobranza/*.php);
+    // ahora apunta al backend local (backendCobranza), que expone el mismo contrato bajo
+    // los mismos nombres mostrados abajo pero sin ".php". "./mvnw spring-boot:run" lo sirve
+    // en la raíz (sin prefijo de contexto), verificado localmente. 10.0.2.2 es el alias que
+    // el emulador de Android usa para llegar al localhost de la máquina anfitriona; en un
+    // dispositivo físico en la misma red hay que sustituirlo por la IP LAN del backend.
+    //private final String URL_BASE="http://10.0.2.2:8080/";
+    private final String URL_BASE="http://192.168.1.101:8080/";
     protected List<TipoPlaza> getTiposPlaza(String url, int timeOut) {
         List<TipoPlaza> tiposPlaza= new ArrayList<>();
-        url=URL_BASE+"getTipoPlaza.php";
+        url=URL_BASE+"getTipoPlaza";
         timeOut=30;
         HttpURLConnection c = null;
 
@@ -126,7 +137,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
     protected AuxActualizacionRemota getContribuyentesPlazas(String url, int timeOut, Date fecha, List<TipoPlaza> tiposPlaza) {
         SimpleDateFormat spdf=  new SimpleDateFormat("yyyy-MM-dd");
         AuxActualizacionRemota aux= new AuxActualizacionRemota();
-        url=URL_BASE+"getContribuyentes.php";
+        url=URL_BASE+"getContribuyentes";
         timeOut=30;
         HttpURLConnection c = null;
 
@@ -157,36 +168,40 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
                 case 200:
                 case 201:
                     inputStream = c.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"), 8);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
                     StringBuilder sb = new StringBuilder();
 
                     String line = null;
                     while ((line = reader.readLine()) != null) {
-                        sb.append(line + "\n");
+                        sb.append(line).append('\n');
                     }
                     result = sb.toString();
                     try {
                         JSONArray json = new JSONArray(result);
-                        Log.d("PLAZASSSS", json.length()+"");
-                        for(int i=0;i<json.length();i++){
-                            Log.d("NUMERO", i+"");
-                            JSONObject jo= (JSONObject) json.get(i);
+                        int total= json.length();
+                        Log.d("PLAZASSSS", total+"");
+
+                        //índices por código para no recorrer las listas completas en cada registro
+                        Map<String, TipoPlaza> tiposPorCodigo= new HashMap<>();
+                        for(TipoPlaza tp: tiposPlaza){
+                            tiposPorCodigo.putIfAbsent(tp.getCodigoTipoPlaza(), tp);
+                        }
+                        Set<String> codigosContribuyente= new HashSet<>();
+                        Set<String> codigosPlaza= new HashSet<>();
+                        Set<String> codigosPropietarioPlaza= new HashSet<>();
+
+                        for(int i=0;i<total;i++){
+                            JSONObject jo= json.getJSONObject(i);
 
                             Contribuyente con= new Contribuyente();
                             con.setCodigoContribuyente(jo.getString("codigoContribuyente"));
-                            if(con.getCodigoContribuyente().equals("FIFA_304")){
-                                System.out.println("aqui");
-                            }
-                            if(con.getCodigoContribuyente().equals("AMFA_305")){
-                                System.out.println("aqui");
-                            }
                             con.setNombre(URLDecoder.decode(jo.getString("nombre"),"UTF-8"));
                             con.setApePaterno(URLDecoder.decode(jo.getString("apePaterno"),"UTF-8"));
                             con.setApeMaterno(URLDecoder.decode(jo.getString("apeMaterno"),"UTF-8"));
                             con.setRfc(jo.getString("rfc"));
                             con.setInServerContribuyente(true);
 
-                            if(con.getCodigoContribuyente()!=null && !con.getCodigoContribuyente().isEmpty() &&!aux.getContribuyentes().contains(con)){
+                            if(!con.getCodigoContribuyente().isEmpty() && codigosContribuyente.add(con.getCodigoContribuyente())){
                                 aux.getContribuyentes().add(con);
                             }
 
@@ -196,41 +211,32 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
                             plaza.setCodigoPlaza(jo.getString("codigoPlaza"));
                             plaza.setLongitud(!jo.getString("longitudPlaza").isEmpty()?jo.getDouble("longitudPlaza"): null);
                             plaza.setLatitud(!jo.getString("latitudPlaza").isEmpty()?jo.getDouble("latitudPlaza"):null);
-                            if(plaza.getCodigoPlaza()!=null && !plaza.getCodigoPlaza().isEmpty()) {
-                                if (!aux.getPlazas().contains(plaza)) {
-                                    aux.getPlazas().add(plaza);
+                            if(!plaza.getCodigoPlaza().isEmpty() && codigosPlaza.add(plaza.getCodigoPlaza())) {
+                                aux.getPlazas().add(plaza);
+                            }
+
+                            String codigoPropietarioPlaza= jo.getString("codigoPropietarioPlaza");
+                            if(!codigoPropietarioPlaza.isEmpty()) {
+                                String codigoTipoPlaza= jo.getString("codigoTipoPlaza");
+                                TipoPlaza tipoPlaza= tiposPorCodigo.get(codigoTipoPlaza);
+                                if(tipoPlaza==null){
+                                    throw new JSONException("Tipo de plaza desconocido: "+codigoTipoPlaza);
                                 }
-                            }
 
-                            TipoPlaza tt= new TipoPlaza();
-                            String codigoTipoPlaza= jo.getString("codigoTipoPlaza");
-                            tt.setCodigoTipoPlaza(codigoTipoPlaza);
-
-                            if(con.getCodigoContribuyente().isEmpty()){
-                                Log.d("eee","ee");
-                            }
-
-                            PropietarioPlaza pp= new PropietarioPlaza();
-                            pp.setCodigoPropietarioPlaza(jo.getString("codigoPropietarioPlaza"));
-                            if(pp.getCodigoPropietarioPlaza()!=null && !pp.getCodigoPropietarioPlaza().isEmpty()) {
+                                PropietarioPlaza pp= new PropietarioPlaza();
+                                pp.setCodigoPropietarioPlaza(codigoPropietarioPlaza);
                                 pp.setVigenciaInicial(spdf.parse(jo.getString("vigenciaInicial")));
                                 pp.setInServerPropietarioPlaza(true);
                                 pp.setVigenciaFinal(spdf.parse(jo.getString("vigenciaFinal")));
                                 pp.setImporte(!jo.getString("importe").isEmpty()?jo.getDouble("importe"):null);
                                 pp.setPlaza(plaza);
-                                pp.setTipoPlaza(tiposPlaza.get(tiposPlaza.indexOf(tt)));
+                                pp.setTipoPlaza(tipoPlaza);
                                 pp.setContribuyente(con);
                                 pp.setGiro(jo.getString("giro"));
-                                if(!aux.getPropietarioPlazas().contains(pp)){
+                                if(codigosPropietarioPlaza.add(codigoPropietarioPlaza)){
                                     aux.getPropietarioPlazas().add(pp);
                                 }
                             }
-
-
-
-
-
-
 
                         }
                         return  aux;
@@ -264,7 +270,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
     protected List<Contribucion> getContribucionesRemotas(String url, int timeOut, Date fechaInicial, String codigoTP, String codigoEquipoRecaudador) {
         SimpleDateFormat spdf=  new SimpleDateFormat("yyyy-MM-dd");
         List<Contribucion> contribucionesR= new ArrayList<>();
-        url=URL_BASE+"getContribuciones.php";
+        url=URL_BASE+"getContribuciones";
         timeOut=30;
         HttpURLConnection c = null;
 
@@ -378,7 +384,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
 
     protected List<Recaudador> getRecaudadores(String url, int timeOut) {
         List<Recaudador> recaudadores= new ArrayList<>();
-        url=URL_BASE+"getRecaudadores.php";
+        url=URL_BASE+"getRecaudadores";
         timeOut=30;
         HttpURLConnection c = null;
 
@@ -464,8 +470,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
 
 
     public JSONArray insertarContribucionesServidor(JSONArray aj){
-        String requestURL=URL_BASE+"insert_contribuciones.php";
-        //String requestURL="http://192.168.1.82/combustible/insert_cargo.php";
+        String requestURL=URL_BASE+"insert_contribuciones";
 
 
 
@@ -519,8 +524,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
 
 
     public String insertarEquipoRecaudadorServidor(String jsonEquipoRecaudador){
-        String requestURL=URL_BASE+"insert_equipo_recaudador.php";
-        //String requestURL="http://192.168.1.82/combustible/insert_cargo.php";
+        String requestURL=URL_BASE+"insert_equipo_recaudador";
 
 
 
@@ -573,7 +577,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
     }
 
     public JSONArray insertarPlazas(JSONArray aj){
-        String requestURL=URL_BASE+"insert_plazas.php";
+        String requestURL=URL_BASE+"insert_plazas";
         String response = "";
         try {
             URL url = new URL(requestURL);
@@ -625,7 +629,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
     }
 
     public JSONArray insertarContribuyentes(JSONArray aj){
-        String requestURL=URL_BASE+"insert_contribuyentes.php";
+        String requestURL=URL_BASE+"insert_contribuyentes";
         String response = "";
         try {
             URL url = new URL(requestURL);
@@ -676,7 +680,7 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
     }
 
     public JSONArray insertarPropietarioPlaza(JSONArray aj){
-        String requestURL=URL_BASE+"insert_propietario_plaza.php";
+        String requestURL=URL_BASE+"insert_propietario_plaza";
         String response = "";
         try {
             URL url = new URL(requestURL);
@@ -727,71 +731,5 @@ private final String URL_BASE="https://jalpa.gob.mx/cobranza/";
 
 
     }
-
-    /*
-    el detalle aquí fue que no se pudo activar la variable allow_url_fopen que la que permite tratar como una rchivo y obtener el contenido de la pagina
-    public boolean insertarCargoServidor(JSONObject aj){
-        String requestURL="https://jalpa.gob.mx/combustible/insert_cargo.php";
-
-
-
-        String response = "";
-        try {
-            URL url = new URL(requestURL);
-
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(15000);
-            conn.setConnectTimeout(15000);
-            conn.setRequestProperty("Content-Type","application/json; charset=UTF-8");
-            conn.setRequestProperty("Accept", "application/json");
-            conn.setDoOutput(true);
-            conn.setRequestMethod("POST");
-            conn.setDoInput(true);
-
-            //conn.setUseCaches (false);
-            //conn.setFixedLengthStreamingMode(aj.toString().getBytes().length);
-
-            //conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
-            //byte[] postDataBytes = aj.toString().getBytes("UTF-8");
-            //conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes));
-
-            conn.connect();
-
-
-
-            DataOutputStream os = new DataOutputStream(conn.getOutputStream());
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-            String code= aj.toString();
-            writer.write(code);
-
-            os.flush();
-            os.close();
-
-            int responseCode=conn.getResponseCode();
-
-            if (responseCode == HttpsURLConnection.HTTP_OK) {
-                String line;
-                BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                while ((line=br.readLine()) != null) {
-                    response+=line;
-                }
-                Log.e("respuestaaa",response);
-                return true;
-            }
-            else {
-                response="";
-                return false;
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-
-
-    }*/
-
-
 
 }

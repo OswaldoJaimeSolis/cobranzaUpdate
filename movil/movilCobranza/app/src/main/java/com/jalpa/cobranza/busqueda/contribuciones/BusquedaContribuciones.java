@@ -69,6 +69,15 @@ public class BusquedaContribuciones extends AppCompatActivity {
         tiposPlaza=(List<TipoPlaza>)getIntent().getExtras().get("tiposPlaza");
         ArrayAdapter adapterPP= new ArrayAdapter<TipoPlaza>(this, android.R.layout.simple_spinner_item, tiposPlaza);
         cbTipoPlazaCB.setAdapter(adapterPP);
+        String codigoTipoPlaza= getIntent().getStringExtra("codigoTipoPlaza");
+        if(codigoTipoPlaza!=null){
+            for(int i=0;i<tiposPlaza.size();i++){
+                if(codigoTipoPlaza.equals(tiposPlaza.get(i).getCodigoTipoPlaza())){
+                    cbTipoPlazaCB.setSelection(i);
+                    break;
+                }
+            }
+        }
         cbTipoPlazaCB.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -243,7 +252,7 @@ public class BusquedaContribuciones extends AppCompatActivity {
                         }
                         contribuciones = cont;
                     } else {
-                        return null;
+                        contribuciones = new ArrayList<>();
                     }
 
                 }
@@ -255,6 +264,9 @@ public class BusquedaContribuciones extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+            if(contribuciones==null){
+                contribuciones= new ArrayList<>();
+            }
             contribucionAdapter=new ContribucionAdapter(BusquedaContribuciones.this, contribuciones);
             lvContribuciones.setAdapter(contribucionAdapter);
 

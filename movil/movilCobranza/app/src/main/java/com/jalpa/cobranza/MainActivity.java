@@ -1,6 +1,7 @@
 package com.jalpa.cobranza;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -13,6 +14,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 
 import android.os.Environment;
@@ -39,7 +41,6 @@ import android.widget.Toast;
 
 import com.bxl.BXLConst;
 import com.bxl.config.editor.BXLConfigLoader;
-import com.google.android.gms.vision.barcode.Barcode;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
@@ -323,6 +324,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Carpeta "Cobranza" donde se guarda el QR generado y de donde se lee el logo del
+     * ticket.
+     *
+     * A partir de Android 10 (API 29, almacenamiento delimitado / scoped storage) ya no
+     * es posible escribir ni leer en la raíz del almacenamiento externo
+     * (Environment.getExternalStorageDirectory()), que era la ruta original
+     * "<almacenamiento externo>/Cobranza". Se usa el directorio externo propio de la
+     * aplicación, que no requiere permisos y sigue siendo accesible por USB/MTP en
+     * Android/data/com.jalpa.cobranza/files/Cobranza.
+     *
+     * Nota para el operador: el archivo logo_ticket.png debe copiarse ahora a esa ruta.
+     */
+    private File getDirectorioCobranza(){
+        File base= getExternalFilesDir(null);
+        if(base==null){
+            // Almacenamiento externo no disponible: se cae al almacenamiento interno.
+            base= getFilesDir();
+        }
+        return new File(base,"Cobranza");
+    }
+
     private void generarImprimirQR(String codigoContribuyente){
         QRCodeWriter writer = new QRCodeWriter();
         try {
@@ -335,8 +358,8 @@ public class MainActivity extends AppCompatActivity {
                     bmp.setPixel(x, y, bitMatrix.get(x, y) ? Color.BLACK : Color.WHITE);
                 }
             }
-            String path=Environment.getExternalStorageDirectory().getPath().concat("/Cobranza");
-            File dir= new File(path);
+            File dir= getDirectorioCobranza();
+            String path= dir.getPath();
             if(!dir.exists()){
                 dir.mkdirs();
             }
@@ -470,6 +493,14 @@ public class MainActivity extends AppCompatActivity {
         if(id== R.id.busqueda_contribucion_setting){
             Intent bus= new Intent(this, BusquedaContribuciones.class);
             bus.putExtra("tiposPlaza",(Serializable) tiposPlaza);
+            // Abre la búsqueda con el tipo de plaza de la plaza seleccionada; si no, el
+            // filtro arranca en el primer tipo y no se ven las contribuciones recién hechas.
+            if(cbPlazas.getSelectedItem() instanceof PropietarioPlaza){
+                TipoPlaza tp= ((PropietarioPlaza) cbPlazas.getSelectedItem()).getTipoPlaza();
+                if(tp!=null){
+                    bus.putExtra("codigoTipoPlaza", tp.getCodigoTipoPlaza());
+                }
+            }
             startActivity(bus);
         }
 
@@ -481,11 +512,11 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==REQUEST_SCAN_CONTRIBUYENTE){
             if(data!=null){
-                final Barcode barcode= data.getParcelableExtra("barCode");
+                final String barcode= data.getStringExtra("barCode");
                 etContribuyente.post(new Runnable() {
                     @Override
                     public void run() {
-                        etContribuyente.setText(barcode.displayValue);
+                        etContribuyente.setText(barcode);
 
                     }
                 });
@@ -1069,7 +1100,9 @@ public class MainActivity extends AppCompatActivity {
             //https://stackoverflow.com/questions/50916380/room-best-ways-to-create-backups-for-offline-application
             Database.getInstance(this).getAppDatabase().close();
             File dbfile = this.getDatabasePath("cobranza");
-            File sdir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"DBsaves");
+            // Scoped storage (API 29+): la carpeta pública de descargas ya no es
+            // escribible directamente, se usa el directorio externo de la app.
+            File sdir = new File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),"DBsaves");
             String sfpath = sdir.getPath() + File.separator + "DBsave" + String.valueOf(System.currentTimeMillis());
             if (!sdir.exists()) {
                 sdir.mkdirs();
@@ -1269,10 +1302,44 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private void imprimirTicket(boolean ticket,String cadena, String path){
+    /**
+     * Desde Android 12 (API 31) consultar los dispositivos Bluetooth emparejados exige el
+     * permiso en tiempo de ejecución BLUETOOTH_CONNECT, y el SDK de Bixolon además llama a
+     * cancelDiscovery() al abrir la impresora, lo que exige BLUETOOTH_SCAN; sin ellos la
+     * llamada lanza SecurityException. Se solicitan en LogueoActivity, aquí sólo se verifican.
+     */
+    private boolean puedeUsarBluetooth(){
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S){
+            return true;
+        }
+        return ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN)
+                == PackageManager.PERMISSION_GRANTED;
+    }
 
+    // El permiso se verifica arriba con puedeUsarBluetooth(); lint no puede seguir la
+    // comprobación a través del método auxiliar.
+    // synchronized: se llama tanto desde el hilo principal (QR) como desde AsyncTask
+    // (ticket); la impresora sólo admite un claim a la vez.
+    @SuppressLint("MissingPermission")
+    private synchronized void imprimirTicket(boolean ticket,String cadena, String path){
+
+        if(!puedeUsarBluetooth()){
+            Log.e("error","Faltan los permisos BLUETOOTH_CONNECT/BLUETOOTH_SCAN para usar la impresora");
+            // imprimirTicket puede invocarse desde un hilo secundario (AsyncTask), por eso
+            // el Toast se publica explícitamente en el hilo principal.
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, "Otorgue el permiso de Bluetooth para imprimir", Toast.LENGTH_LONG).show();
+                }
+            });
+            return;
+        }
 
         BXLConfigLoader bxlConfigLoader=new BXLConfigLoader(this);
+        POSPrinter posPrinter= null;
         try
         {
 
@@ -1314,18 +1381,22 @@ public class MainActivity extends AppCompatActivity {
                 bxlConfigLoader.saveFile();
             }
 
-            POSPrinter posPrinter= new POSPrinter(this);
+            posPrinter= new POSPrinter(this);
             posPrinter.open(name);
             posPrinter.claim(3000);
             posPrinter.setDeviceEnabled(true);
-            posPrinter.setAsyncMode(true);
+            // Modo síncrono: cada print* regresa cuando la impresora terminó, así se puede
+            // liberar la impresora en el finally sin cortar la impresión. En modo asíncrono
+            // la impresora se quedaba tomada y la siguiente impresión fallaba con
+            // "Another application has exclusive access to the device".
+            posPrinter.setAsyncMode(false);
             posPrinter.setCharacterSet(BXLConst.CS_850_MULTILINGUAL);
             posPrinter.setCharacterEncoding(BXLConst.CE_ASCII);
             //posPrinter.setPageModePrintArea("0, 0, 576, 1600");
 
             if(ticket) {
-                String pathLogoticket = Environment.getExternalStorageDirectory().getPath().concat("/Cobranza/logo_ticket.png");
-                File images = new File(pathLogoticket);
+                File images = new File(getDirectorioCobranza(), "logo_ticket.png");
+                String pathLogoticket = images.getPath();
                 if (images.exists()) {
                     posPrinter.setPageModePrintDirection(POSPrinterConst.PTR_PD_LEFT_TO_RIGHT);
                     ByteBuffer buffer = ByteBuffer.allocate(4);
@@ -1367,6 +1438,37 @@ public class MainActivity extends AppCompatActivity {
             Log.e("error",e.toString());
             //Toast.makeText(this, "Verifique los datos de la impresora",Toast.LENGTH_LONG);
            // e.printStackTrace();
+        }
+        finally
+        {
+            cerrarImpresora(posPrinter);
+        }
+    }
+
+    /**
+     * Libera y cierra la impresora para que la siguiente impresión pueda tomarla.
+     * Cada paso va por separado: si open() o claim() fallaron, release() lanza
+     * excepción pero close() todavía debe ejecutarse.
+     */
+    private void cerrarImpresora(POSPrinter posPrinter){
+        if(posPrinter==null){
+            return;
+
+        }
+        try {
+            posPrinter.setDeviceEnabled(false);
+        } catch (Exception e) {
+            Log.d("impresora", "setDeviceEnabled(false): "+e);
+        }
+        try {
+            posPrinter.release();
+        } catch (Exception e) {
+            Log.d("impresora", "release: "+e);
+        }
+        try {
+            posPrinter.close();
+        } catch (Exception e) {
+            Log.d("impresora", "close: "+e);
         }
     }
 

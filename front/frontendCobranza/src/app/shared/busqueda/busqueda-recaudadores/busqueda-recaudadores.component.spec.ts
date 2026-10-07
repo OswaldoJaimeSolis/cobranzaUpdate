@@ -1,20 +1,20 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { BusquedaTiposPlazaComponent } from './busqueda-tipos-plaza.component';
+import { BusquedaRecaudadoresComponent } from './busqueda-recaudadores.component';
 
-describe('BusquedaTiposPlazaComponent', () => {
-  let component: BusquedaTiposPlazaComponent;
-  let fixture: ComponentFixture<BusquedaTiposPlazaComponent>;
+describe('BusquedaRecaudadoresComponent', () => {
+  let component: BusquedaRecaudadoresComponent;
+  let fixture: ComponentFixture<BusquedaRecaudadoresComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ BusquedaTiposPlazaComponent ]
+      declarations: [ BusquedaRecaudadoresComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(BusquedaTiposPlazaComponent);
+    fixture = TestBed.createComponent(BusquedaRecaudadoresComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

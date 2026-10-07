@@ -1,22 +1,30 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
+    // 'baseUrl' is deprecated in TypeScript 6 and removed in 7. The project
+    // imports a handful of modules as 'src/app/...', so that prefix is mapped
+    // explicitly instead (paths are resolved relative to this file).
+    "paths": {
+      "src/*": [
+        "./src/*"
+      ]
+    },
+    // TypeScript 6 turns "strict" on by default. This project has always been
+    // compiled non-strict; keeping it explicit preserves the existing
+    // semantics. Adopting strict mode is a separate, code-changing task.
+    "strict": false,
     "outDir": "./dist/out-tsc",
+    "esModuleInterop": true,
     "sourceMap": true,
     "declaration": false,
-    "module": "es2015",
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
+    "module": "es2020",
+    "moduleResolution": "bundler",
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es5",
+    "target": "ES2022",
     "typeRoots": [
       "node_modules/@types"
     ],
-    "lib": [
-      "es2018",
-      "dom"
-    ]
+    "useDefineForClassFields": false
   }
 }

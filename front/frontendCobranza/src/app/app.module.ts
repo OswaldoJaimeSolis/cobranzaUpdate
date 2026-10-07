@@ -1,12 +1,20 @@
-import {
-  MatMenuModule, MatToolbarModule, MatButtonModule, MatIconModule, MatListModule, MatDialogModule,
-  MatInputModule, MatCheckboxModule, MatNativeDateModule, MatDatepickerModule, MatTableModule, MAT_DATE_LOCALE,
-  MatSelectModule, MatProgressBarModule, MatProgressSpinnerModule
-} from '@angular/material';
-import { HttpClientModule } from '@angular/common/http';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms';  //for the form element 
-import {FlexLayoutModule} from "@angular/flex-layout";
+import { FormsModule } from '@angular/forms';  //for the form element
 
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
@@ -47,65 +55,51 @@ import { BusquedaRecaudadoresComponent } from './shared/busqueda/busqueda-recaud
 
 
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    MenuPrincipalComponent,
-    AddContribuyenteComponent,
-    ListContribuyenteComponent,
-    FilterPipe,
-    ListRecaudadorComponent,
-    AddRecaudadorComponent,
-    RecaudadorPipe,
-    AddTiposplazaComponent,
-    ListTiposplazaComponent,
-    TiposplazaPipe,
-    AddTiposplazaVigenciaComponent,
-    DialogInformativoComponent,
-    ListTiposplazaVigenciaComponent,
-    DialgAnswerSiNoComponent,
-    BusquedaTiposPlazaComponent,
-    ListTipoPlazaRecaudadorComponent,
-    ListPropietarioPlazaComponent,
-    AddPropietarioPlazaComponent,
-    PropietarioPlazaPipe,
-    BusquedaContribuyentesComponent,
-    ReporteContribucionesComponent,
-    ReporteContribuyentesComponent,
-    ListPropietarioPlazaJbComponent,
-    BusquedaRecaudadoresComponent
-
-
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    MatTableModule,
-    MatNativeDateModule,
-    MatDatepickerModule,
-    MatMenuModule,
-    BrowserModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatListModule,
-    MatIconModule,
-    MatDialogModule,
-    MatInputModule,
-    MatCheckboxModule,
-    MatSelectModule,
-    BrowserAnimationsModule,
-    FormsModule,
-    BrowserModule,
-    HttpClientModule,
-    FlexLayoutModule,
-    MatProgressBarModule,
-    MatProgressSpinnerModule
-
-  ],
-  entryComponents: [AddContribuyenteComponent, AddRecaudadorComponent, DialogInformativoComponent,
-    ListTiposplazaVigenciaComponent, AddTiposplazaComponent, AddTiposplazaVigenciaComponent, DialgAnswerSiNoComponent, BusquedaTiposPlazaComponent,
-    ListTipoPlazaRecaudadorComponent, ListContribuyenteComponent, AddPropietarioPlazaComponent, BusquedaContribuyentesComponent,BusquedaRecaudadoresComponent],
-  providers: [ContribuyenteService, RecaudadorService, TiposplazaService, PropietarioPlazaService, ReportesService, { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, DatePipe],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        MenuPrincipalComponent,
+        AddContribuyenteComponent,
+        ListContribuyenteComponent,
+        FilterPipe,
+        ListRecaudadorComponent,
+        AddRecaudadorComponent,
+        RecaudadorPipe,
+        AddTiposplazaComponent,
+        ListTiposplazaComponent,
+        TiposplazaPipe,
+        AddTiposplazaVigenciaComponent,
+        DialogInformativoComponent,
+        ListTiposplazaVigenciaComponent,
+        DialgAnswerSiNoComponent,
+        BusquedaTiposPlazaComponent,
+        ListTipoPlazaRecaudadorComponent,
+        ListPropietarioPlazaComponent,
+        AddPropietarioPlazaComponent,
+        PropietarioPlazaPipe,
+        BusquedaContribuyentesComponent,
+        ReporteContribucionesComponent,
+        ReporteContribuyentesComponent,
+        ListPropietarioPlazaJbComponent,
+        BusquedaRecaudadoresComponent
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        MatTableModule,
+        MatNativeDateModule,
+        MatDatepickerModule,
+        MatMenuModule,
+        BrowserModule,
+        MatToolbarModule,
+        MatButtonModule,
+        MatListModule,
+        MatIconModule,
+        MatDialogModule,
+        MatInputModule,
+        MatCheckboxModule,
+        MatSelectModule,
+        BrowserAnimationsModule,
+        FormsModule,
+        BrowserModule,
+        MatProgressBarModule,
+        MatProgressSpinnerModule], providers: [ContribuyenteService, RecaudadorService, TiposplazaService, PropietarioPlazaService, ReportesService, { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, DatePipe, provideHttpClient(withXhr(), withInterceptorsFromDi())] })
 export class AppModule { }

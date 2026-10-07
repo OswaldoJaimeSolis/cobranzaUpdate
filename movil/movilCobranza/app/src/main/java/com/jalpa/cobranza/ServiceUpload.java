@@ -161,7 +161,7 @@ public class ServiceUpload extends IntentService {
         protected Void doInBackground(Void... jsonObjects) {
             //sólo si se pudo hacer el cargo regresa el json
             Gson  gson= new Gson();
-            if(equipoRecaudador!=null && !equipoRecaudador.isEmpty()) {
+             if(equipoRecaudador!=null && !equipoRecaudador.isEmpty()) {
                 String jsResEquipoRecaudador = getwS().insertarEquipoRecaudadorServidor(equipoRecaudador);
                 if (jsResEquipoRecaudador != null) {
                     EquipoRecaudador resEquipoRecaudador = gson.fromJson(jsResEquipoRecaudador, EquipoRecaudador.class);

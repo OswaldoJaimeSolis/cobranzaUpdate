@@ -1,17 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TipoPlaza } from 'src/app/catalogos/tiposplaza/model/tipo-plaza';
-import { MatDialogRef, MatTableDataSource, MatDialog } from '@angular/material';
+import { MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
 import { RecaudadorService } from 'src/app/catalogos/recaudador/service/recaudador.service';
 import { Recaudador } from 'src/app/catalogos/recaudador/model/recaudador';
 import { AddRecaudadorComponent } from 'src/app/catalogos/recaudador/add-recaudador/add-recaudador.component';
 
 @Component({
-  selector: 'app-busqueda-recaudadores',
-  templateUrl: './busqueda-recaudadores.component.html',
-  styleUrls: ['./busqueda-recaudadores.component.css']
+    selector: 'app-busqueda-recaudadores',
+    templateUrl: './busqueda-recaudadores.component.html',
+    styleUrls: ['./busqueda-recaudadores.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class BusquedaRecaudadoresComponent implements OnInit {
-  recaudadores: Recaudador[];
+  recaudadores: Recaudador[] = [];
   displayedColumns: string[] = ['codigo', 'descripcion'];
   dataSource = new MatTableDataSource(this.recaudadores);
   constructor(private service: RecaudadorService, private dialogRef: MatDialogRef<BusquedaRecaudadoresComponent>, private dialog: MatDialog) { }

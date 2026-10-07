@@ -6,7 +6,7 @@ describe('RecaudadorService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: RecaudadorService = TestBed.get(RecaudadorService);
+    const service: RecaudadorService = TestBed.inject(RecaudadorService);
     expect(service).toBeTruthy();
   });
 });

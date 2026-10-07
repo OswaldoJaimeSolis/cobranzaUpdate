@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { Recaudador } from '../model/recaudador';
 
 @Pipe({
-  name: 'filterRecaudadores'
+    name: 'filterRecaudadores',
+    standalone: false
 })
 export class RecaudadorPipe implements PipeTransform {
   transform(items: Recaudador[], searchText: string): Recaudador[] {

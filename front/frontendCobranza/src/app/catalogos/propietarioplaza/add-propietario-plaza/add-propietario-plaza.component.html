@@ -11,7 +11,7 @@
       <mat-form-field style="position: relative;text-align: right">
 
         <button mat-mini-fab color="primary" color="primary" (click)="buscarTipoPlaza()">
-          <mat-icon mat-list-icon>search</mat-icon>
+          <mat-icon>search</mat-icon>
         </button>
         <input name="codigoTipoPlaza" matInput placeholder="Tipo plaza: " style="position: relative;text-align: left"
           [(ngModel)]="oFinal.tipoPlaza.codigoTipoPlaza" #data="ngModel" readonly=true required>
@@ -19,7 +19,7 @@
       </mat-form-field>
       <mat-form-field style="position: relative;text-align: right">
         <button mat-mini-fab color="primary" (click)="buscarContribuyente()">
-          <mat-icon mat-list-icon>search</mat-icon>
+          <mat-icon>search</mat-icon>
         </button>
         <input name="contribuyente" matInput placeholder="Contribuyente: " [(ngModel)]="oFinal.contribuyente.codigoContribuyente"
           style="position: relative;text-align: left" #data="ngModel" readonly=true  required>

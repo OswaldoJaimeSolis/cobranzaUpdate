@@ -1,51 +1,48 @@
 <mat-list>
   <div class="add-btn">
     <button mat-fab color="primary" (click)="openDialog()">
-      <mat-icon mat-list-icon>add</mat-icon>
+      <mat-icon>add</mat-icon>
     </button>
   </div>
 
-  <span *ngIf="displayOrNot; then condition1 else condition2"></span>
-  <ng-template #condition1>
+  @if (displayOrNot) {
     <h2 mat-subheader>No hay contribuyentes</h2>
-  </ng-template>
+  } @else {
+    <div class="centerTitle">
+      <h2>Contribuyentes</h2>
+    </div>
+    <div>
+      <mat-form-field>
+        <input matInput #myInput placeholder="Búsqueda..." [(ngModel)]="stringBusqueda">
+      </mat-form-field>
+    </div>
+    @for (con of contribuyentes| filterContribuyentes: stringBusqueda; track con) {
+      <mat-list-item>
+        <mat-icon matListItemIcon>watch_later</mat-icon>
+        <span matListItemTitle>{{con.codigoContribuyente}}</span>
+        <span matListItemLine>{{con.nombre}} {{con.apePaterno}} {{con.apeMaterno}}</span>
+        <div matListItemMeta>
+          <button mat-mini-fab color="primary" (click)="openDialogEdit(con)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-mini-fab color="primary" (click)="deleteContribuyente(con.codigoContribuyente)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </mat-list-item>
+      <mat-divider></mat-divider>
+    }
+  }
 
   <div>
     <!-- for the add button -->
 
   </div>
 
-  <ng-template #condition2>
-    <div class="centerTitle">
-      <h2>Contribuyentes</h2>
-    </div>
-
-    <div>
-      <mat-form-field>
-        <input matInput #myInput placeholder="Búsqueda..." [(ngModel)]="stringBusqueda">
-      </mat-form-field>
-
-
-
-    </div>
-
-
-    <mat-list-item *ngFor="let con of contribuyentes| filterContribuyentes: stringBusqueda">
-      <mat-icon mat-list-icon>watch_later</mat-icon>
-      <h4 mat-line>{{con.codigoContribuyente}}</h4>
-      <p mat-line> {{con.nombre}} {{con.apePaterno}} {{con.apeMaterno}} </p>
-      <button mat-mini-fab color="primary" (click)="openDialogEdit(con)">
-        <mat-icon mat-list-icon>edit</mat-icon>
-      </button>
-      <button mat-mini-fab color="primary" (click)="deleteContribuyente(con.codigoContribuyente)">
-        <mat-icon mat-list-icon>delete</mat-icon>
-      </button>
-
-      <mat-divider></mat-divider>
-    </mat-list-item>
-  </ng-template>
 </mat-list>
 
-<div class="container" fxLayout="row" fxLayout.xs="column" fxLayoutWrap fxLayoutGap="10%" fxLayoutAlign="center">
-  <mat-progress-spinner mode="indeterminate"  *ngIf="isLoading" ></mat-progress-spinner>  
+<div class="container">
+  @if (isLoading) {
+    <mat-progress-spinner mode="indeterminate"  ></mat-progress-spinner>
+  }
 </div>

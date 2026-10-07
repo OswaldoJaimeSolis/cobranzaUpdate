@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -25,6 +26,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LogueoActivity extends AppCompatActivity {
@@ -40,14 +42,36 @@ public class LogueoActivity extends AppCompatActivity {
 
 
     int PERMISSION_ALL = 1;
-    String[] PERMISSIONS = {
-            Manifest.permission.CAMERA,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.BLUETOOTH,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION
-    };
+
+    /**
+     * Los permisos que hay que pedir en tiempo de ejecución dependen de la versión de
+     * Android: desde API 29 la app sólo escribe en su propio directorio externo (no
+     * necesita permisos de almacenamiento) y desde API 31 el Bluetooth clásico requiere
+     * BLUETOOTH_CONNECT en lugar de los antiguos BLUETOOTH / BLUETOOTH_ADMIN, que ya no
+     * son permisos solicitables, y BLUETOOTH_SCAN porque el SDK de Bixolon llama a
+     * cancelDiscovery() al abrir la impresora.
+     */
+    private static String[] permisosRequeridos() {
+        List<String> permisos = new ArrayList<>();
+        permisos.add(Manifest.permission.CAMERA);
+        permisos.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        permisos.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            permisos.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+            permisos.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permisos.add(Manifest.permission.BLUETOOTH_CONNECT);
+            permisos.add(Manifest.permission.BLUETOOTH_SCAN);
+        } else {
+            permisos.add(Manifest.permission.BLUETOOTH);
+        }
+        return permisos.toArray(new String[0]);
+    }
+
+    String[] PERMISSIONS = permisosRequeridos();
 
 
 

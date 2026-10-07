@@ -1,14 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { PropietarioPlaza } from '../model/propietario-plaza';
 import { PropietarioPlazaService } from '../service/propietario-plaza.service';
-import { MatDialog } from '@angular/material';
+import { MatDialog } from '@angular/material/dialog';
 import { AddPropietarioPlazaComponent } from '../add-propietario-plaza/add-propietario-plaza.component';
 import { DialogInformativoComponent } from 'src/app/shared/dialog-informativo/dialog-informativo.component';
 
 @Component({
-  selector: 'app-list-propietario-plaza',
-  templateUrl: './list-propietario-plaza.component.html',
-  styleUrls: ['./list-propietario-plaza.component.css']
+    selector: 'app-list-propietario-plaza',
+    templateUrl: './list-propietario-plaza.component.html',
+    styleUrls: ['./list-propietario-plaza.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ListPropietarioPlazaComponent implements OnInit {
   propietariosPlaza: PropietarioPlaza[];

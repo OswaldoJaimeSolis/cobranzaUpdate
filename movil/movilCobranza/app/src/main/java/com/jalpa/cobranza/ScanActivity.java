@@ -4,84 +4,134 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.SparseArray;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.widget.Toast;
 
-import com.google.android.gms.vision.CameraSource;
-import com.google.android.gms.vision.Detector;
-import com.google.android.gms.vision.barcode.Barcode;
-import com.google.android.gms.vision.barcode.BarcodeDetector;
-
-import java.io.IOException;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ExperimentalGetImage;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageProxy;
+import androidx.camera.core.Preview;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.mlkit.vision.barcode.BarcodeScanner;
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
+import com.google.mlkit.vision.barcode.BarcodeScanning;
+import com.google.mlkit.vision.barcode.common.Barcode;
+import com.google.mlkit.vision.common.InputImage;
+
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+/**
+ * Replaces the old Play Services Vision {@code BarcodeDetector}/{@code CameraSource}
+ * pipeline (deprecated by Google, no longer updated) with CameraX for the camera feed
+ * and on-device MLKit ({@code com.google.mlkit:barcode-scanning}) for QR decoding.
+ */
 public class ScanActivity extends AppCompatActivity {
-SurfaceView camaraView;
-BarcodeDetector barCode;
-CameraSource cameraSource;
-SurfaceHolder holder;
+
+    private PreviewView camaraView;
+    private ExecutorService cameraExecutor;
+    private BarcodeScanner barcodeScanner;
+    private volatile boolean resultDelivered = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
-        camaraView= (SurfaceView) findViewById(R.id.camaraView);
-        camaraView.setZOrderMediaOverlay(true);
-        holder= camaraView.getHolder();
-        barCode= new BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build();
-        if(!barCode.isOperational()){
-            Toast.makeText(getApplicationContext(),"Hubo un problema con el detector",Toast.LENGTH_LONG).show();
-        }
-        cameraSource= new CameraSource.Builder(this,barCode)
-                .setFacing(CameraSource.CAMERA_FACING_BACK)
-                .setRequestedFps(24)
-                .setAutoFocusEnabled(true)
-                .setRequestedPreviewSize(1920,1024)
+        camaraView = findViewById(R.id.camaraView);
+
+        BarcodeScannerOptions options = new BarcodeScannerOptions.Builder()
+                .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
                 .build();
+        barcodeScanner = BarcodeScanning.getClient(options);
+        cameraExecutor = Executors.newSingleThreadExecutor();
 
-        camaraView.getHolder().addCallback(new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(SurfaceHolder surfaceHolder) {
-                try{
-                    if(ContextCompat.checkSelfPermission(ScanActivity.this, Manifest.permission.CAMERA)== PackageManager.PERMISSION_GRANTED){
-                        cameraSource.start(camaraView.getHolder());
-                    }
-                }
-                catch (IOException e){
-                    e.printStackTrace();
-                }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+            startCamera();
+        } else {
+            Toast.makeText(this, "Hubo un problema con el detector", Toast.LENGTH_LONG).show();
+            finish();
+        }
+    }
+
+    private void startCamera() {
+        ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
+                ProcessCameraProvider.getInstance(this);
+        cameraProviderFuture.addListener(() -> {
+            try {
+                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+                bindPreviewAndAnalysis(cameraProvider);
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Hubo un problema con el detector", Toast.LENGTH_LONG).show();
+                finish();
             }
+        }, ContextCompat.getMainExecutor(this));
+    }
 
-            @Override
-            public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+    private void bindPreviewAndAnalysis(ProcessCameraProvider cameraProvider) {
+        Preview preview = new Preview.Builder().build();
+        preview.setSurfaceProvider(camaraView.getSurfaceProvider());
 
-            }
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build();
+        imageAnalysis.setAnalyzer(cameraExecutor, this::analyzeFrame);
 
-            @Override
-            public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+        CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
-            }
-        });
-        barCode.setProcessor(new Detector.Processor<Barcode>() {
-            @Override
-            public void release() {
+        cameraProvider.unbindAll();
+        cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
+    }
 
-            }
+    @OptIn(markerClass = ExperimentalGetImage.class)
+    private void analyzeFrame(@NonNull ImageProxy imageProxy) {
+        if (resultDelivered || imageProxy.getImage() == null) {
+            imageProxy.close();
+            return;
+        }
+        InputImage image = InputImage.fromMediaImage(
+                imageProxy.getImage(), imageProxy.getImageInfo().getRotationDegrees());
 
-            @Override
-            public void receiveDetections(Detector.Detections<Barcode> detections) {
-                final SparseArray<Barcode> barCodes= detections.getDetectedItems();
-                if(barCodes.size()>0){
-                    Intent intent= new Intent();
-                    intent.putExtra("barCode",barCodes.valueAt(0));
-                    setResult(RESULT_OK,intent);
-                    finish();
-                }
-            }
-        });
+        barcodeScanner.process(image)
+                .addOnSuccessListener(this::onBarcodesDetected)
+                .addOnFailureListener((OnFailureListener) Throwable::printStackTrace)
+                .addOnCompleteListener(task -> imageProxy.close());
+    }
 
+    private void onBarcodesDetected(List<Barcode> barcodes) {
+        if (resultDelivered || barcodes.isEmpty()) {
+            return;
+        }
+        String value = barcodes.get(0).getDisplayValue();
+        if (value == null) {
+            value = barcodes.get(0).getRawValue();
+        }
+        if (value == null) {
+            return;
+        }
+        resultDelivered = true;
+
+        Intent intent = new Intent();
+        intent.putExtra("barCode", value);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        cameraExecutor.shutdown();
+        barcodeScanner.close();
     }
 }

@@ -1,16 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Contribuyente } from 'src/app/catalogos/contribuyente/model/contribuyente';
-import { MatTableDataSource, MatDialogRef, MatDialog } from '@angular/material';
+import { MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
 import { ContribuyenteService } from 'src/app/catalogos/contribuyente/service/contribuyente.service';
 import { AddContribuyenteComponent } from 'src/app/catalogos/contribuyente/add-contribuyente/add-contribuyente.component';
 
 @Component({
-  selector: 'app-busqueda-contribuyentes',
-  templateUrl: './busqueda-contribuyentes.component.html',
-  styleUrls: ['./busqueda-contribuyentes.component.css']
+    selector: 'app-busqueda-contribuyentes',
+    templateUrl: './busqueda-contribuyentes.component.html',
+    styleUrls: ['./busqueda-contribuyentes.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class BusquedaContribuyentesComponent implements OnInit {
-  contribuyentes: Contribuyente[];
+  contribuyentes: Contribuyente[] = [];
   displayedColumns: string[] = ['codigo', 'nombre', 'apePaterno', 'apeMaterno'];
   dataSource = new MatTableDataSource(this.contribuyentes);
   constructor(private service: ContribuyenteService, private dialogRef: MatDialogRef<BusquedaContribuyentesComponent>, private dialog: MatDialog) { }
