@@ -62,3 +62,8 @@ Flat route table in `src/app/app-routing.module.ts`, no guards, no nesting, no l
 - 16 of the 40 Karma specs fail. They are untouched Angular CLI scaffolding (`should create`) that call `TestBed.configureTestingModule({ declarations: [X] })` with no providers, so components injecting `HttpClient`, `MatDialogRef` or `MAT_DIALOG_DATA` blow up with `NullInjectorError`. They have never passed; fixing them means writing real TestBed setups.
 - `@angular/animations` is npm-deprecated but still required by `BrowserAnimationsModule`. It is pinned in lockstep with the other Angular packages.
 - The app compiles non-strict (`"strict": false`); enabling TypeScript strict mode is a separate piece of work.
+
+## Configuración de cobros, morosidad y condonaciones
+- `catalogos/tiposplaza/config-cobro` es el diálogo (botón de calendario en la lista de tipos de plaza) que captura el esquema de cobro del tipo de plaza: diario, mensual o anual, precios y fecha de inicio. La validación completa la hace el backend, que responde `{mensaje}` con HTTP 400.
+- `reportes/reporte-morosidad` consulta los adeudos, descarga el reporte de morosidad y genera los requerimientos de pago (por plaza o todos en un PDF). `reportes/bitacora-condonaciones` es sólo de consulta: desde la web no se condona, las condonaciones llegan con la contribución desde la app móvil.
+- En propietario de plaza, licencia de comercio y adeudo anterior se guardan sobre el mismo registro (`PUT /propietarioPlaza/{id}/datosCobro`); el resto de los cambios sigue creando un registro nuevo con nueva vigencia.

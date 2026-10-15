@@ -20,3 +20,8 @@ columns-container {
   input.columns-right-align {
     -moz-appearance: textfield;
   }
+.nota-cobro {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 13px;
+  margin: 8px 0 0;
+}

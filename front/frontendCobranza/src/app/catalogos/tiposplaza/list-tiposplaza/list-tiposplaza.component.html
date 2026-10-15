@@ -21,6 +21,11 @@
         <span matListItemTitle>{{o.codigoTipoPlaza}}</span>
         <span matListItemLine>{{o.descripcionTipoPlaza}}</span>
         <div matListItemMeta>
+          @if (o.porImporteGlobalTipoPlaza) {
+            <button mat-mini-fab color="primary" (click)="openDialogCobro(o)" title="Configuración de cobro">
+              <mat-icon>event</mat-icon>
+            </button>
+          }
           <button mat-mini-fab color="primary" (click)="openDialogEdit(o)">
             <mat-icon>edit</mat-icon>
           </button>

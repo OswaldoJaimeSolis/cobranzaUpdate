@@ -1,6 +1,7 @@
 package com.jalpa.cobranza.model.dao;
 
 import com.jalpa.cobranza.model.AuxActualizacionRemota;
+import com.jalpa.cobranza.model.entidades.ConfiguracionCobro;
 import com.jalpa.cobranza.model.entidades.Contribucion;
 import com.jalpa.cobranza.model.entidades.Contribuyente;
 import com.jalpa.cobranza.model.entidades.EquipoRecaudador;
@@ -15,6 +16,7 @@ import com.jalpa.cobranza.model.entidades.TipoPlazaHistorial;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.text.SimpleDateFormat;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -357,6 +359,81 @@ public abstract class OperacionesDao {
             recaudadores.get(recaudadores.indexOf(rtp.getRecaudador())).getTipoPlazas().add(rtp);
         }
     }
+
+    @Query("SELECT * FROM PropietarioPlaza WHERE codigoPlaza = :codigoPlaza AND codigoTipoPlaza = :codigoTipoPlaza")
+    abstract List<PropietarioPlaza> getPropietariosPlaza(String codigoPlaza, String codigoTipoPlaza);
+
+    @Query("UPDATE PropietarioPlaza SET adeudo = :adeudo, adeudoAnterior = :adeudoAnterior, fechasVencidas = :fechasVencidas WHERE codigoPropietarioPlaza = :codigoPropietarioPlaza")
+    abstract void actualizarAdeudo(String codigoPropietarioPlaza, Double adeudo, Double adeudoAnterior, String fechasVencidas);
+
+    /**
+     * Cancela en el adeudo local de la plaza lo que cubre una contribución pagada (o condonada),
+     * sin esperar a que el servidor la refleje: el adeudo anterior completo, o la fecha vencida
+     * que se cobró junto con su monto.
+     */
+    @Transaction
+    public void descontarPagoLocal(Contribucion con){
+        if(con==null || con.getEstadoPago()==null || con.getEstadoPago()!=1 || con.getPlaza()==null || con.getTipoPlaza()==null){
+            return;
+        }
+        for(PropietarioPlaza pp: getPropietariosPlaza(con.getPlaza().getCodigoPlaza(), con.getTipoPlaza().getCodigoTipoPlaza())){
+            double adeudo= pp.getAdeudo()!=null? pp.getAdeudo(): 0.0;
+            double anterior= pp.getAdeudoAnterior()!=null? pp.getAdeudoAnterior(): 0.0;
+            String vencidas= pp.getFechasVencidas()!=null? pp.getFechasVencidas(): "";
+            if(Boolean.TRUE.equals(con.getPagoAdeudoAnterior())){
+                adeudo-= anterior;
+                anterior= 0.0;
+            }
+            else{
+                String fecha= new SimpleDateFormat("yyyy-MM-dd").format(con.getFecha());
+                List<String> restantes= new ArrayList<>();
+                boolean estaba= false;
+                for(String vencida: vencidas.split(",")){
+                    if(vencida.trim().equals(fecha)){
+                        estaba= true;
+                    }
+                    else if(!vencida.trim().isEmpty()){
+                        restantes.add(vencida.trim());
+                    }
+                }
+                if(!estaba){
+                    continue;
+                }
+                //lo vencido se adeuda a precio normal; sin configuración de cobro, al importe cobrado o condonado
+                Double monto= con.getImporteNormal()!=null? con.getImporteNormal()
+                        : (Boolean.TRUE.equals(con.getCondonada())? con.getMontoCondonado(): con.getImporte());
+                adeudo-= monto!=null? monto: 0.0;
+                vencidas= android.text.TextUtils.join(",", restantes);
+            }
+            actualizarAdeudo(pp.getCodigoPropietarioPlaza(), Math.max(0.0, adeudo), anterior, vencidas);
+        }
+    }
+
+    /** Tras bajar el catálogo: vuelve a cancelar lo ya cobrado en este equipo que el servidor aún no recibe. */
+    @Transaction
+    public void descontarPagosSinEnviar(){
+        for(Contribucion con: recuperarContribucionesEstadoServidor()){
+            descontarPagoLocal(con);
+        }
+    }
+
+    @Query("SELECT * FROM PropietarioPlaza WHERE codigoPropietarioPlaza = :codigoPropietarioPlaza")
+    public abstract PropietarioPlaza getPropietarioPlaza(String codigoPropietarioPlaza);
+
+    @Transaction
+    public void borrarInsertarConfiguracionesCobro(List<ConfiguracionCobro> configuraciones){
+        borrarConfiguracionesCobro();
+        insertarConfiguracionesCobro(configuraciones);
+    }
+
+    @Query("DELETE FROM ConfiguracionCobro")
+    abstract void borrarConfiguracionesCobro();
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract void insertarConfiguracionesCobro(List<ConfiguracionCobro> configuraciones);
+
+    @Query("SELECT * FROM ConfiguracionCobro")
+    public abstract List<ConfiguracionCobro> getConfiguracionesCobro();
 
     @Transaction
     public void borrarInsertarRecaudadoresWithTipoPlaza(List<Recaudador> recaudadores){

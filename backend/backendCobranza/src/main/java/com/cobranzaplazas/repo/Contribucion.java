@@ -3,6 +3,7 @@ package com.cobranzaplazas.repo;
 import java.io.Serializable;
 import java.util.Date;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -35,6 +36,16 @@ public class Contribucion implements Serializable {
 	Date fechaContribucion;
 	Date fechaModificacion;
 	Double importeContribucion;
+	// Precio normal vigente al momento del pago y descuento aplicado sobre él
+	Double importeNormal;
+	Double descuentoAplicado;
+	// Condonada: queda como pagada con importe 0; el detalle va en la bitácora Condonacion
+	Boolean condonada;
+	// Pago del adeudo anterior del propietario: se registra en un día sin cobro programado,
+	// no cubre ninguna obligación del calendario y exige comentario
+	Boolean pagoAdeudoAnterior;
+	@Column(length = 500)
+	String comentario;
 	Integer estadoPago;
 	Boolean estadoServidor;
 
@@ -138,4 +149,43 @@ public class Contribucion implements Serializable {
 		this.importeContribucion = importeContribucion;
 	}
 
+	public Double getImporteNormal() {
+		return importeNormal;
+	}
+
+	public void setImporteNormal(Double importeNormal) {
+		this.importeNormal = importeNormal;
+	}
+
+	public Double getDescuentoAplicado() {
+		return descuentoAplicado;
+	}
+
+	public void setDescuentoAplicado(Double descuentoAplicado) {
+		this.descuentoAplicado = descuentoAplicado;
+	}
+
+	public Boolean getCondonada() {
+		return condonada;
+	}
+
+	public void setCondonada(Boolean condonada) {
+		this.condonada = condonada;
+	}
+
+	public Boolean getPagoAdeudoAnterior() {
+		return pagoAdeudoAnterior;
+	}
+
+	public void setPagoAdeudoAnterior(Boolean pagoAdeudoAnterior) {
+		this.pagoAdeudoAnterior = pagoAdeudoAnterior;
+	}
+
+	public String getComentario() {
+		return comentario;
+	}
+
+	public void setComentario(String comentario) {
+		this.comentario = comentario;
+	}
 }

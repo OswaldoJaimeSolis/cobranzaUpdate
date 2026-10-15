@@ -37,6 +37,16 @@ public class Contribucion {
     private Date fechaModificacion;
     private Double importe;
     private Integer estadoPago;
+    //Sólo con configuración de cobro: precio normal vigente al pagar y descuento aplicado sobre él
+    private Double importeNormal;
+    private Double descuento;
+    //Condonada: se guarda como pagada con importe 0; requiere recaudador autorizado y motivo
+    private Boolean condonada;
+    private String motivoCondonacion;
+    private Double montoCondonado;
+    //Pago total del adeudo anterior, en una fecha fuera del calendario de cobro; exige comentario
+    private Boolean pagoAdeudoAnterior;
+    private String comentario;
 
     private Boolean estadoServidor;
 
@@ -140,6 +150,9 @@ public class Contribucion {
     public String getEstadoToString(){
         if(estadoPago!=null){
             if(estadoPago==ESTADO_PAGADO){
+                if(Boolean.TRUE.equals(condonada)){
+                    return "CONDONADO";
+                }
                 return "PAGADO";
             }
             if(estadoPago== ESTADO_PENDIENTE){
@@ -176,5 +189,61 @@ public class Contribucion {
             spdf= new SimpleDateFormat("dd MMMM yyyy");
         }
         return  spdf;
+    }
+
+    public Double getImporteNormal() {
+        return importeNormal;
+    }
+
+    public void setImporteNormal(Double importeNormal) {
+        this.importeNormal = importeNormal;
+    }
+
+    public Double getDescuento() {
+        return descuento;
+    }
+
+    public void setDescuento(Double descuento) {
+        this.descuento = descuento;
+    }
+
+    public Boolean getCondonada() {
+        return condonada;
+    }
+
+    public void setCondonada(Boolean condonada) {
+        this.condonada = condonada;
+    }
+
+    public String getMotivoCondonacion() {
+        return motivoCondonacion;
+    }
+
+    public void setMotivoCondonacion(String motivoCondonacion) {
+        this.motivoCondonacion = motivoCondonacion;
+    }
+
+    public Double getMontoCondonado() {
+        return montoCondonado;
+    }
+
+    public void setMontoCondonado(Double montoCondonado) {
+        this.montoCondonado = montoCondonado;
+    }
+
+    public Boolean getPagoAdeudoAnterior() {
+        return pagoAdeudoAnterior;
+    }
+
+    public void setPagoAdeudoAnterior(Boolean pagoAdeudoAnterior) {
+        this.pagoAdeudoAnterior = pagoAdeudoAnterior;
+    }
+
+    public String getComentario() {
+        return comentario;
+    }
+
+    public void setComentario(String comentario) {
+        this.comentario = comentario;
     }
 }

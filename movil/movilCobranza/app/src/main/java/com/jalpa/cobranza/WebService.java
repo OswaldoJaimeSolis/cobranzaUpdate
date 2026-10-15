@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.google.gson.JsonArray;
 import com.jalpa.cobranza.model.AuxActualizacionRemota;
+import com.jalpa.cobranza.model.entidades.ConfiguracionCobro;
 import com.jalpa.cobranza.model.entidades.Contribucion;
 import com.jalpa.cobranza.model.entidades.Contribuyente;
 import com.jalpa.cobranza.model.entidades.EquipoRecaudador;
@@ -98,6 +99,7 @@ public class WebService {
                                 tph.setVigenciaInicial(new SimpleDateFormat("yyyy-MM-dd").parse(jo.getString("vigenciaInicial")));
                                 tph.setVigenciaFinal(new SimpleDateFormat("yyyy-MM-dd").parse(jo.getString("vigenciaFinal")));
                                 tph.setImporte(jo.getDouble("importe"));
+                                tph.setPrecioDescuento(aDouble(jo.optString("precioDescuento")));
                             }
                             int pos=  tiposPlaza.indexOf(tp);
 
@@ -233,6 +235,9 @@ public class WebService {
                                 pp.setTipoPlaza(tipoPlaza);
                                 pp.setContribuyente(con);
                                 pp.setGiro(jo.getString("giro"));
+                                pp.setAdeudo(jo.optDouble("adeudo", 0.0));
+                                pp.setFechasVencidas(jo.optString("fechasVencidas"));
+                                pp.setAdeudoAnterior(jo.optDouble("adeudoAnterior", 0.0));
                                 if(codigosPropietarioPlaza.add(codigoPropietarioPlaza)){
                                     aux.getPropietarioPlazas().add(pp);
                                 }
@@ -422,6 +427,7 @@ public class WebService {
                             recaudador.setPassRecaudador(jo.getString("passR"));
                             recaudador.setNombreRecaudador(URLDecoder.decode(jo.getString("nombreR"),"UTF-8"));
                             recaudador.setActivoRecaudador(jo.getString("activoR").equals("1")?true:false);
+                            recaudador.setPuedeCondonar(jo.optString("puedeCondonar").equals("1"));
                             RecaudadorTipoPlaza rtp= new RecaudadorTipoPlaza();
                             rtp.setRecaudador(recaudador);
                             TipoPlaza tp= new TipoPlaza();
@@ -468,6 +474,58 @@ public class WebService {
 
 
 
+
+    private String leer(HttpURLConnection conn) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+        String line;
+        while ((line = br.readLine()) != null) {
+            sb.append(line);
+        }
+        return sb.toString();
+    }
+
+    /** Configuración de cobro de todos los tipos de plaza; null si no se pudo consultar. */
+    protected List<ConfiguracionCobro> getConfiguracionesCobro() {
+        try {
+            HttpURLConnection c = (HttpURLConnection) new URL(URL_BASE+"getConfiguracionCobro").openConnection();
+            c.setReadTimeout(15000);
+            c.setConnectTimeout(15000);
+            if (c.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                return null;
+            }
+            JSONArray json = new JSONArray(leer(c));
+            SimpleDateFormat spdf = new SimpleDateFormat("yyyy-MM-dd");
+            List<ConfiguracionCobro> configuraciones = new ArrayList<>();
+            for (int i = 0; i < json.length(); i++) {
+                JSONObject jo = json.getJSONObject(i);
+                ConfiguracionCobro config = new ConfiguracionCobro();
+                config.setCodigoTipoPlazaCobro(jo.getString("codigoTipoPlaza"));
+                config.setTipoCobro(jo.getString("tipoCobro"));
+                config.setDiasSemana(jo.optString("diasSemana"));
+                config.setFechaInicioCobro(spdf.parse(jo.getString("fechaInicioCobro")));
+                config.setDiasMes(jo.optString("diasMes"));
+                config.setPeriodoInicioDia(aInteger(jo.optString("periodoInicioDia")));
+                config.setPeriodoInicioMes(aInteger(jo.optString("periodoInicioMes")));
+                config.setPeriodoFinDia(aInteger(jo.optString("periodoFinDia")));
+                config.setPeriodoFinMes(aInteger(jo.optString("periodoFinMes")));
+                config.setPeriodosAnuales(jo.optString("periodosAnuales"));
+                configuraciones.add(config);
+            }
+            return configuraciones;
+        } catch (Exception e) {
+            Log.e("WebService", e.toString());
+            return null;
+        }
+    }
+
+    private Double aDouble(String valor){
+        return valor==null || valor.isEmpty()? null: Double.valueOf(valor);
+    }
+
+    private Integer aInteger(String valor){
+        return valor==null || valor.isEmpty()? null: Integer.valueOf(valor);
+    }
 
     public JSONArray insertarContribucionesServidor(JSONArray aj){
         String requestURL=URL_BASE+"insert_contribuciones";

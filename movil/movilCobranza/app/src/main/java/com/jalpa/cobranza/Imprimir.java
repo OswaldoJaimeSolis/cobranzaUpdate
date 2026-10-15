@@ -70,7 +70,18 @@ public class Imprimir {
         sb.append(formateo("F. registro:     ".concat(getFechaFormat(contribucion.getFechaModificacion())),0,1));
 
         sb.append(formateo("Contribuyente:   ".concat(recuperaContribuyente(contribucion.getContribuyente().getCodigoContribuyente())),0,1));
+        if(Boolean.TRUE.equals(contribucion.getCondonada())){
+            sb.append(formateo("Condonado:       ".concat(String.format("%6.2f", contribucion.getMontoCondonado())),0,1));
+        }
+        else if(contribucion.getDescuento()!=null && contribucion.getDescuento()>0){
+            sb.append(formateo("Precio normal:   ".concat(String.format("%6.2f", contribucion.getImporteNormal())),0,1));
+            sb.append(formateo("Descuento:       ".concat(String.format("%6.2f", contribucion.getDescuento())),0,1));
+        }
         sb.append(formateo("Importe:         ".concat(String.format("%6.2f", contribucion.getImporte())),0,1));
+        if(Boolean.TRUE.equals(contribucion.getPagoAdeudoAnterior())){
+            sb.append(formateo("Concepto:        ADEUDO ANTERIOR",0,1));
+            sb.append(formateo("Comentario:      ".concat(contribucion.getComentario()!=null?contribucion.getComentario():""),0,1));
+        }
         sb.append(formateo("Estado:          ".concat(contribucion.getEstadoToString()),0,3));
 
         sb.append(formateo("".concat(recuperaLeyendaTipoPlaza(contribucion.getTipoPlaza().getLeyendaTipoPlaza()!=null?contribucion.getTipoPlaza().getCodigoTipoPlaza():"")),0,2));

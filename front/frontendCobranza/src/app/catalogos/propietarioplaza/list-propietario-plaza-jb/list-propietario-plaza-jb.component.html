@@ -20,7 +20,7 @@
         <mat-icon matListItemIcon>watch_later</mat-icon>
         <span matListItemTitle>{{pp.plaza}}</span>
         <span matListItemLine>{{pp.tipoPlaza}} {{pp.contribuyente}} {{pp.vigenciaInicial|date: 'dd/MM/yyyy'}} al
-        {{pp.vigenciaFinal|date: 'dd/MM/yyyy'}}</span>
+        {{pp.vigenciaFinal|date: 'dd/MM/yyyy'}} · Licencia de comercio: {{pp.licenciaComercio ? 'Sí' : 'No'}}@if (pp.adeudoAnterior > 0) { · Adeudo anterior: {{pp.adeudoAnterior | currency}}}</span>
         <div matListItemMeta>
           <button mat-mini-fab color="primary" (click)="openDialogEdit(pp)">
             <mat-icon>edit</mat-icon>

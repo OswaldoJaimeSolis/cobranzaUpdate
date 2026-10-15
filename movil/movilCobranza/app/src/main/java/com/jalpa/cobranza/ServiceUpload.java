@@ -358,6 +358,19 @@ public class ServiceUpload extends IntentService {
             jo.put("equipoRecaudador", equipo);
             jo.put("importe", importe);
             jo.put("codigoTipoPlaza", codigoTipoPlaza);
+            if(Boolean.TRUE.equals(con.getCondonada())) {
+                jo.put("condonada", "1");
+                jo.put("motivoCondonacion", con.getMotivoCondonacion());
+                jo.put("montoCondonado", con.getMontoCondonado()!=null? con.getMontoCondonado().toString(): "0.0");
+            }
+            if(Boolean.TRUE.equals(con.getPagoAdeudoAnterior())) {
+                jo.put("pagoAdeudoAnterior", "1");
+                jo.put("comentario", con.getComentario());
+            }
+            if(con.getImporteNormal()!=null) {
+                jo.put("importeNormal", con.getImporteNormal().toString());
+                jo.put("descuento", con.getDescuento()!=null? con.getDescuento().toString(): "0.0");
+            }
 
 
             return  jo;

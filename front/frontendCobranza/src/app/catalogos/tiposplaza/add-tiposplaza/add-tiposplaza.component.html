@@ -15,9 +15,17 @@
       <input matInput placeholder="Leyenda: " [(ngModel)]="oFinal.leyendaTipoPlaza" #data="ngModel" required>
     </mat-form-field>
 
-    <mat-checkbox class="check-container" [(ngModel)]="oFinal.porImporteGlobalTipoPlaza" (change)="actualizarBtnPeriodo(oFinal.porImporteGlobalTipoPlaza)">Importe global</mat-checkbox>
+    <mat-checkbox class="check-container" [(ngModel)]="oFinal.porImporteGlobalTipoPlaza">Importe global</mat-checkbox>
     <mat-checkbox class="check-container" [(ngModel)]="oFinal.addLocal">Permite agregar localmente</mat-checkbox>
-    <button mat-raised-button color="primary" (click)="mostrarPeriodos(oFinal)" disabled={{vigenciasHidde}} hidden={{vigenciasHidde}}>Períodos</button>
+    @if (oFinal.porImporteGlobalTipoPlaza) {
+      @if (noEditarId) {
+        <button mat-raised-button color="primary" (click)="mostrarPeriodos(oFinal)">Vigencias (períodos y precios)</button>
+        <button mat-raised-button color="primary" (click)="mostrarConfigCobro(oFinal)">Configuración de cobro</button>
+      } @else {
+        <!-- Las vigencias se ligan al tipo de plaza, así que primero debe existir -->
+        <p class="nota-cobro">Al guardar se abrirán las vigencias (períodos y precios) y después la configuración de cobro.</p>
+      }
+    }
 
 
 

@@ -3,6 +3,8 @@ import { TipoPlaza } from '../model/tipo-plaza';
 import { TiposplazaService } from '../service/tiposplaza.service';
 import { MatDialog } from '@angular/material/dialog';
 import { AddTiposplazaComponent } from '../add-tiposplaza/add-tiposplaza.component';
+import { ConfigCobroComponent } from '../config-cobro/config-cobro.component';
+import { ListTiposplazaVigenciaComponent } from '../list-tiposplaza-vigencia/list-tiposplaza-vigencia.component';
 
 @Component({
     selector: 'app-list-tiposplaza',
@@ -55,9 +57,25 @@ export class ListTiposplazaComponent implements OnInit {
 
 
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((creado: TipoPlaza) => {
       this.getTiposPlaza();
-      console.log('The dialog was closed');
+      // Recién creado con importe global: primero sus vigencias (de ahí salen los precios) y
+      // después si el cobro es diario, mensual o anual
+      if (creado && creado.porImporteGlobalTipoPlaza) {
+        this.dialog.open(ListTiposplazaVigenciaComponent, {
+          data: { tipoPlaza: creado, service: this.service }
+        }).afterClosed().subscribe(() => this.openDialogCobro(creado));
+      }
+    });
+  }
+
+  openDialogCobro(o: TipoPlaza): void {
+    this.dialog.open(ConfigCobroComponent, {
+      width: '760px',
+      maxWidth: '95vw',
+      data: {
+        tipoPlaza: o
+      }
     });
   }
 

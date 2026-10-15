@@ -1,0 +1,25 @@
+.botones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.observaciones {
+  width: 360px;
+  max-width: 90vw;
+}
+
+.tabla {
+  overflow-x: auto;
+  margin: 0 16px 24px;
+}
+
+table {
+  width: 100%;
+}
+
+.derecha {
+  text-align: right;
+}

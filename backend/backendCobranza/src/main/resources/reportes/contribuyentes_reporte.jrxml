@@ -28,6 +28,7 @@
 	<field name="nombreContribuyente" class="java.lang.String"/>
 	<field name="rfc" class="java.lang.String"/>
 	<field name="tipoPlaza" class="java.lang.String"/>
+	<field name="licenciaComercio" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -73,6 +74,13 @@
 					<font fontName="Times New Roman" size="7"/>
 				</textElement>
 				<text><![CDATA[T. plaza]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="280" y="91" width="60" height="10" forecolor="#FFFFFF" backcolor="#000000" uuid="6b1d2c57-3a52-4c0e-9d0b-2f6f0c6a7e11"/>
+				<textElement>
+					<font fontName="Times New Roman" size="7"/>
+				</textElement>
+				<text><![CDATA[Lic. comercio]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="9" y="29" width="734" height="18" uuid="c3e8cafe-4311-4758-aba2-9d4a4d58e6a0"/>
@@ -139,6 +147,13 @@
 					<font fontName="Times New Roman" size="6"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{tipoPlaza}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="280" y="2" width="60" height="10" uuid="0d7b0a44-90f5-4f0a-8a44-5d0f6f0b3c22"/>
+				<textElement>
+					<font fontName="Times New Roman" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{licenciaComercio}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

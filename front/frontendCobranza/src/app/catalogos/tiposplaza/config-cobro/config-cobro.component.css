@@ -1,0 +1,74 @@
+.columns-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.mes {
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 4px;
+}
+
+.nombre-mes {
+  width: 90px;
+  font-weight: 500;
+}
+
+.dias {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 160px;
+}
+
+.dia {
+  display: inline-flex;
+  align-items: center;
+  background: #e8eaf6;
+  border-radius: 16px;
+  padding-left: 10px;
+}
+
+.sin-cobro {
+  color: #757575;
+}
+
+.dia-nuevo {
+  width: 60px;
+  height: 32px;
+}
+
+.corto {
+  width: 90px;
+}
+
+.medio {
+  width: 150px;
+}
+
+.etiqueta {
+  font-weight: 500;
+}
+
+h4 {
+  margin: 8px 0 0;
+}
+
+.nota {
+  color: #757575;
+  font-size: 13px;
+  margin: 0;
+}
+
+.anio {
+  width: 190px;
+}

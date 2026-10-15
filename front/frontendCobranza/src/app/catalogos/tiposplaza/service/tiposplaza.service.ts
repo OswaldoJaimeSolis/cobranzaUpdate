@@ -4,6 +4,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { TipoPlaza } from '../model/tipo-plaza';
 import { TipoPlazaVigencia } from '../model/tipo-plaza-vigencia';
+import { ConfiguracionCobro } from '../model/configuracion-cobro';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,14 @@ export class TiposplazaService {
     //let params= new HttpParams().set('codigoTipoPlaza', codigoTipoPlaza);
     //return this.http.get<TipoPlazaVigencia[]>(`${this.base_url_historial}`, {params:params});
     return this.http.get<TipoPlazaVigencia[]>(`${this.base_url_historial}/${codigoTipoPlaza}`);
+  }
+
+  getConfiguracionCobro(codigoTipoPlaza: string): Observable<ConfiguracionCobro> {
+    return this.http.get<ConfiguracionCobro>(`${Constantes.base_url}/configuracionCobro/${codigoTipoPlaza}`);
+  }
+
+  saveConfiguracionCobro(config: ConfiguracionCobro): Observable<ConfiguracionCobro> {
+    return this.http.put<ConfiguracionCobro>(`${Constantes.base_url}/configuracionCobro/${config.codigoTipoPlaza}`, config);
   }
 
   getTipoPlaza(id: string): Observable<TipoPlaza> {

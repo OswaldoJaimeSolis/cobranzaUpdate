@@ -11,6 +11,8 @@ export class PropietarioPlaza {
     vigenciaFinal: Date;
     giroDescripcion: string;
     importe: number;
+    licenciaComercio: boolean;
+    adeudoAnterior: number;
 
     constructor() {
         this.plaza = new Plaza();
@@ -19,6 +21,7 @@ export class PropietarioPlaza {
         this.vigenciaInicial = new Date();
         this.vigenciaFinal = new Date();
         this.giroDescripcion = "";
+        this.licenciaComercio = false;
 
 
     }

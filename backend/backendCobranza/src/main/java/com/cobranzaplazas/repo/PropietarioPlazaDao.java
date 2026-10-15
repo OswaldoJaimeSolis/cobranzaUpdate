@@ -27,7 +27,7 @@ public interface PropietarioPlazaDao extends JpaRepository<PropietarioPlaza, Str
 
 	@Query("SELECT new com.cobranzaplazas.model.JBPropietarioPlaza(PP.idPropietarioPlaza, PP.plaza.codigoPlaza, PP.tipoPlaza.codigoTipoPlaza,"
 			+ "CONCAT(PP.contribuyente.codigoContribuyente, ' ',PP.contribuyente.nombre,' ', PP.contribuyente.apePaterno,' ',PP.contribuyente.apeMaterno),"
-			+ "PP.vigenciaInicial, PP.vigenciaFinal,PP.importe)" + " FROM PropietarioPlaza AS PP ")
+			+ "PP.vigenciaInicial, PP.vigenciaFinal,PP.importe, PP.licenciaComercio, PP.adeudoAnterior)" + " FROM PropietarioPlaza AS PP ")
 	List<JBPropietarioPlaza> recuperarPropietarios();
 
 	@Query(QUERY_BA)

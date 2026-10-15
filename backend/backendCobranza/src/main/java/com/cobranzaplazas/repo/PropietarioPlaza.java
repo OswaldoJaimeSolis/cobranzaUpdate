@@ -26,6 +26,9 @@ public class PropietarioPlaza implements Serializable {
 	Date vigenciaFinal;
 	String giroDescripcion;
 	Double importe;
+	Boolean licenciaComercio;
+	// Adeudo previo a la entrada en vigor de la configuración de cobro
+	Double adeudoAnterior;
 
 	public String getIdPropietarioPlaza() {
 		return idPropietarioPlaza;
@@ -91,4 +94,19 @@ public class PropietarioPlaza implements Serializable {
 		this.importe = importe;
 	}
 
+	public Boolean getLicenciaComercio() {
+		return licenciaComercio;
+	}
+
+	public void setLicenciaComercio(Boolean licenciaComercio) {
+		this.licenciaComercio = licenciaComercio;
+	}
+
+	public Double getAdeudoAnterior() {
+		return adeudoAnterior;
+	}
+
+	public void setAdeudoAnterior(Double adeudoAnterior) {
+		this.adeudoAnterior = adeudoAnterior;
+	}
 }

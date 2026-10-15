@@ -36,6 +36,7 @@ export class AddTiposplazaVigenciaComponent implements OnInit {
         this.oFinal.vigenciaInicial = new Date(dd.tipoPlazaVigencia.vigenciaInicial);
         this.oFinal.vigenciaFinal = new Date(dd.tipoPlazaVigencia.vigenciaFinal);
         this.oFinal.importe = dd.tipoPlazaVigencia.importe;
+        this.oFinal.precioDescuento = dd.tipoPlazaVigencia.precioDescuento;
 
         this.editarId = true;
         this.encabezado = "Editar período";
@@ -79,6 +80,14 @@ export class AddTiposplazaVigenciaComponent implements OnInit {
   }
 
   validarPeriodo(newO: TipoPlazaVigencia) {
+    if (newO.precioDescuento != null && String(newO.precioDescuento) !== ''
+        && Number(newO.precioDescuento) > Number(newO.importe)) {
+      this.showMessage("El precio con descuento no puede ser mayor al precio normal");
+      return;
+    }
+    if (String(newO.precioDescuento) === '') {
+      newO.precioDescuento = null;
+    }
 
     let periodoValido: boolean = true;
     this.service.getTipoPlazaVigencias(newO.tipoPlaza.codigoTipoPlaza)

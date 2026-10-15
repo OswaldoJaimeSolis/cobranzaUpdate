@@ -35,6 +35,7 @@ export class AddRecaudadorComponent implements OnInit {
       this.oFinal.passRecaudador = dd.recaudador.passRecaudador;
       this.oFinal.nombreRecaudador = dd.recaudador.nombreRecaudador;
       this.oFinal.activoRecaudador = dd.recaudador.activoRecaudador;
+      this.oFinal.puedeCondonar = dd.recaudador.puedeCondonar === true;
 
       this.editarId = true;
       this.encabezado = "Editar recaudador";

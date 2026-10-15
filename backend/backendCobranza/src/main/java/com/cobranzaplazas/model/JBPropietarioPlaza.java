@@ -10,6 +10,8 @@ public class JBPropietarioPlaza {
 	Date vigenciaInicial;
 	Date vigenciaFinal;
 	Double importe;
+	Boolean licenciaComercio;
+	Double adeudoAnterior;
 
 	
 	
@@ -27,6 +29,22 @@ public class JBPropietarioPlaza {
 	}
 	
 	
+
+	public JBPropietarioPlaza(String idPropietarioPlaza, String plaza, String tipoPlaza, String contribuyente,
+			Date vigenciaInicial, Date vigenciaFinal, Double importe, Boolean licenciaComercio,
+			Double adeudoAnterior) {
+		this(idPropietarioPlaza, plaza, tipoPlaza, contribuyente, vigenciaInicial, vigenciaFinal, importe);
+		this.licenciaComercio = licenciaComercio;
+		this.adeudoAnterior = adeudoAnterior;
+	}
+
+	public Boolean getLicenciaComercio() {
+		return licenciaComercio;
+	}
+
+	public Double getAdeudoAnterior() {
+		return adeudoAnterior;
+	}
 
 	public String getIdPropietarioPlaza() {
 		return idPropietarioPlaza;

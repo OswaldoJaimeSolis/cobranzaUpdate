@@ -19,6 +19,7 @@ public class Recaudador implements Serializable {
     private String passRecaudador;
     private String nombreRecaudador;
     private Boolean activoRecaudador;
+    private Boolean puedeCondonar;
     @Ignore
     List<RecaudadorTipoPlaza> tipoPlazas;
 
@@ -77,5 +78,13 @@ public class Recaudador implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(codigoRecaudador);
+    }
+
+    public Boolean getPuedeCondonar() {
+        return puedeCondonar;
+    }
+
+    public void setPuedeCondonar(Boolean puedeCondonar) {
+        this.puedeCondonar = puedeCondonar;
     }
 }

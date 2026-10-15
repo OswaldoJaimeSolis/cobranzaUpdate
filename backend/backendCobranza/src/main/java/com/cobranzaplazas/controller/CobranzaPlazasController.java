@@ -60,6 +60,10 @@ import com.cobranzaplazas.model.GeneradorCodigos;
 import com.cobranzaplazas.model.JBContribucionReporte;
 import com.cobranzaplazas.model.JBContribuyente;
 import com.cobranzaplazas.model.JBPropietarioPlaza;
+import com.cobranzaplazas.cobro.CalculoCobroService;
+import com.cobranzaplazas.model.JBAdeudo;
+import com.cobranzaplazas.repo.Condonacion;
+import com.cobranzaplazas.repo.CondonacionDao;
 import com.cobranzaplazas.repo.Contribucion;
 import com.cobranzaplazas.repo.ContribucionDao;
 import com.cobranzaplazas.repo.Contribuyente;
@@ -135,6 +139,12 @@ public class CobranzaPlazasController {
 	@Autowired
 	EquipoRecaudadorDao equipoRecaudadorDao;
 
+	@Autowired
+	CondonacionDao condonacionDao;
+
+	@Autowired
+	CalculoCobroService calculoCobroService;
+
 	private SimpleDateFormat spdf;
 	private GeneradorCodigos generadorCodigos;
 
@@ -149,6 +159,11 @@ public class CobranzaPlazasController {
 	@PostMapping("/tiposPlazaVigencia")
 	@CrossOrigin(origins = "http://localhost:" + port)
 	TipoPlazaVigencia newTipoPlaza(@RequestBody TipoPlazaVigencia tipoPlazaVigencia) {
+		// El frontend mandaba 0 en un período nuevo; Hibernate 6 lo toma como un registro
+		// existente y falla con StaleObjectStateException en lugar de insertarlo
+		if (Integer.valueOf(0).equals(tipoPlazaVigencia.getIdTipoPlazaVigencia())) {
+			tipoPlazaVigencia.setIdTipoPlazaVigencia(null);
+		}
 		return tipoPlazaVigenciaDao.save(tipoPlazaVigencia);
 	}
 
@@ -327,6 +342,7 @@ public class CobranzaPlazasController {
 			rec.setActivoRecaudador(newRecaudador.getActivoRecaudador());
 			rec.setNombreRecaudador(newRecaudador.getNombreRecaudador());
 			rec.setPassRecaudador(newRecaudador.getPassRecaudador());
+			rec.setPuedeCondonar(newRecaudador.getPuedeCondonar());
 
 			return recaudadorDao.save(rec);
 		}).orElseGet(() -> {
@@ -511,6 +527,7 @@ public class CobranzaPlazasController {
 			fila.put("vigenciaInicial", sdf.format(vigencia.getVigenciaInicial()));
 			fila.put("vigenciaFinal", sdf.format(vigencia.getVigenciaFinal()));
 			fila.put("importe", vigencia.getImporte());
+			fila.put("precioDescuento", vigencia.getPrecioDescuento() != null ? vigencia.getPrecioDescuento().toString() : "");
 		}
 		return fila;
 	}
@@ -523,6 +540,10 @@ public class CobranzaPlazasController {
 	public List<Map<String, Object>> getContribuyentesMovil(@RequestParam String fechaRecuperar) throws Exception {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Date fecha = sdf.parse(fechaRecuperar);
+		// El adeudo viaja con cada propietarioPlaza; la app no lo consulta por separado
+		Map<String, List<JBAdeudo>> adeudos = calculoCobroService
+				.calcularAdeudos(null, null, java.time.LocalDate.now()).stream()
+				.collect(Collectors.groupingBy(JBAdeudo::getIdPropietarioPlaza));
 		List<Map<String, Object>> filas = new ArrayList<>();
 		for (PropietarioPlaza pp : propietarioPlazaDao.findAll()) {
 			// La app parsea ambas fechas; sin ellas el registro rompería toda la sincronización.
@@ -548,6 +569,15 @@ public class CobranzaPlazasController {
 			fila.put("vigenciaFinal", sdf.format(pp.getVigenciaFinal()));
 			fila.put("importe", pp.getImporte() != null ? pp.getImporte().toString() : "");
 			fila.put("giro", pp.getGiroDescripcion() != null ? pp.getGiroDescripcion() : "");
+			List<JBAdeudo> adeudosPP = adeudos.getOrDefault(pp.getIdPropietarioPlaza(), List.of());
+			fila.put("adeudo", String.valueOf(adeudosPP.stream().mapToDouble(JBAdeudo::getMonto).sum()));
+			// Saldo del adeudo anterior: lo capturado en el propietario menos lo ya abonado
+			fila.put("adeudoAnterior", String.valueOf(adeudosPP.stream()
+					.filter(a -> JBAdeudo.CONCEPTO_ADEUDO_ANTERIOR.equals(a.getConcepto()))
+					.mapToDouble(JBAdeudo::getMonto).sum()));
+			// Fechas de las obligaciones vencidas (yyyy-MM-dd) separadas por coma; el adeudo anterior no tiene fecha
+			fila.put("fechasVencidas", adeudosPP.stream().filter(a -> a.getFechaVencimiento() != null)
+					.map(a -> sdf.format(a.getFechaVencimiento())).collect(Collectors.joining(",")));
 			filas.add(fila);
 		}
 		return filas;
@@ -613,6 +643,7 @@ public class CobranzaPlazasController {
 		fila.put("passR", r.getPassRecaudador());
 		fila.put("nombreR", urlEncode(r.getNombreRecaudador()));
 		fila.put("activoR", Boolean.TRUE.equals(r.getActivoRecaudador()) ? "1" : "0");
+		fila.put("puedeCondonar", Boolean.TRUE.equals(r.getPuedeCondonar()) ? "1" : "0");
 		fila.put("tipoPlaza", tp != null ? tp.getCodigoTipoPlaza() : "");
 		return fila;
 	}
@@ -635,6 +666,7 @@ public class CobranzaPlazasController {
 	// mismo contrato mínimo.
 
 	@PostMapping("/insert_contribuciones")
+	@Transactional
 	public String insertarContribucionesMovil(@RequestParam String contribuciones) {
 		try {
 			JsonNode arreglo = new ObjectMapper().readTree(contribuciones);
@@ -657,12 +689,85 @@ public class CobranzaPlazasController {
 					c.setEquipoRecaudador(equipoRecaudadorDao.findById(codigoEquipo).orElse(null));
 				}
 				c.setImporteContribucion(Double.parseDouble(jo.path("importe").asText()));
+				// Sólo los envía la app cuando el tipo de plaza tiene configuración de cobro
+				if (jo.hasNonNull("importeNormal")) {
+					c.setImporteNormal(jo.get("importeNormal").asDouble());
+				}
+				if (jo.hasNonNull("descuento")) {
+					c.setDescuentoAplicado(jo.get("descuento").asDouble());
+				}
+				aplicarCondonacion(c, jo);
+				aplicarPagoAdeudoAnterior(c, jo);
 				c.setEstadoServidor(true);
 				contribucionDao.save(c);
 			}
 			return "correcto";
 		} catch (Exception e) {
 			return "error";
+		}
+	}
+
+	/**
+	 * La app marca "condonada" una contribución pagada. Sólo se acepta si el recaudador
+	 * tiene el permiso y viene el motivo: entonces queda pagada con importe 0 y se
+	 * registra en la bitácora. Si no, se guarda como pendiente (no se rechaza el envío
+	 * para no bloquear la cola de sincronización del equipo), de modo que no puede
+	 * existir una condonación sin autorización ni justificación.
+	 */
+	private void aplicarCondonacion(Contribucion c, JsonNode jo) {
+		if (!"1".equals(jo.path("condonada").asText("0"))) {
+			return;
+		}
+		String motivo = jo.path("motivoCondonacion").asText("").trim();
+		Recaudador recaudador = c.getRecaudador();
+		boolean autorizado = recaudador != null && Boolean.TRUE.equals(recaudador.getActivoRecaudador())
+				&& Boolean.TRUE.equals(recaudador.getPuedeCondonar());
+		if (!autorizado || motivo.isEmpty()) {
+			c.setEstadoPago(2);
+			return;
+		}
+		c.setCondonada(true);
+		c.setEstadoPago(1);
+		c.setImporteContribucion(0.0);
+		if (c.getIdContribucionLocal() != null && condonacionDao.existsByIdCondonacionLocal(c.getIdContribucionLocal())) {
+			return;
+		}
+		Condonacion bitacora = new Condonacion();
+		bitacora.setIdCondonacionLocal(c.getIdContribucionLocal());
+		bitacora.setRecaudador(recaudador);
+		bitacora.setEquipoRecaudador(c.getEquipoRecaudador());
+		bitacora.setPlaza(c.getPlaza());
+		bitacora.setTipoPlaza(c.getTipoPlaza());
+		bitacora.setContribuyente(c.getContribuyente());
+		bitacora.setFechaCondonacion(c.getFechaModificacion());
+		bitacora.setFechaObligacion(c.getFechaContribucion());
+		bitacora.setMontoCondonado(jo.path("montoCondonado").asDouble(0));
+		bitacora.setMotivo(motivo);
+		bitacora.setOrigen("MOBILE");
+		condonacionDao.save(bitacora);
+	}
+
+	/**
+	 * Abono al adeudo anterior, capturado en un día fuera del calendario de cobro. El
+	 * comentario es obligatorio y la plaza debe tener saldo de adeudo anterior: si no, se
+	 * guarda como pendiente (mismo criterio que la condonación) y no descuenta del adeudo.
+	 */
+	private void aplicarPagoAdeudoAnterior(Contribucion c, JsonNode jo) {
+		if (!"1".equals(jo.path("pagoAdeudoAnterior").asText("0"))) {
+			return;
+		}
+		String comentario = jo.path("comentario").asText("").trim();
+		c.setPagoAdeudoAnterior(true);
+		c.setComentario(comentario);
+		// Sólo procede si en web se capturó adeudo anterior para esa plaza y aún tiene saldo
+		double saldo = c.getPlaza() == null || c.getTipoPlaza() == null ? 0.0
+				: calculoCobroService
+						.calcularAdeudos(c.getTipoPlaza().getCodigoTipoPlaza(), c.getPlaza().getCodigoPlaza(),
+								java.time.LocalDate.now())
+						.stream().filter(a -> JBAdeudo.CONCEPTO_ADEUDO_ANTERIOR.equals(a.getConcepto()))
+						.mapToDouble(JBAdeudo::getMonto).sum();
+		if (comentario.isEmpty() || saldo <= 0) {
+			c.setEstadoPago(2);
 		}
 	}
 

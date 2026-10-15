@@ -41,6 +41,11 @@
           required={{!oFinal.tipoPlaza.porImporteGlobalTipoPlaza}}
           disabled={{oFinal.tipoPlaza.porImporteGlobalTipoPlaza}}>
       </mat-form-field>
+      <mat-form-field>
+        <input name="adeudoAnterior" type="number" min="0" matInput placeholder="Adeudo anterior: " style="text-align: right"
+          [(ngModel)]="oFinal.adeudoAnterior">
+      </mat-form-field>
+      <mat-checkbox name="licenciaComercio" [(ngModel)]="oFinal.licenciaComercio">Licencia de comercio</mat-checkbox>
 
     </div>
 

@@ -5,6 +5,7 @@ public class JBContribuyente {
 	String nombreContribuyente;
 	String rfc;
 	String tipoPlaza;
+	String licenciaComercio;
 
 	
 	
@@ -17,6 +18,16 @@ public class JBContribuyente {
 		this.nombreContribuyente = nombreContribuyente;
 		this.rfc = rfc;
 		this.tipoPlaza = tipoPlaza;
+	}
+
+	public JBContribuyente(String codigoContribuyente, String nombreContribuyente, String rfc, String tipoPlaza,
+			Integer licenciaComercio) {
+		this(codigoContribuyente, nombreContribuyente, rfc, tipoPlaza);
+		this.licenciaComercio = Integer.valueOf(1).equals(licenciaComercio) ? "Sí" : "No";
+	}
+
+	public String getLicenciaComercio() {
+		return licenciaComercio;
 	}
 
 	public String getCodigoContribuyente() {

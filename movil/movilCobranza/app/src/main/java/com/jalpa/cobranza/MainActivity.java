@@ -37,6 +37,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.TextView;
 
 
 import com.bxl.BXLConst;
@@ -51,6 +52,7 @@ import com.jalpa.cobranza.contribuyente.ContribuyenteActivity;
 import com.jalpa.cobranza.model.AuxActualizacionRemota;
 import com.jalpa.cobranza.model.dao.AppDataBase;
 import com.jalpa.cobranza.model.dao.Database;
+import com.jalpa.cobranza.model.entidades.ConfiguracionCobro;
 import com.jalpa.cobranza.model.entidades.Contribucion;
 import com.jalpa.cobranza.model.entidades.Contribuyente;
 import com.jalpa.cobranza.model.entidades.EquipoRecaudador;
@@ -77,6 +79,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 
 import androidx.annotation.Nullable;
@@ -113,6 +117,11 @@ public class MainActivity extends AppCompatActivity {
     private RadioButton rbPagado;
     private RadioButton rbPendiente;
     private RadioButton rbAusente;
+    private CheckBox cbCondonar;
+    private CheckBox cbAdeudoAnterior;
+    //bandera "Pago de adeudo anterior" activa: el importe es sólo sobre el adeudo anterior de la plaza
+    private boolean cobroAdeudoAnterior;
+    private TextView tvAdeudo;
     private ProgressBar pbActualizarCatalogos;
     private ProgressBar pbBusqueda;
     private SimpleDateFormat sdf;
@@ -137,6 +146,8 @@ public class MainActivity extends AppCompatActivity {
     private Imprimir imprimir;
 
     private Contribucion contribucionGlobal;
+    //configuración de cobro por código de tipo de plaza; los tipos sin configuración cobran como antes
+    private Map<String, ConfiguracionCobro> configuracionesCobro= new HashMap<>();
 
 
     @Override
@@ -186,6 +197,33 @@ public class MainActivity extends AppCompatActivity {
         rbPagado= findViewById(R.id.rbPagado);
         rbPendiente=findViewById(R.id.rbPendiente);
         rbAusente= findViewById(R.id.rbAusente);
+        cbCondonar= findViewById(R.id.cbCondonar);
+        cbAdeudoAnterior= findViewById(R.id.cbAdeudoAnterior);
+        //OnClick y no OnCheckedChange: sólo debe reaccionar cuando lo marca el recaudador, no la pantalla
+        cbAdeudoAnterior.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //en el cobro anual la fecha en pantalla es la de la anualidad (fin del período):
+                //al marcar la bandera se pasa a la fecha de hoy, que es la del pago del adeudo anterior
+                ConfiguracionCobro config= cbPlazas.getSelectedItem() instanceof PropietarioPlaza?
+                        getConfiguracionCobro((PropietarioPlaza) cbPlazas.getSelectedItem()): null;
+                Date fecha= fechaSeleccionada();
+                Date hoy= ConfiguracionCobro.aDate(ConfiguracionCobro.aLocalDate(new Date()));
+                if(cbAdeudoAnterior.isChecked() && config!=null && config.esAnual() && fecha!=null
+                        && fecha.equals(config.fechaObligacion(fecha)) && !fecha.equals(hoy)){
+                    setCurrentDateOnView(hoy);
+                    return;
+                }
+                actualizaImporte(false);
+            }
+        });
+        tvAdeudo= findViewById(R.id.tvAdeudo);
+        tvAdeudo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                elegirFechaVencida();
+            }
+        });
         pbActualizarCatalogos=findViewById(R.id.pbActualizarCatalogos);
         pbBusqueda= findViewById(R.id.pbBusqueda);
         btnConfirmar= findViewById(R.id.btnConfirmar);
@@ -556,6 +594,10 @@ public class MainActivity extends AppCompatActivity {
                Toast.makeText(getApplicationContext(),"Debe loguearse correctamente",Toast.LENGTH_LONG).show();
                finish();
            }
+           //sin el permiso el recaudador no ve ninguna acción de condonación
+           else{
+               cbCondonar.setVisibility(puedeCondonar()? View.VISIBLE: View.GONE);
+           }
         }
         if(resultCode==RESULT_OK && requestCode== REQUEST_ACTUALIZAR_DATOS_EQUIPO_RECAUDADOR){
             if(data!=null){
@@ -645,8 +687,16 @@ public class MainActivity extends AppCompatActivity {
      */
     private void actualizaImporte(boolean actualizaCB){
       if(actualizaCB){
+          //al cambiar la fecha se recarga la lista: se conserva la plaza que estaba seleccionada
+          String codigoSeleccionado= cbPlazas.getSelectedItem() instanceof PropietarioPlaza?
+                  ((PropietarioPlaza) cbPlazas.getSelectedItem()).getCodigoPropietarioPlaza(): null;
           ArrayAdapter adapterPP= new ArrayAdapter<PropietarioPlaza>(this, android.R.layout.simple_spinner_item, propietarioPlazas);
           cbPlazas.setAdapter(adapterPP);
+          for(int i=0; codigoSeleccionado!=null && i<propietarioPlazas.size(); i++){
+              if(codigoSeleccionado.equals(propietarioPlazas.get(i).getCodigoPropietarioPlaza())){
+                  cbPlazas.setSelection(i);
+              }
+          }
       }
      if(cbPlazas.getAdapter().getCount()>0){
          try {
@@ -654,6 +704,15 @@ public class MainActivity extends AppCompatActivity {
              PropietarioPlaza propietarioPlaza = (PropietarioPlaza) cbPlazas.getSelectedItem();
              Date fecha =getSdf().parse(etFecha.getText().toString());
 
+             //el cobro anual es una sola obligación por año: cualquier fecha se lleva al fin del período de pago
+             ConfiguracionCobro config= getConfiguracionCobro(propietarioPlaza);
+             if(config!=null && config.esAnual() && !cbAdeudoAnterior.isChecked()){
+                 Date finPeriodo= config.fechaObligacion(fecha);
+                 if(finPeriodo!=null && !finPeriodo.equals(fecha)){
+                     setCurrentDateOnView(finPeriodo);
+                     return;
+                 }
+             }
 
              new VerificarExistenciaContribucion(null,false).execute(propietarioPlaza.getContribuyente().getCodigoContribuyente(), fecha,propietarioPlaza.getPlaza().getCodigoPlaza() );
          }
@@ -665,6 +724,7 @@ public class MainActivity extends AppCompatActivity {
      }
      else{
          etImporte.setText("");
+         mostrarAdeudo(null);
      }
 
     }
@@ -720,6 +780,25 @@ public class MainActivity extends AppCompatActivity {
             con.setEstadoPago(getEstadoPago());
             con.setEstadoServidor(false);
             con.setImporte(Double.parseDouble(etImporte.getText().toString()));
+            ConfiguracionCobro config= getConfiguracionCobro(propietarioPlaza);
+            if(cobroAdeudoAnterior){
+                con.setPagoAdeudoAnterior(true);
+                con.setEstadoPago(ESTADO_PAGADO);
+                //siempre el saldo completo, sin depender de lo que muestre el campo de importe
+                con.setImporte(propietarioPlaza.getAdeudoAnterior());
+            }
+            else if(config!=null && vigenciaSeleccionada(propietarioPlaza)!=null){
+                Double precioNormal= vigenciaSeleccionada(propietarioPlaza).getImporte();
+                con.setImporteNormal(precioNormal);
+                con.setDescuento(Math.max(0.0, precioNormal-con.getImporte()));
+            }
+            if(!cobroAdeudoAnterior && cbCondonar.isChecked() && puedeCondonar()){
+                con.setCondonada(true);
+                con.setMontoCondonado(con.getImporte());
+                con.setEstadoPago(ESTADO_PAGADO);
+                con.setImporte(0.0);
+                con.setDescuento(null);
+            }
             con.setFecha(getSdf().parse(etFecha.getText().toString()));
             con.setFechaModificacion(new Date());
             con.setPlaza(propietarioPlaza.getPlaza());
@@ -734,8 +813,146 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private boolean puedeCondonar(){
+        Recaudador recaudador= RecaudadorActivo.getRecaudadorActivo();
+        return recaudador!=null && Boolean.TRUE.equals(recaudador.getPuedeCondonar());
+    }
+
+    /** Muestra el adeudo que el servidor calculó para la plaza en la última actualización de catálogos. */
+    private void mostrarAdeudo(PropietarioPlaza propietarioPlaza){
+        //la bandera de adeudo anterior sólo se ofrece si la plaza tiene saldo de adeudo anterior
+        boolean conAnterior= propietarioPlaza!=null && propietarioPlaza.getAdeudoAnterior()!=null && propietarioPlaza.getAdeudoAnterior()>0;
+        cbAdeudoAnterior.setVisibility(conAnterior? View.VISIBLE: View.GONE);
+        cbAdeudoAnterior.setEnabled(true);
+        if(conAnterior){
+            cbAdeudoAnterior.setText("Pago de adeudo anterior ($ "+String.format("%.2f", propietarioPlaza.getAdeudoAnterior())+")");
+        }
+        else{
+            cbAdeudoAnterior.setChecked(false);
+        }
+        if(propietarioPlaza==null || propietarioPlaza.getAdeudo()==null || propietarioPlaza.getAdeudo()<=0){
+            tvAdeudo.setVisibility(View.GONE);
+            return;
+        }
+        int vencidas= fechasVencidas(propietarioPlaza).length;
+        tvAdeudo.setText("Adeudo: $ "+String.format("%.2f", propietarioPlaza.getAdeudo())
+                +(vencidas>0? " ("+vencidas+" fechas vencidas, toque para verlas)": ""));
+        tvAdeudo.setVisibility(View.VISIBLE);
+    }
+
+    private String[] fechasVencidas(PropietarioPlaza propietarioPlaza){
+        String fechas= propietarioPlaza.getFechasVencidas();
+        return fechas==null || fechas.isEmpty()? new String[0]: fechas.split(",");
+    }
+
+    /** Lista las fechas vencidas de la plaza; al elegir una se carga para pagarla o condonarla. */
+    private void elegirFechaVencida(){
+        if(!(cbPlazas.getSelectedItem() instanceof PropietarioPlaza)){
+            return;
+        }
+        final String[] fechas= fechasVencidas((PropietarioPlaza) cbPlazas.getSelectedItem());
+        if(fechas.length==0){
+            return;
+        }
+        final String[] etiquetas= new String[fechas.length];
+        final Date[] valores= new Date[fechas.length];
+        try {
+            for(int i=0;i<fechas.length;i++){
+                valores[i]= new SimpleDateFormat("yyyy-MM-dd").parse(fechas[i].trim());
+                etiquetas[i]= getSdf().format(valores[i]);
+            }
+        }
+        catch (ParseException e){
+            return;
+        }
+        new AlertDialog.Builder(this).setTitle("FECHAS VENCIDAS")
+                .setItems(etiquetas, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int cual) {
+                        setCurrentDateOnView(valores[cual]);
+                    }
+                })
+                .setNegativeButton("CERRAR", null).show();
+    }
+
+    /**
+     * Condonar y abonar al adeudo anterior exigen un texto: no se guarda la contribución si
+     * está vacío. En la condonación es el motivo; en el adeudo anterior, el comentario de la contribución.
+     */
+    private void capturarObservaciones(final Contribucion contribucion, final boolean condonacion){
+        View contenido= getLayoutInflater().inflate(R.layout.dialog_condonacion, null);
+        TextView tvDetalle= contenido.findViewById(R.id.tvCondonacionDetalle);
+        tvDetalle.setText((condonacion? "Monto a condonar: $ "+String.format("%.2f", contribucion.getMontoCondonado())
+                : "Pago total del adeudo anterior: $ "+String.format("%.2f", contribucion.getImporte()))
+                +"\nFecha: "+getSdf().format(contribucion.getFecha())
+                +"\nRecaudador: "+RecaudadorActivo.getRecaudadorActivo().getCodigoRecaudador());
+        final EditText etObservaciones= contenido.findViewById(R.id.etCondonacionMotivo);
+        etObservaciones.setHint(condonacion? "Observaciones: motivo de la condonación (obligatorio)": "Comentario del pago (obligatorio)");
+        final AlertDialog dialog= new AlertDialog.Builder(this)
+                .setTitle(condonacion? "CONDONAR ADEUDO": "PAGO DE ADEUDO ANTERIOR")
+                .setView(contenido)
+                .setPositiveButton(condonacion? "CONDONAR": "PAGAR", null)
+                .setNegativeButton("CANCELAR", null)
+                .create();
+        dialog.show();
+        //se asigna después de show() para que el diálogo no se cierre si falta el texto
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String texto= etObservaciones.getText().toString().trim();
+                if(texto.isEmpty()){
+                    etObservaciones.setError(condonacion? "Capture el motivo de la condonación": "Capture un comentario");
+                    return;
+                }
+                if(condonacion){
+                    contribucion.setMotivoCondonacion(texto);
+                }
+                else{
+                    contribucion.setComentario(texto);
+                }
+                dialog.dismiss();
+                new ConfirmarContribucion(contribucion).execute();
+            }
+        });
+    }
+
+    private ConfiguracionCobro getConfiguracionCobro(PropietarioPlaza propietarioPlaza){
+        //la configuración de cobro sólo aplica a tipos de plaza con importe global
+        if(propietarioPlaza==null || propietarioPlaza.getTipoPlaza()==null
+                || !Boolean.TRUE.equals(propietarioPlaza.getTipoPlaza().getImporteGlobal())){
+            return null;
+        }
+        return configuracionesCobro.get(propietarioPlaza.getTipoPlaza().getCodigoTipoPlaza());
+    }
+
+    //vigencia del tipo de plaza en la fecha seleccionada: las plazas se cargan con el historial de esa fecha
+    private TipoPlazaHistorial vigenciaSeleccionada(PropietarioPlaza propietarioPlaza){
+        List<TipoPlazaHistorial> historial= propietarioPlaza.getTipoPlaza().getHistorial();
+        return historial.isEmpty()? null: historial.get(0);
+    }
+
+    //importe propuesto por la configuración de cobro; sin vigencia en esa fecha no se puede cobrar
+    private void mostrarImporteConfigurado(Double importe){
+        if(importe!=null){
+            etImporte.setText(String.format("%.2f", importe));
+        }
+        else{
+            etImporte.setText("");
+            btnConfirmar.setEnabled(false);
+            Toast.makeText(getApplicationContext(), "No existe importe vigente para esta fecha", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private Date fechaSeleccionada(){
+        try {
+            return getSdf().parse(etFecha.getText().toString());
+        }
+        catch (ParseException e){
+            return null;
+        }
+    }
+
     private boolean validarCampos(){
-        if(etContribuyente.getText().toString().isEmpty()|| cbPlazas.getSelectedItem()==null || etImporte.getText().toString()==null || equipoRecaudador==null){
+        if(etContribuyente.getText().toString().isEmpty()|| cbPlazas.getSelectedItem()==null || etImporte.getText().toString().isEmpty() || equipoRecaudador==null){
             return false;
         }
         else {return true;}
@@ -784,10 +1001,20 @@ public class MainActivity extends AppCompatActivity {
             etImporte.setEnabled(true);
             btnConfirmar.setEnabled(true);
             btnReimprimir.setVisibility(View.INVISIBLE);
+            cbCondonar.setChecked(false);
+            cbCondonar.setEnabled(true);
+            cobroAdeudoAnterior=false;
             contribucionGlobal=null;
             //si existe se cargan los valores anterorioes, de lo contrario se procesa
+            PropietarioPlaza plazaSeleccionada= (PropietarioPlaza) cbPlazas.getSelectedItem();
+            mostrarAdeudo(plazaSeleccionada);
+            ConfiguracionCobro config= getConfiguracionCobro(plazaSeleccionada);
             if (contribucion != null) {
                 etImporte.setText(String.format("%.2f", contribucion.getImporte()));
+                //un pendiente o ausente se cobra al precio que corresponda el día en que realmente se paga
+                if(config!=null && contribucion.getEstadoPago()!= ESTADO_PAGADO){
+                    mostrarImporteConfigurado(config.importe(contribucion.getFecha(), new Date(), vigenciaSeleccionada(plazaSeleccionada)));
+                }
                 //si ya existe para recuperar su código
                 contribucionGlobal= contribucion;
                 //se revisa si está pagada. Si si sólo se puede reimprimir. No importa si no se ha mandado al servidor
@@ -795,6 +1022,10 @@ public class MainActivity extends AppCompatActivity {
                         btnConfirmar.setEnabled(false);
                         btnReimprimir.setVisibility(View.VISIBLE);
                         rbPagado.setChecked(true);
+                        cbCondonar.setChecked(Boolean.TRUE.equals(contribucion.getCondonada()));
+                        cbCondonar.setEnabled(false);
+                        cbAdeudoAnterior.setChecked(Boolean.TRUE.equals(contribucion.getPagoAdeudoAnterior()));
+                        cbAdeudoAnterior.setEnabled(false);
 
                         etImporte.setEnabled(false);
                         rbPagado.setEnabled(false);
@@ -810,6 +1041,39 @@ public class MainActivity extends AppCompatActivity {
                 }
 
 
+            }
+            else if(config!=null){
+                Date fecha= fechaSeleccionada();
+                Date obligacion= fecha!=null? config.fechaObligacion(fecha): null;
+                boolean conAnterior= plazaSeleccionada.getAdeudoAnterior()!=null && plazaSeleccionada.getAdeudoAnterior()>0;
+                //el pago del adeudo anterior va en una fecha que no sea la de una obligación del calendario
+                boolean fechaLibre= obligacion==null || !obligacion.equals(fecha);
+                if(conAnterior && fechaLibre && (obligacion==null || cbAdeudoAnterior.isChecked())){
+                    //en un día sin cobro programado sólo puede cobrarse el adeudo anterior: se marca la bandera
+                    cbAdeudoAnterior.setChecked(true);
+                    cobroAdeudoAnterior=true;
+                    etImporte.setText(String.format("%.2f", plazaSeleccionada.getAdeudoAnterior()));
+                    //el adeudo anterior se liquida completo: no hay abonos, el importe no se edita
+                    etImporte.setEnabled(false);
+                    rbPendiente.setEnabled(false);
+                    rbAusente.setEnabled(false);
+                    cbCondonar.setEnabled(false);
+                }
+                else if(obligacion!=null){
+                    if(cbAdeudoAnterior.isChecked()){
+                        cbAdeudoAnterior.setChecked(false);
+                        Toast.makeText(getApplicationContext(), "En esta fecha hay un cobro programado. Para pagar el adeudo anterior elija otra fecha", Toast.LENGTH_LONG).show();
+                    }
+                    mostrarImporteConfigurado(config.importe(obligacion, new Date(), vigenciaSeleccionada(plazaSeleccionada)));
+                }
+                else{
+                    //sólo se generan obligaciones de pago en las fechas configuradas
+                    etImporte.setText("");
+                    btnConfirmar.setEnabled(false);
+                    Date proxima= config.proximaFecha(new Date());
+                    Toast.makeText(getApplicationContext(), "Sin cobro programado para esta fecha"
+                            +(proxima!=null? ". Próximo cobro: "+getSdf().format(proxima): ""), Toast.LENGTH_LONG).show();
+                }
             }
             else{
 
@@ -879,6 +1143,12 @@ public class MainActivity extends AppCompatActivity {
             Database.getInstance(this).getAppDatabase().operacionesDao().borrarInsertarRecaudadoresWithTipoPlaza(recaudadores);
         }
 
+        //null significa que no se pudo consultar: se conserva la configuración local
+        List<ConfiguracionCobro> configuraciones= getServicios().getConfiguracionesCobro();
+        if(configuraciones!=null){
+            Database.getInstance(this).getAppDatabase().operacionesDao().borrarInsertarConfiguracionesCobro(configuraciones);
+        }
+
         List<TipoPlaza> tiposPlaza= getServicios().getTiposPlaza("",100);
         if(tiposPlaza!=null && tiposPlaza.size()>0){
 
@@ -887,6 +1157,8 @@ public class MainActivity extends AppCompatActivity {
             AuxActualizacionRemota aux= getServicios().getContribuyentesPlazas("", 100, new Date(), tiposPlaza);
             if(aux!=null){
                 Database.getInstance(this).getAppDatabase().operacionesDao().insertarContribuyentesPlazasEstablecidasPropietarios(aux);
+                //el adeudo recién bajado no incluye lo cobrado aquí que sigue pendiente de envío
+                Database.getInstance(this).getAppDatabase().operacionesDao().descontarPagosSinEnviar();
 
             }
             if(contribuciones && fechaInicial!=null && codigoTipoPlaza!=null && codigoEquipoRecaudador!=null){
@@ -1090,6 +1362,11 @@ public class MainActivity extends AppCompatActivity {
         tiposPlaza = Database.getInstance(this).getAppDatabase().operacionesDao().getAllTiposPlaza();
         recaudadores= Database.getInstance(this).getAppDatabase().operacionesDao().getAllRecaudadores();
         equipoRecaudador= Database.getInstance(this).getAppDatabase().operacionesDao().recuperarEquipoRecaudador();
+        Map<String, ConfiguracionCobro> configuraciones= new HashMap<>();
+        for(ConfiguracionCobro config: Database.getInstance(this).getAppDatabase().operacionesDao().getConfiguracionesCobro()){
+            configuraciones.put(config.getCodigoTipoPlazaCobro(), config);
+        }
+        configuracionesCobro= configuraciones;
         //backUp();
 
 
@@ -1168,9 +1445,19 @@ public class MainActivity extends AppCompatActivity {
             Contribucion contribucion= poblarContribucion(contribucionGlobal!=null?contribucionGlobal:null);
             if(RecaudadorActivo.getRecaudadorActivo()!=null) {
                 if(RecaudadorActivo.validarAutorizacion(contribucion.getTipoPlaza())) {
-                    if (fechaDentroDeMeses(contribucion.getFecha(), 1)) {
+                    ConfiguracionCobro config= configuracionesCobro.get(contribucion.getTipoPlaza().getCodigoTipoPlaza());
+                    //el período de pago anual suele terminar a más de un mes de distancia
+                    if ((config!=null && config.esAnual()) || fechaDentroDeMeses(contribucion.getFecha(), 1)) {
 
-                        new ConfirmarContribucion(contribucion).execute();
+                        if(Boolean.TRUE.equals(contribucion.getPagoAdeudoAnterior())){
+                            capturarObservaciones(contribucion, false);
+                        }
+                        else if(Boolean.TRUE.equals(contribucion.getCondonada())){
+                            capturarObservaciones(contribucion, true);
+                        }
+                        else {
+                            new ConfirmarContribucion(contribucion).execute();
+                        }
                     } else {
                         Toast.makeText(getApplicationContext(), "No se puden pagar contribuciones mayores a un mes", Toast.LENGTH_LONG).show();
                     }
@@ -1239,6 +1526,17 @@ public class MainActivity extends AppCompatActivity {
                 //si no hay pedientes de pago, intenta hacer la inserción
                 if(contribucionesAnteriores==null || contribucionesAnteriores.size()==0) {
                     contribucion = Database.getInstance(getApplicationContext()).getAppDatabase().operacionesDao().finalizarContribucion(contribucion);
+                    //lo pagado se cancela del adeudo de la plaza en este equipo aunque el servidor aún no lo reciba
+                    if(contribucion!=null && cbPlazas.getSelectedItem() instanceof PropietarioPlaza){
+                        Database.getInstance(getApplicationContext()).getAppDatabase().operacionesDao().descontarPagoLocal(contribucion);
+                        PropietarioPlaza pp= (PropietarioPlaza) cbPlazas.getSelectedItem();
+                        PropietarioPlaza actual= Database.getInstance(getApplicationContext()).getAppDatabase().operacionesDao().getPropietarioPlaza(pp.getCodigoPropietarioPlaza());
+                        if(actual!=null){
+                            pp.setAdeudo(actual.getAdeudo());
+                            pp.setAdeudoAnterior(actual.getAdeudoAnterior());
+                            pp.setFechasVencidas(actual.getFechasVencidas());
+                        }
+                    }
 
                 }
                 return null;

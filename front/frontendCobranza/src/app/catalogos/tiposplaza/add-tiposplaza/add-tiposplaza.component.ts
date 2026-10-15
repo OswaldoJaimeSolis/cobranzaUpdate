@@ -3,6 +3,7 @@ import { TipoPlaza } from '../model/tipo-plaza';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { TiposplazaService } from '../service/tiposplaza.service';
 import { ListTiposplazaVigenciaComponent } from '../list-tiposplaza-vigencia/list-tiposplaza-vigencia.component';
+import { ConfigCobroComponent } from '../config-cobro/config-cobro.component';
 export interface DialogData {
   tipoPlaza: TipoPlaza;
 }
@@ -18,7 +19,6 @@ export class AddTiposplazaComponent implements OnInit {
   oFinal: TipoPlaza = new  TipoPlaza();
   encabezado = "Agregar tipo plaza";
   noEditarId = false;
-  vigenciasHidde = false;
   constructor(private dialogRef: MatDialogRef<AddTiposplazaComponent>,
     @Inject(MAT_DIALOG_DATA) dd: DialogData, private dialogV: MatDialog,
     private service: TiposplazaService) {
@@ -30,18 +30,9 @@ export class AddTiposplazaComponent implements OnInit {
 
 
     }
-    this.vigenciasHidde = this.oFinal.porImporteGlobalTipoPlaza;
-
   }
 
   ngOnInit() {
-    this.actualizarBtnPeriodo(this.oFinal.porImporteGlobalTipoPlaza);
-  }
-
-  actualizarBtnPeriodo(periodosbtn:boolean){
-    this.vigenciasHidde=!periodosbtn;
-    console.log(this.oFinal.porImporteGlobalTipoPlaza);
-    console.log(this.vigenciasHidde);
   }
 
   onCancel(): void {
@@ -56,11 +47,22 @@ export class AddTiposplazaComponent implements OnInit {
       .subscribe(
         (data: TipoPlaza) => {
           console.log('created: ', data);
-          this.onCancel();
+          // Al dar de alta se devuelve el tipo creado para que la lista abra su configuración de cobro
+          this.dialogRef.close(this.noEditarId ? null : data);
         }, // (1)
         (error: any) => console.log(error), //(2)
         () => console.log('completed') //(3)
       );
+  }
+
+  mostrarConfigCobro(tipoPlaza: TipoPlaza) {
+    this.dialogV.open(ConfigCobroComponent, {
+      width: '760px',
+      maxWidth: '95vw',
+      data: {
+        tipoPlaza: tipoPlaza
+      }
+    });
   }
 
   mostrarPeriodos(tipoPlaza: TipoPlaza) {

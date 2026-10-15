@@ -30,6 +30,10 @@ export class PropietarioPlazaService {
     });
   }
 
+  updateDatosCobro(idPP: string, licenciaComercio: boolean, adeudoAnterior: number): Observable<any> {
+    return this.http.put(`${this.base_url}/${idPP}/datosCobro`, { licenciaComercio: licenciaComercio, adeudoAnterior: adeudoAnterior });
+  }
+
   editPropietarioPlaza(newPP: PropietarioPlaza, idPP: string): Observable<PropietarioPlaza> {
     return this.http.put<PropietarioPlaza>(`${this.base_url}/${idPP}`, newPP, {
       headers: {

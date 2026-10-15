@@ -52,6 +52,9 @@ import { ReportesService } from './reportes/service/reportes.service';
 import { ReporteContribuyentesComponent } from './reportes/reporte-contribuyentes/reporte-contribuyentes.component';
 import { ListPropietarioPlazaJbComponent } from './catalogos/propietarioplaza/list-propietario-plaza-jb/list-propietario-plaza-jb.component';
 import { BusquedaRecaudadoresComponent } from './shared/busqueda/busqueda-recaudadores/busqueda-recaudadores.component';
+import { ConfigCobroComponent } from './catalogos/tiposplaza/config-cobro/config-cobro.component';
+import { ReporteMorosidadComponent } from './reportes/reporte-morosidad/reporte-morosidad.component';
+import { BitacoraCondonacionesComponent } from './reportes/bitacora-condonaciones/bitacora-condonaciones.component';
 
 
 
@@ -80,7 +83,10 @@ import { BusquedaRecaudadoresComponent } from './shared/busqueda/busqueda-recaud
         ReporteContribucionesComponent,
         ReporteContribuyentesComponent,
         ListPropietarioPlazaJbComponent,
-        BusquedaRecaudadoresComponent
+        BusquedaRecaudadoresComponent,
+        ConfigCobroComponent,
+        ReporteMorosidadComponent,
+        BitacoraCondonacionesComponent
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,

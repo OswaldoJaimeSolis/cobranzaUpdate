@@ -25,6 +25,12 @@ public class PropietarioPlaza implements Serializable {
     Date vigenciaFinal;
     Double importe;
     Boolean inServerPropietarioPlaza;
+    //Adeudo calculado por el servidor en la última actualización de catálogos
+    Double adeudo;
+    //Fechas de las obligaciones vencidas (yyyy-MM-dd) separadas por coma
+    String fechasVencidas;
+    //Saldo del adeudo anterior (ya incluido en adeudo); se cobra en días sin cobro programado
+    Double adeudoAnterior;
 
     public String getCodigoPropietarioPlaza() {
         return codigoPropietarioPlaza;
@@ -115,5 +121,29 @@ public class PropietarioPlaza implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(codigoPropietarioPlaza);
+    }
+
+    public Double getAdeudo() {
+        return adeudo;
+    }
+
+    public void setAdeudo(Double adeudo) {
+        this.adeudo = adeudo;
+    }
+
+    public String getFechasVencidas() {
+        return fechasVencidas;
+    }
+
+    public void setFechasVencidas(String fechasVencidas) {
+        this.fechasVencidas = fechasVencidas;
+    }
+
+    public Double getAdeudoAnterior() {
+        return adeudoAnterior;
+    }
+
+    public void setAdeudoAnterior(Double adeudoAnterior) {
+        this.adeudoAnterior = adeudoAnterior;
     }
 }

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="morosidad_reporte" pageWidth="752" pageHeight="572" orientation="Landscape" columnWidth="752" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="56547f98-bb9a-4fe4-8633-185281c9e85b">
+	<parameter name="logo" class="java.io.InputStream"/>
+	<parameter name="encabezadoTiposPlaza" class="java.lang.String"/>
+	<field name="codigoPlaza" class="java.lang.String"/>
+	<field name="tipoPlaza" class="java.lang.String"/>
+	<field name="codigoContribuyente" class="java.lang.String"/>
+	<field name="nombreContribuyente" class="java.lang.String"/>
+	<field name="giro" class="java.lang.String"/>
+	<field name="licenciaComercio" class="java.lang.String"/>
+	<field name="tipoCobro" class="java.lang.String"/>
+	<field name="periodo" class="java.lang.String"/>
+	<field name="fechaVencimiento" class="java.util.Date"/>
+	<field name="monto" class="java.lang.Double"/>
+	<field name="clavePlaza" class="java.lang.String"/>
+	<variable name="totalAdeudo" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{monto}]]></variableExpression>
+	</variable>
+	<variable name="plazasMorosas" class="java.lang.Integer" calculation="DistinctCount">
+		<variableExpression><![CDATA[$F{clavePlaza}]]></variableExpression>
+	</variable>
+	<title>
+		<band height="96" splitType="Stretch">
+			<staticText>
+				<reportElement x="9" y="6" width="734" height="16" uuid="2072b860-0abc-4c8e-bc5a-8e172136a1f6"/>
+				<textElement textAlignment="Center"><font size="11" isBold="false"/></textElement>
+				<text><![CDATA[PRESIDENCIA MUNICIPAL DE JALPA, ZAC.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="9" y="22" width="734" height="16" uuid="bbe2d5ec-34c9-4a12-a753-e3f32505c298"/>
+				<textElement textAlignment="Center"><font size="11" isBold="false"/></textElement>
+				<text><![CDATA[TESORERÍA MUNICIPAL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="9" y="38" width="734" height="16" uuid="715ea0fc-f8c1-4eac-875b-492b692a10ca"/>
+				<textElement textAlignment="Center"><font size="11" isBold="true"/></textElement>
+				<text><![CDATA[REPORTE DE MOROSIDAD]]></text>
+			</staticText>
+			<image scaleImage="FillFrame">
+				<reportElement x="660" y="4" width="62" height="54" uuid="a5dd4fb3-55b8-4e0d-b0c6-5616466c69ba"/>
+				<imageExpression><![CDATA[$P{logo}]]></imageExpression>
+			</image>
+			<textField isBlankWhenNull="true">
+				<reportElement x="9" y="60" width="400" height="12" uuid="53e8a7f2-eea4-4380-a275-73640f117670"/>
+				<textElement textAlignment="Left"><font size="8" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA["Tipos de plaza: " + $P{encabezadoTiposPlaza}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="543" y="60" width="200" height="12" uuid="41b45cc8-ee77-4a02-9a5e-b9df014e8dc0"/>
+				<textElement textAlignment="Right"><font size="8" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA["Fecha de emisión: " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="6" y="82" width="100" height="12" uuid="164cde6f-898d-4a9a-9352-9012c64482b2"/>
+				<textElement textAlignment="Left"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[T. plaza]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="106" y="82" width="88" height="12" uuid="532f55cc-4925-4a44-b3a8-b68039685d4a"/>
+				<textElement textAlignment="Left"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[Plaza]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="194" y="82" width="88" height="12" uuid="645e7d74-ac81-4f87-a433-054ddfd06243"/>
+				<textElement textAlignment="Left"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[C. contrib.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="282" y="82" width="150" height="12" uuid="34e709b0-bddc-4f58-bcc1-bd9bb196d672"/>
+				<textElement textAlignment="Left"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[Propietario]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="432" y="82" width="34" height="12" uuid="acbc92eb-22b8-4948-b3fe-18e8c9aae989"/>
+				<textElement textAlignment="Center"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[Lic. com.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="466" y="82" width="48" height="12" uuid="72364e09-1cc2-4d75-bca9-b80e977c2bce"/>
+				<textElement textAlignment="Left"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[Tipo cobro]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="514" y="82" width="112" height="12" uuid="b8336153-6bc2-4c60-8d57-08d12e954465"/>
+				<textElement textAlignment="Left"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[Período vencido]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="626" y="82" width="48" height="12" uuid="90124b1b-f622-4cac-b57f-d386d628c100"/>
+				<textElement textAlignment="Center"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[Vencimiento]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="674" y="82" width="72" height="12" uuid="81d2d2dd-8271-4187-8677-a675618451ea"/>
+				<textElement textAlignment="Right"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[Adeudo]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="13" splitType="Prevent">
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="6" y="1" width="100" height="11" uuid="21b1028b-6112-4a00-8e8d-cca795d8fc61"/>
+				<textElement textAlignment="Left"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{tipoPlaza}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="106" y="1" width="88" height="11" uuid="9e7ba347-293a-408e-a279-2fb3ceca39e3"/>
+				<textElement textAlignment="Left"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{codigoPlaza}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="194" y="1" width="88" height="11" uuid="25145957-5afe-4671-bf8d-1a6fbd6b4f14"/>
+				<textElement textAlignment="Left"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{codigoContribuyente}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="282" y="1" width="150" height="11" uuid="6c9a1888-f753-49fe-8add-6a732af18f7e"/>
+				<textElement textAlignment="Left"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{nombreContribuyente}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="432" y="1" width="34" height="11" uuid="cee4b548-bd90-4762-917f-1abf61676c5e"/>
+				<textElement textAlignment="Center"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{licenciaComercio}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="466" y="1" width="48" height="11" uuid="4944d14d-8832-42fd-b785-2693e441231b"/>
+				<textElement textAlignment="Left"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{tipoCobro}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="514" y="1" width="112" height="11" uuid="c19e385d-ea32-4492-9906-12117883a35c"/>
+				<textElement textAlignment="Left"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{periodo}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true" pattern="dd/MM/yyyy">
+				<reportElement x="626" y="1" width="48" height="11" uuid="655f468c-abdd-47cb-8a87-d60f4cddefaf"/>
+				<textElement textAlignment="Center"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{fechaVencimiento}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true" pattern="#,##0.00">
+				<reportElement x="674" y="1" width="72" height="11" uuid="5265c533-fbb6-46de-8df6-df5619e45a62"/>
+				<textElement textAlignment="Right"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{monto}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="40" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="6" y="8" width="400" height="14" uuid="47412f39-c5cd-4fbb-8b36-7fd065399e77"/>
+				<textElement textAlignment="Left"><font size="9" isBold="true"/></textElement>
+				<textFieldExpression><![CDATA["Plazas con adeudo: " + $V{plazasMorosas} + "    Obligaciones vencidas: " + $V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="480" y="8" width="266" height="14" uuid="50e52125-3aab-4793-89f8-52aca0825ee2"/>
+				<textElement textAlignment="Right"><font size="9" isBold="true"/></textElement>
+				<textFieldExpression><![CDATA["Adeudo total: $" + new java.text.DecimalFormat("#,##0.00").format($V{totalAdeudo} == null ? 0.0 : $V{totalAdeudo})]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

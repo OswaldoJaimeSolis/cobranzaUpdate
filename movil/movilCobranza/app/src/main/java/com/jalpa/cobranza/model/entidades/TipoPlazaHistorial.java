@@ -18,7 +18,10 @@ public class TipoPlazaHistorial implements Serializable {
     String tipoPlazaH;
     Date vigenciaInicial;
     Date vigenciaFinal;
+    //precio normal
     Double importe;
+    //precio a más tardar en la fecha de la obligación; null sin descuento
+    Double precioDescuento;
 
     public Integer getIdTipoPlazaHistorial() {
         return idTipoPlazaHistorial;
@@ -58,5 +61,13 @@ public class TipoPlazaHistorial implements Serializable {
 
     public void setImporte(Double importe) {
         this.importe = importe;
+    }
+
+    public Double getPrecioDescuento() {
+        return precioDescuento;
+    }
+
+    public void setPrecioDescuento(Double precioDescuento) {
+        this.precioDescuento = precioDescuento;
     }
 }

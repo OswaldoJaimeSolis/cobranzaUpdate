@@ -12,6 +12,7 @@ public class Recaudador  implements Serializable {
 	String passRecaudador;
 	String nombreRecaudador;
 	Boolean activoRecaudador;
+	Boolean puedeCondonar;
 	
 	public String getCodigoRecaudador() {
 		return codigoRecaudador;
@@ -37,7 +38,12 @@ public class Recaudador  implements Serializable {
 	public void setActivoRecaudador(Boolean activoRecaudador) {
 		this.activoRecaudador = activoRecaudador;
 	}
-	
-	
 
+	public Boolean getPuedeCondonar() {
+		return puedeCondonar;
+	}
+
+	public void setPuedeCondonar(Boolean puedeCondonar) {
+		this.puedeCondonar = puedeCondonar;
+	}
 }

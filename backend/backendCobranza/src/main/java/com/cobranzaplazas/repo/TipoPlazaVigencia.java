@@ -21,7 +21,10 @@ public class TipoPlazaVigencia  implements Serializable {
 	TipoPlaza tipoPlaza;
 	Date vigenciaInicial;
 	Date vigenciaFinal;
+	// Precio normal: después de la fecha de la obligación (o fuera del período en el cobro anual)
 	Double importe;
+	// Precio a más tardar en la fecha de la obligación; sólo lo usa la configuración de cobro
+	Double precioDescuento;
 
 	public Integer getIdTipoPlazaVigencia() {
 		return idTipoPlazaVigencia;
@@ -61,6 +64,14 @@ public class TipoPlazaVigencia  implements Serializable {
 
 	public void setImporte(Double importe) {
 		this.importe = importe;
+	}
+
+	public Double getPrecioDescuento() {
+		return precioDescuento;
+	}
+
+	public void setPrecioDescuento(Double precioDescuento) {
+		this.precioDescuento = precioDescuento;
 	}
 
 }

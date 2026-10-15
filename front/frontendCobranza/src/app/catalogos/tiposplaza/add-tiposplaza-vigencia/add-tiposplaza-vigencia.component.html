@@ -27,7 +27,10 @@
     </mat-form-field>
     -->
     <mat-form-field style="text-align: right">
-      <input matInput placeholder="Importe: " [(ngModel)]="oFinal.importe" #data="ngModel" inputmode="numeric" required>
+      <input matInput placeholder="Precio normal: " [(ngModel)]="oFinal.importe" #data="ngModel" inputmode="numeric" required>
+    </mat-form-field>
+    <mat-form-field style="text-align: right">
+      <input matInput placeholder="Precio con descuento: " [(ngModel)]="oFinal.precioDescuento" inputmode="numeric">
     </mat-form-field>
 
 

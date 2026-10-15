@@ -47,7 +47,9 @@ public interface ContribucionDao extends JpaRepository<Contribucion, Integer> {
 
 	final String QUERY_CONTRIBUYENTES_BASE = "SELECT new com.cobranzaplazas.model.JBContribuyente(PP.contribuyente.codigoContribuyente as codigoContribuyente,"
 			+ "CONCAT(PP.contribuyente.nombre,' ', PP.contribuyente.apePaterno,' ',PP.contribuyente.apeMaterno) as nombreContribuyente,"
-			+ "PP.contribuyente.rfcContribuyente as rfc, PP.tipoPlaza.codigoTipoPlaza as tipoPlaza) "
+			// Se agregan con MAX porque la consulta agrupa por contribuyente (sql_mode=only_full_group_by)
+			+ "PP.contribuyente.rfcContribuyente as rfc, MAX(PP.tipoPlaza.codigoTipoPlaza) as tipoPlaza,"
+			+ " MAX(CASE WHEN PP.licenciaComercio = true THEN 1 ELSE 0 END) as licenciaComercio) "
 			+ "FROM PropietarioPlaza AS PP    ";
 	final String QUERY_CONTRIBUYENTES_TODOS = QUERY_CONTRIBUYENTES_BASE
 			+ " GROUP BY PP.contribuyente.codigoContribuyente";
@@ -100,5 +102,13 @@ public interface ContribucionDao extends JpaRepository<Contribucion, Integer> {
 
 	@Query(value = QUERY_CONTRIBUYENTES_TP)
 	Collection<JBContribuyente> findTPConribuyentes(@Param("codigoTP") String codigoTP, Sort sort);
+
+	// Pagos registrados (plaza, tipo de plaza, fecha cobrada) para cruzarlos con las obligaciones
+	@Query("SELECT c.plaza.codigoPlaza, c.tipoPlaza.codigoTipoPlaza, c.fechaContribucion FROM Contribucion c WHERE c.estadoPago = 1 AND (c.pagoAdeudoAnterior IS NULL OR c.pagoAdeudoAnterior = false)")
+	List<Object[]> findFechasPagadas();
+
+	// Abonos al adeudo anterior (plaza, tipo de plaza, total pagado)
+	@Query("SELECT c.plaza.codigoPlaza, c.tipoPlaza.codigoTipoPlaza, SUM(c.importeContribucion) FROM Contribucion c WHERE c.estadoPago = 1 AND c.pagoAdeudoAnterior = true GROUP BY c.plaza.codigoPlaza, c.tipoPlaza.codigoTipoPlaza")
+	List<Object[]> findPagosAdeudoAnterior();
 
 }

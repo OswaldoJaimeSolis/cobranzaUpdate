@@ -89,11 +89,39 @@
         android:layout_marginLeft="100px"
         android:layout_below="@id/cbPlaza"/>
 
+    <TextView
+        android:id="@+id/tvAdeudo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/etImporte"
+        android:layout_marginLeft="10px"
+        android:layout_marginTop="10px"
+        android:textColor="#B71C1C"
+        android:visibility="gone" />
+
+    <CheckBox
+        android:id="@+id/cbAdeudoAnterior"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvAdeudo"
+        android:layout_marginLeft="10px"
+        android:text="Pago de adeudo anterior"
+        android:visibility="gone" />
+
+    <CheckBox
+        android:id="@+id/cbCondonar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/cbAdeudoAnterior"
+        android:layout_marginLeft="10px"
+        android:text="Condonar"
+        android:visibility="gone" />
+
     <RadioGroup
         android:id="@+id/rgEstado"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/etImporte"
+        android:layout_below="@id/cbCondonar"
         android:layout_centerHorizontal="true">
         <RadioButton
             android:id="@+id/rbPagado"

@@ -7,6 +7,8 @@ import { ListPropietarioPlazaComponent } from './catalogos/propietarioplaza/list
 import { ReporteContribucionesComponent } from './reportes/reporte-contribuciones/reporte-contribuciones.component';
 import { ReporteContribuyentesComponent } from './reportes/reporte-contribuyentes/reporte-contribuyentes.component';
 import { ListPropietarioPlazaJbComponent } from './catalogos/propietarioplaza/list-propietario-plaza-jb/list-propietario-plaza-jb.component';
+import { ReporteMorosidadComponent } from './reportes/reporte-morosidad/reporte-morosidad.component';
+import { BitacoraCondonacionesComponent } from './reportes/bitacora-condonaciones/bitacora-condonaciones.component';
 
 const routes: Routes = [
   { path: 'contribuyentes', component: ListContribuyenteComponent },
@@ -14,7 +16,9 @@ const routes: Routes = [
   { path: 'tiposPlaza', component: ListTiposplazaComponent },
   { path: 'propietarioPlaza', component: ListPropietarioPlazaJbComponent },
   { path: 'reporteContribuciones', component: ReporteContribucionesComponent },
-  { path: 'reporteContribuyentes', component: ReporteContribuyentesComponent }
+  { path: 'reporteContribuyentes', component: ReporteContribuyentesComponent },
+  { path: 'reporteMorosidad', component: ReporteMorosidadComponent },
+  { path: 'bitacoraCondonaciones', component: BitacoraCondonacionesComponent }
 ];
 
 @NgModule({

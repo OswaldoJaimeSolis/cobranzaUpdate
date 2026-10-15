@@ -1,0 +1,147 @@
+<h2 mat-dialog-title class="centerText">Configuración de cobro: {{config.codigoTipoPlaza}}</h2>
+
+<mat-dialog-content>
+  <div class="columns-container">
+    <mat-form-field>
+      <mat-label>Tipo de cobro</mat-label>
+      <mat-select [(ngModel)]="config.tipoCobro" required>
+        <mat-option value="DIARIO">Diario</mat-option>
+        <mat-option value="MENSUAL">Mensual</mat-option>
+        <mat-option value="ANUAL">Anual</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Inicio de cobro</mat-label>
+      <input matInput type="date" [(ngModel)]="config.fechaInicioCobro" required>
+      <mat-hint>Las obligaciones se generan a partir de esta fecha</mat-hint>
+    </mat-form-field>
+
+    <p class="nota">
+      Los precios se toman de las vigencias (Períodos) del tipo de plaza: el importe es el precio normal y se aplica
+      el precio con descuento si se paga {{config.tipoCobro == 'ANUAL' ? 'dentro del período de pago' : 'en la fecha de cobro o antes'}}.
+    </p>
+
+    @if (config.tipoCobro == 'DIARIO') {
+      <h4>Días de la semana en que aplica el cobro</h4>
+      <div class="fila">
+        @for (d of diasSemana; track d.valor) {
+          <mat-checkbox [checked]="tieneDiaSemana(d.valor)" (change)="cambiarDiaSemana(d.valor, $event.checked)">
+            {{d.nombre}}
+          </mat-checkbox>
+        }
+      </div>
+    }
+
+    @if (config.tipoCobro == 'MENSUAL') {
+      <h4>Días de cobro de cada mes</h4>
+      <div class="fila">
+        <mat-form-field class="anio">
+          <mat-label>Año</mat-label>
+          <mat-select [(ngModel)]="anioSeleccionado">
+            <mat-option [value]="null">Todos los años</mat-option>
+            @for (anio of anios; track anio) {
+              <mat-option [value]="anio">{{anio}}{{tieneFechasPropias(anio) ? ' (con fechas)' : ''}}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        @if (anioSeleccionado != null) {
+          <button mat-icon-button type="button" [disabled]="diasDelAnioVacio()" (click)="quitarAnio(anioSeleccionado)" aria-label="Quitar año"
+            title="Quitar las fechas de {{anioSeleccionado}}">
+            <mat-icon>delete</mat-icon>
+          </button>
+        }
+      </div>
+      <p class="nota">
+        @if (anioSeleccionado == null) {
+          Estas fechas se cobran cada año, salvo en los años que tengan fechas propias.
+        } @else {
+          Las fechas de {{anioSeleccionado}} reemplazan a las de todos los años sólo en ese año.
+          @if (diasDelAnioVacio()) { Sin fechas, {{anioSeleccionado}} usa las de todos los años. }
+        }
+      </p>
+      @for (nombreMes of meses; track nombreMes; let i = $index) {
+        <div class="fila mes">
+          <span class="nombre-mes">{{nombreMes}}</span>
+          <span class="dias">
+            @for (d of diasDelMes(i + 1); track d) {
+              <span class="dia">
+                {{d.ultimoDia ? 'Último día' : d.dia}}
+                <button mat-icon-button type="button" (click)="quitarDia(d)" aria-label="Quitar día">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </span>
+            } @empty {
+              <span class="sin-cobro">Sin cobro</span>
+            }
+          </span>
+          <input class="dia-nuevo" type="number" min="1" [max]="largoMes(i + 1)" placeholder="Día"
+            [(ngModel)]="diaNuevo[i]" (keyup.enter)="agregarDia(i + 1)">
+          <button mat-stroked-button type="button" (click)="agregarDia(i + 1)">Agregar</button>
+          <button mat-stroked-button type="button" (click)="agregarUltimoDia(i + 1)">Último día</button>
+        </div>
+      }
+    }
+
+    @if (config.tipoCobro == 'ANUAL') {
+      <h4>Período de pago</h4>
+      <div class="fila">
+        <span class="etiqueta">Del</span>
+        <mat-form-field class="corto">
+          <mat-label>Día</mat-label>
+          <input matInput type="number" min="1" max="31" [(ngModel)]="config.periodoInicioDia" required>
+        </mat-form-field>
+        <mat-form-field class="medio">
+          <mat-label>Mes</mat-label>
+          <mat-select [(ngModel)]="config.periodoInicioMes" required>
+            @for (nombreMes of meses; track nombreMes; let i = $index) {
+              <mat-option [value]="i + 1">{{nombreMes}}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <span class="etiqueta">al</span>
+        <mat-form-field class="corto">
+          <mat-label>Día</mat-label>
+          <input matInput type="number" min="1" max="31" [(ngModel)]="config.periodoFinDia" required>
+        </mat-form-field>
+        <mat-form-field class="medio">
+          <mat-label>Mes</mat-label>
+          <mat-select [(ngModel)]="config.periodoFinMes" required>
+            @for (nombreMes of meses; track nombreMes; let i = $index) {
+              <mat-option [value]="i + 1">{{nombreMes}}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <h4>Períodos distintos para años específicos</h4>
+      @for (p of config.periodosAnuales; track p) {
+        <div class="fila">
+          <mat-form-field class="corto">
+            <mat-label>Año</mat-label>
+            <input matInput type="number" [(ngModel)]="p.anio" required>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Inicio</mat-label>
+            <input matInput type="date" [(ngModel)]="p.fechaInicio" required>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Fin</mat-label>
+            <input matInput type="date" [(ngModel)]="p.fechaFin" required>
+          </mat-form-field>
+          <button mat-icon-button type="button" (click)="quitarPeriodo(p)" aria-label="Quitar período">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      }
+      <div>
+        <button mat-stroked-button type="button" (click)="agregarPeriodo()">Agregar año</button>
+      </div>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions class="centerContent">
+  <button mat-button (click)="onCancel()">Cancelar</button>
+  <button mat-raised-button color="primary" [disabled]="isLoading" (click)="onSave()">Guardar</button>
+</mat-dialog-actions>

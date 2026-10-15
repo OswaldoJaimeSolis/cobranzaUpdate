@@ -1,6 +1,7 @@
 package com.jalpa.cobranza.model.dao;
 
 import com.jalpa.cobranza.model.ConverterDate;
+import com.jalpa.cobranza.model.entidades.ConfiguracionCobro;
 import com.jalpa.cobranza.model.entidades.Contribucion;
 import com.jalpa.cobranza.model.entidades.Contribuyente;
 import com.jalpa.cobranza.model.entidades.EquipoRecaudador;
@@ -16,7 +17,7 @@ import androidx.room.Database;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-@Database(entities = {Contribucion.class, Contribuyente.class, Plaza.class, PropietarioPlaza.class, Recaudador.class,  TipoPlaza.class, TipoPlazaHistorial.class, RecaudadorTipoPlaza.class, EquipoRecaudador.class, Folio.class}, version = 11)
+@Database(entities = {Contribucion.class, Contribuyente.class, Plaza.class, PropietarioPlaza.class, Recaudador.class,  TipoPlaza.class, TipoPlazaHistorial.class, RecaudadorTipoPlaza.class, EquipoRecaudador.class, Folio.class, ConfiguracionCobro.class}, version = 13)
 @TypeConverters({ConverterDate.class})
 public abstract class AppDataBase extends RoomDatabase {
     public abstract OperacionesDao operacionesDao();

@@ -17,7 +17,7 @@
       <mat-list-item>
         <mat-icon matListItemIcon>watch_later</mat-icon>
         <span matListItemTitle>De {{o.vigenciaInicial|date: 'dd/MM/yyyy'}} al {{o.vigenciaFinal|date: 'dd/MM/yyyy'}} Importe:
-        {{o.importe }}</span>
+        {{o.importe }}@if (o.precioDescuento != null) { · Con descuento: {{o.precioDescuento}} }</span>
         <div matListItemMeta>
           <button mat-raised-button color="primary" (click)="deleteO(o.idTipoPlazaVigencia)">
             Eliminar

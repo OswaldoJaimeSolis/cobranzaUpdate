@@ -54,6 +54,8 @@ export class AddPropietarioPlazaComponent implements OnInit {
 
       this.oFinal.giroDescripcion = dd.propietarioPlaza.giroDescripcion;
       this.oFinal.importe = dd.propietarioPlaza.importe;
+      this.oFinal.licenciaComercio = dd.propietarioPlaza.licenciaComercio === true;
+      this.oFinal.adeudoAnterior = dd.propietarioPlaza.adeudoAnterior;
       this.oFinal.vigenciaFinal = new Date(dd.propietarioPlaza.vigenciaFinal);
       this.oFinal.vigenciaInicial = new Date(dd.propietarioPlaza.vigenciaInicial);
       this.encabezado = "Editar propietario";
@@ -81,7 +83,26 @@ export class AddPropietarioPlazaComponent implements OnInit {
     }
   }
 
+  // Licencia de comercio y adeudo anterior no cambian la vigencia: se guardan sobre el mismo registro
+  cambiaronDatosCobro(newO: PropietarioPlaza): boolean {
+    return (this.oOriginal.licenciaComercio === true) != (newO.licenciaComercio === true) ||
+      (this.oOriginal.adeudoAnterior || 0) != (newO.adeudoAnterior || 0);
+  }
+
   onEdit(newO: PropietarioPlaza) {
+    if (!this.validarAlgunCambio(newO) && this.cambiaronDatosCobro(newO)) {
+      this.service.updateDatosCobro(newO.idPropietarioPlaza, newO.licenciaComercio === true, newO.adeudoAnterior)
+        .subscribe({
+          next: () => this.onCancel(),
+          error: (error: any) => this.dialog.open(DialogInformativoComponent, {
+            data: {
+              title: "Atención!",
+              message: error.error && error.error.mensaje ? error.error.mensaje : 'No se pudo guardar'
+            }
+          })
+        });
+      return;
+    }
     if (newO.vigenciaInicial > new Date(this.oOriginal.vigenciaInicial)) {
       if (this.validarAlgunCambio(newO)) {
         this.service.editPropietarioPlaza(newO, newO.idPropietarioPlaza)
