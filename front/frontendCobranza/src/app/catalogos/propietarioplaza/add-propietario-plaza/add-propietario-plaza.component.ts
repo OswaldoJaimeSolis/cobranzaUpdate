@@ -89,7 +89,54 @@ export class AddPropietarioPlazaComponent implements OnInit {
       (this.oOriginal.adeudoAnterior || 0) != (newO.adeudoAnterior || 0);
   }
 
+  private soloDia(fecha: Date | string): number {
+    const d = new Date(fecha);
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  }
+
+  private mostrarError(error: any, porOmision: string) {
+    this.dialog.open(DialogInformativoComponent, {
+      data: {
+        title: "Atención!",
+        message: error && error.error && error.error.mensaje ? error.error.mensaje : porOmision
+      }
+    });
+  }
+
+  // Una fecha inicial anterior a la del registro es una corrección: se cambia en el mismo registro
+  // (junto con licencia y adeudo anterior), sin cerrar el registro ni crear otro.
+  private corregirFechaInicial(newO: PropietarioPlaza) {
+    if (this.validarAlgunCambio(newO)) {
+      this.dialog.open(DialogInformativoComponent, {
+        data: {
+          title: "Atención!",
+          message: 'Para adelantar la fecha inicial no cambie contribuyente, tipo de plaza, giro ni importe: guarde primero la fecha y después los demás cambios'
+        }
+      });
+      return;
+    }
+    const fecha = this.datePipe.transform(newO.vigenciaInicial, 'yyyy-MM-dd');
+    this.service.corregirVigenciaInicial(newO.idPropietarioPlaza, fecha).subscribe({
+      next: () => {
+        if (!this.cambiaronDatosCobro(newO)) {
+          this.onCancel();
+          return;
+        }
+        this.service.updateDatosCobro(newO.idPropietarioPlaza, newO.licenciaComercio === true, newO.adeudoAnterior)
+          .subscribe({
+            next: () => this.onCancel(),
+            error: (error: any) => this.mostrarError(error, 'No se pudo guardar')
+          });
+      },
+      error: (error: any) => this.mostrarError(error, 'No se pudo corregir la fecha inicial')
+    });
+  }
+
   onEdit(newO: PropietarioPlaza) {
+    if (this.soloDia(newO.vigenciaInicial) < this.soloDia(this.oOriginal.vigenciaInicial)) {
+      this.corregirFechaInicial(newO);
+      return;
+    }
     if (!this.validarAlgunCambio(newO) && this.cambiaronDatosCobro(newO)) {
       this.service.updateDatosCobro(newO.idPropietarioPlaza, newO.licenciaComercio === true, newO.adeudoAnterior)
         .subscribe({
@@ -103,7 +150,7 @@ export class AddPropietarioPlazaComponent implements OnInit {
         });
       return;
     }
-    if (newO.vigenciaInicial > new Date(this.oOriginal.vigenciaInicial)) {
+    if (this.soloDia(newO.vigenciaInicial) > this.soloDia(this.oOriginal.vigenciaInicial)) {
       if (this.validarAlgunCambio(newO)) {
         this.service.editPropietarioPlaza(newO, newO.idPropietarioPlaza)
           .subscribe(
@@ -128,7 +175,9 @@ export class AddPropietarioPlazaComponent implements OnInit {
       this.dialog.open(DialogInformativoComponent, {
         data: {
           title: "F. inicial INCORRECTA",
-          message: 'Indica una fecha mayor: ' + this.datePipe.transform(this.oOriginal.vigenciaInicial, 'dd-MM-yyyy')
+          message: 'Para cambiar contribuyente, tipo de plaza, giro o importe indica una fecha mayor a '
+            + this.datePipe.transform(this.oOriginal.vigenciaInicial, 'dd-MM-yyyy')
+            + '. Para corregir la fecha inicial indica una fecha anterior sin cambiar otros datos'
         }
       });
     }

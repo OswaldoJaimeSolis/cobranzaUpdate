@@ -1,4 +1,8 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '../auth/auth.service';
+import { CambiarPasswordComponent } from '../auth/cambiar-password/cambiar-password.component';
+import { DialogInformativoComponent } from '../shared/dialog-informativo/dialog-informativo.component';
 
 @Component({
     selector: 'app-menu-principal',
@@ -7,11 +11,15 @@ import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
-export class MenuPrincipalComponent implements OnInit {
+export class MenuPrincipalComponent {
 
-  constructor() { }
+  constructor(public auth: AuthService, private dialog: MatDialog) { }
 
-  ngOnInit() {
+  cambiarPassword() {
+    this.dialog.open(CambiarPasswordComponent, { width: '400px' }).afterClosed().subscribe(cambiada => {
+      if (cambiada) {
+        this.dialog.open(DialogInformativoComponent, { data: { title: 'Listo', message: 'Contraseña actualizada' } });
+      }
+    });
   }
-
 }

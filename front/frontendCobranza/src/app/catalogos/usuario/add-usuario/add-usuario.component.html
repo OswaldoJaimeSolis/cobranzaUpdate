@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>{{encabezado}}</h2>
+
+<mat-dialog-content>
+  <div class="columns-container">
+    <mat-form-field>
+      <input matInput placeholder="Usuario: " [(ngModel)]="oFinal.usuario" [disabled]="editarId" [readonly]="editarId"
+        required>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Nombre: " [(ngModel)]="oFinal.nombre" required>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput [placeholder]="editarId ? 'Contraseña (vacía conserva la actual):' : 'Contraseña:'"
+        [(ngModel)]="oFinal.password" type="password" autocomplete="new-password" [required]="!editarId">
+    </mat-form-field>
+    <mat-form-field>
+      <mat-select placeholder="Rol" [(ngModel)]="oFinal.rol">
+        @for (r of roles; track r.valor) {
+          <mat-option [value]="r.valor">{{r.nombre}}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-checkbox [(ngModel)]="oFinal.activo">Activo</mat-checkbox>
+    @if (error) {
+      <div class="error">{{error}}</div>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="onSave()">Guardar</button>
+</mat-dialog-actions>

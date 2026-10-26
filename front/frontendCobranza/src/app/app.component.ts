@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { AuthService } from './auth/auth.service';
 
 @Component({
     selector: 'app-root',
@@ -9,4 +10,6 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 })
 export class AppComponent {
   title = 'cobranzaCli';
+
+  constructor(public auth: AuthService) { }
 }

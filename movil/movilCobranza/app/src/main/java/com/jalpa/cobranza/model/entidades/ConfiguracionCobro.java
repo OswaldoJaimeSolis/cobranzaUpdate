@@ -53,6 +53,29 @@ public class ConfiguracionCobro implements Serializable {
         return ANUAL.equals(tipoCobro);
     }
 
+    public boolean esMensual(){
+        return MENSUAL.equals(tipoCobro);
+    }
+
+    /**
+     * true si dos fechas cobradas cubren la misma obligación: en el mensual cualquier fecha del
+     * mes la cubre (un pago por mes), en el anual cualquier fecha del año; en el diario, el mismo día.
+     */
+    public boolean mismaObligacion(Date fechaA, Date fechaB){
+        if(fechaA==null || fechaB==null){
+            return false;
+        }
+        LocalDate a= aLocalDate(fechaA);
+        LocalDate b= aLocalDate(fechaB);
+        if(esAnual()){
+            return a.getYear()==b.getYear();
+        }
+        if(esMensual()){
+            return YearMonth.from(a).equals(YearMonth.from(b));
+        }
+        return a.equals(b);
+    }
+
     /** Período de pago del año: {inicio, fin}; el específico de ese año o, si no hay, el período por omisión. */
     private LocalDate[] periodoAnual(int anio){
         if(periodosAnuales!=null){

@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Sesion.init(this);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //enableRuntimePermission();
@@ -165,6 +166,12 @@ public class MainActivity extends AppCompatActivity {
                 cal.set(2020,9,26);
                 new ActualizarCatalogosRemoto(true, cal.getTime(),"AMBULANTE", "test").execute();*/
                 cargarCatalogosLocal();
+                // Android puede recrear esta Activity (rotación, teclado, etc.) con la sesión ya iniciada:
+                // en ese caso no se vuelve a pedir el login.
+                if(RecaudadorActivo.getRecaudadorActivo()!=null){
+                    runOnUiThread(() -> cbCondonar.setVisibility(puedeCondonar()? View.VISIBLE: View.GONE));
+                    return;
+                }
                 Intent intent = new Intent(MainActivity.this, LogueoActivity.class);
                 intent.putExtra("recaudadores", (Serializable) recaudadores);
                 startActivityForResult(intent, REQUEST_VALIDAR_RECAUDADOR);
@@ -704,11 +711,43 @@ public class MainActivity extends AppCompatActivity {
              PropietarioPlaza propietarioPlaza = (PropietarioPlaza) cbPlazas.getSelectedItem();
              Date fecha =getSdf().parse(etFecha.getText().toString());
 
+             //la plaza elegida puede no estar vigente en la fecha en pantalla (la lista incluye también las
+             //vigentes hoy): se pasa a hoy o, si aún no inicia o ya terminó, al extremo de su vigencia
+             java.time.LocalDate dia= ConfiguracionCobro.aLocalDate(fecha);
+             java.time.LocalDate inicioVig= propietarioPlaza.getVigenciaInicial()!=null? ConfiguracionCobro.aLocalDate(propietarioPlaza.getVigenciaInicial()): null;
+             java.time.LocalDate finVig= propietarioPlaza.getVigenciaFinal()!=null? ConfiguracionCobro.aLocalDate(propietarioPlaza.getVigenciaFinal()): null;
+             if((inicioVig!=null && dia.isBefore(inicioVig)) || (finVig!=null && dia.isAfter(finVig))){
+                 java.time.LocalDate destino= java.time.LocalDate.now();
+                 if(inicioVig!=null && destino.isBefore(inicioVig)){
+                     destino= inicioVig;
+                 }
+                 else if(finVig!=null && destino.isAfter(finVig)){
+                     destino= finVig;
+                 }
+                 if(!destino.equals(dia)){
+                     setCurrentDateOnView(ConfiguracionCobro.aDate(destino));
+                     return;
+                 }
+             }
+
              //el cobro anual es una sola obligación por año: cualquier fecha se lleva al fin del período de pago
              ConfiguracionCobro config= getConfiguracionCobro(propietarioPlaza);
              if(config!=null && config.esAnual() && !cbAdeudoAnterior.isChecked()){
                  Date finPeriodo= config.fechaObligacion(fecha);
-                 if(finPeriodo!=null && !finPeriodo.equals(fecha)){
+                 //si el período de ese año terminó antes de que iniciara la vigencia de la plaza, su
+                 //primera anualidad es la del año siguiente (igual que las obligaciones del servidor)
+                 Date inicioPlaza= propietarioPlaza.getVigenciaInicial();
+                 if(finPeriodo!=null && inicioPlaza!=null && finPeriodo.before(ConfiguracionCobro.aDate(ConfiguracionCobro.aLocalDate(inicioPlaza)))){
+                     int siguiente= ConfiguracionCobro.aLocalDate(finPeriodo).getYear()+1;
+                     Date otra= config.fechaObligacion(ConfiguracionCobro.aDate(java.time.LocalDate.of(siguiente, 1, 1)));
+                     if(otra!=null){
+                         finPeriodo= otra;
+                     }
+                 }
+                 //no se salta a una anualidad fuera de la vigencia de la plaza
+                 boolean fueraDeVigencia= finPeriodo!=null && ((inicioVig!=null && ConfiguracionCobro.aLocalDate(finPeriodo).isBefore(inicioVig))
+                         || (finVig!=null && ConfiguracionCobro.aLocalDate(finPeriodo).isAfter(finVig)));
+                 if(finPeriodo!=null && !fueraDeVigencia && !finPeriodo.equals(fecha)){
                      setCurrentDateOnView(finPeriodo);
                      return;
                  }
@@ -938,7 +977,11 @@ public class MainActivity extends AppCompatActivity {
         else{
             etImporte.setText("");
             btnConfirmar.setEnabled(false);
-            Toast.makeText(getApplicationContext(), "No existe importe vigente para esta fecha", Toast.LENGTH_LONG).show();
+            Object sel= cbPlazas.getSelectedItem();
+            String tipo= sel instanceof PropietarioPlaza && ((PropietarioPlaza) sel).getTipoPlaza()!=null?
+                    " del tipo "+((PropietarioPlaza) sel).getTipoPlaza().getCodigoTipoPlaza(): "";
+            mostrarAviso("SIN PRECIO", "No existe precio vigente"+tipo+" para el "+etFecha.getText()
+                    +". Capture la vigencia del tipo de plaza en la web y actualice catálogos.");
         }
     }
 
@@ -961,6 +1004,11 @@ public class MainActivity extends AppCompatActivity {
     private class VerificarExistenciaContribucion extends  AsyncTask<Object, Void, Contribucion> {
         private boolean imprimir=false;
         private Contribucion contribucionG;
+        private ConfiguracionCobro configVerificar;
+        //la contribución encontrada es el pago de otra fecha del mismo mes (cobro mensual)
+        private boolean pagadoEnOtraFecha=false;
+        //próxima fecha de cobro cuyo período (día, mes o año) aún no está pagado
+        private Date proximoPendiente;
         public VerificarExistenciaContribucion(Contribucion contribucion, boolean imprimir){
             this.contribucionG= contribucion;
                     ///si se manda la contribucion no debe de revisar si existe, sólo  hacer lo correspondiente
@@ -971,6 +1019,8 @@ public class MainActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             pbBusqueda.setVisibility(View.VISIBLE);
+            Object seleccion= cbPlazas.getSelectedItem();
+            configVerificar= seleccion instanceof PropietarioPlaza? getConfiguracionCobro((PropietarioPlaza) seleccion): null;
         }
 
         @Override
@@ -978,6 +1028,15 @@ public class MainActivity extends AppCompatActivity {
             Contribucion conLocal=contribucionG;
             if(conLocal==null) {
                 conLocal = recuperaContribucion((String) objects[0], (Date) (objects[1]), (String) (objects[2]));
+                //en el cobro mensual un solo pago cubre el mes: si ya se pagó otra fecha del mes se muestra ese pago
+                if(conLocal==null && configVerificar!=null && configVerificar.esMensual()
+                        && configVerificar.fechaObligacion((Date) objects[1])!=null){
+                    conLocal= pagoDelMes((String) objects[0], (Date) objects[1], (String) objects[2]);
+                    pagadoEnOtraFecha= conLocal!=null;
+                }
+                if(configVerificar!=null){
+                    proximoPendiente= proximoCobroPendiente(configVerificar, (String) objects[0], (String) objects[2]);
+                }
             }
 
 
@@ -1010,6 +1069,10 @@ public class MainActivity extends AppCompatActivity {
             mostrarAdeudo(plazaSeleccionada);
             ConfiguracionCobro config= getConfiguracionCobro(plazaSeleccionada);
             if (contribucion != null) {
+                if(pagadoEnOtraFecha){
+                    mostrarAviso("MES PAGADO", "Este mes ya está pagado: se cobró el "+getSdf().format(contribucion.getFecha())
+                            +" (folio "+contribucion.getFolioDedicado()+"). Sólo se puede reimprimir.");
+                }
                 etImporte.setText(String.format("%.2f", contribucion.getImporte()));
                 //un pendiente o ausente se cobra al precio que corresponda el día en que realmente se paga
                 if(config!=null && contribucion.getEstadoPago()!= ESTADO_PAGADO){
@@ -1062,7 +1125,7 @@ public class MainActivity extends AppCompatActivity {
                 else if(obligacion!=null){
                     if(cbAdeudoAnterior.isChecked()){
                         cbAdeudoAnterior.setChecked(false);
-                        Toast.makeText(getApplicationContext(), "En esta fecha hay un cobro programado. Para pagar el adeudo anterior elija otra fecha", Toast.LENGTH_LONG).show();
+                        mostrarAviso("ADEUDO ANTERIOR", "En esta fecha hay un cobro programado. Para pagar el adeudo anterior elija otra fecha");
                     }
                     mostrarImporteConfigurado(config.importe(obligacion, new Date(), vigenciaSeleccionada(plazaSeleccionada)));
                 }
@@ -1070,9 +1133,9 @@ public class MainActivity extends AppCompatActivity {
                     //sólo se generan obligaciones de pago en las fechas configuradas
                     etImporte.setText("");
                     btnConfirmar.setEnabled(false);
-                    Date proxima= config.proximaFecha(new Date());
-                    Toast.makeText(getApplicationContext(), "Sin cobro programado para esta fecha"
-                            +(proxima!=null? ". Próximo cobro: "+getSdf().format(proxima): ""), Toast.LENGTH_LONG).show();
+                    Date proxima= proximoPendiente;
+                    mostrarAviso("SIN COBRO", "Sin cobro programado para esta fecha"
+                            +(proxima!=null? ". Próximo cobro: "+getSdf().format(proxima): ""));
                 }
             }
             else{
@@ -1202,6 +1265,65 @@ public class MainActivity extends AppCompatActivity {
      * @param codigoPlaza
      * @return
      */
+    /** Mensaje completo en un diálogo: los toasts de Android 12+ se cortan a dos líneas. */
+    private void mostrarAviso(String titulo, String mensaje){
+        new AlertDialog.Builder(this).setTitle(titulo).setMessage(mensaje).setPositiveButton("ACEPTAR", null).show();
+    }
+
+    /**
+     * Siguiente fecha de cobro a partir de hoy cuyo período no tenga ya un pago (no de adeudo
+     * anterior): en el mensual se salta el mes pagado, en el anual el año pagado. Se consulta la base,
+     * así que va en segundo plano.
+     */
+    private Date proximoCobroPendiente(ConfiguracionCobro config, String codigoContribuyente, String codigoPlaza){
+        java.time.LocalDate hoy= java.time.LocalDate.now();
+        List<Contribucion> pagos= new ArrayList<>();
+        for(Contribucion con: Database.getInstance(getApplicationContext()).getAppDatabase().operacionesDao()
+                .getContribuciones(codigoContribuyente, codigoPlaza, ConfiguracionCobro.aDate(hoy.minusYears(1)), ConfiguracionCobro.aDate(hoy.plusYears(3)))){
+            if(con.getEstadoPago()!=null && con.getEstadoPago()==ESTADO_PAGADO && !Boolean.TRUE.equals(con.getPagoAdeudoAnterior())){
+                pagos.add(con);
+            }
+        }
+        Date desde= ConfiguracionCobro.aDate(hoy);
+        for(int i=0;i<60;i++){
+            Date proxima= config.proximaFecha(desde);
+            if(proxima==null){
+                return null;
+            }
+            boolean pagada= false;
+            for(Contribucion con: pagos){
+                if(config.mismaObligacion(con.getFecha(), proxima)){
+                    pagada= true;
+                    break;
+                }
+            }
+            if(!pagada){
+                return proxima;
+            }
+            java.time.LocalDate p= ConfiguracionCobro.aLocalDate(proxima);
+            desde= ConfiguracionCobro.aDate(config.esAnual()? java.time.LocalDate.of(p.getYear()+1, 1, 1)
+                    : config.esMensual()? p.withDayOfMonth(1).plusMonths(1): p.plusDays(1));
+        }
+        return null;
+    }
+
+    /** Contribución pagada (no de adeudo anterior) en cualquier fecha del mes de la fecha dada, o null. */
+    private Contribucion pagoDelMes(String codigoContribuyente, Date fecha, String codigoPlaza){
+        if(fecha==null){
+            return null;
+        }
+        java.time.YearMonth mes= java.time.YearMonth.from(ConfiguracionCobro.aLocalDate(fecha));
+        Date inicio= ConfiguracionCobro.aDate(mes.atDay(1));
+        Date fin= new Date(ConfiguracionCobro.aDate(mes.plusMonths(1).atDay(1)).getTime()-1);
+        for(Contribucion con: Database.getInstance(getApplicationContext()).getAppDatabase().operacionesDao()
+                .getContribuciones(codigoContribuyente, codigoPlaza, inicio, fin)){
+            if(con.getEstadoPago()!=null && con.getEstadoPago()==ESTADO_PAGADO && !Boolean.TRUE.equals(con.getPagoAdeudoAnterior())){
+                return con;
+            }
+        }
+        return null;
+    }
+
     private Contribucion recuperaContribucion(String codigoContribuyente, Date fecha, String codigoPlaza){
        List<Contribucion> contribuciones= Database.getInstance(getApplicationContext()).getAppDatabase().operacionesDao().getContribuciones(codigoContribuyente, codigoPlaza, fecha, fecha);
        if(contribuciones.size()>0){
@@ -1463,7 +1585,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 else{
-                    Toast.makeText(getApplicationContext(), "No está autorizado cobrar", Toast.LENGTH_LONG).show();
+                    mostrarAviso("NO AUTORIZADO", "El recaudador no tiene asignado el tipo de plaza "
+                            +(contribucion.getTipoPlaza()!=null? contribucion.getTipoPlaza().getCodigoTipoPlaza(): "")
+                            +". Pida al administrador que se lo asigne y actualice los recaudadores.");
                 }
             }
             else{
@@ -1500,6 +1624,10 @@ public class MainActivity extends AppCompatActivity {
     private class ConfirmarContribucion extends AsyncTask<Void, Void, Void>{
         private List<Contribucion> contribucionesAnteriores;
         private Contribucion contribucion;
+        //fechas vencidas de la plaza (las calcula el servidor y se descuentan localmente al cobrar)
+        private String[] vencidas= new String[0];
+        //la fecha vencida más antigua que la que se cobra: hay que cubrirla primero
+        private Date vencidaAnterior;
 
         public ConfirmarContribucion(Contribucion contribucion) {
             this.contribucion = contribucion;
@@ -1509,17 +1637,50 @@ public class MainActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             pbBusqueda.setVisibility(View.VISIBLE);
+            if(cbPlazas.getSelectedItem() instanceof PropietarioPlaza){
+                vencidas= fechasVencidas((PropietarioPlaza) cbPlazas.getSelectedItem());
+            }
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
             try {
+                //un pago o una condonación del calendario cubre primero lo vencido más antiguo; el adeudo
+                //anterior es aparte y no bloquea
+                if(contribucion.getEstadoPago()==ESTADO_PAGADO && !Boolean.TRUE.equals(contribucion.getPagoAdeudoAnterior())){
+                    ConfiguracionCobro config= contribucion.getTipoPlaza()==null? null: Database.getInstance(getApplicationContext())
+                            .getAppDatabase().operacionesDao().getConfiguracionCobro(contribucion.getTipoPlaza().getCodigoTipoPlaza());
+                    SimpleDateFormat iso= new SimpleDateFormat("yyyy-MM-dd");
+                    for(String texto: vencidas){
+                        Date vencida= iso.parse(texto.trim());
+                        boolean misma= config!=null? config.mismaObligacion(vencida, contribucion.getFecha()): vencida.equals(contribucion.getFecha());
+                        if(!misma && vencida.before(contribucion.getFecha()) && (vencidaAnterior==null || vencida.before(vencidaAnterior))){
+                            vencidaAnterior= vencida;
+                        }
+                    }
+                    if(vencidaAnterior!=null){
+                        return null;
+                    }
+                }
 
                 //si se va a intentar pagar, es necesario que no haya pendientes de pago
                 if(contribucion.getEstadoPago()==ESTADO_PAGADO){
                     contribucionesAnteriores= Database.getInstance(getApplicationContext())
                             .getAppDatabase().operacionesDao()
                             .getContribucionesAnteriores(contribucion.getContribuyente().getCodigoContribuyente(), contribucion.getPlaza().getCodigoPlaza(), ESTADO_PENDIENTE,contribucion.getFecha());
+                    //en el cobro mensual un pendiente no bloquea si su mes es el que se paga o ya tiene un pago
+                    ConfiguracionCobro config= contribucion.getTipoPlaza()==null? null: Database.getInstance(getApplicationContext())
+                            .getAppDatabase().operacionesDao().getConfiguracionCobro(contribucion.getTipoPlaza().getCodigoTipoPlaza());
+                    if(contribucionesAnteriores!=null && config!=null && config.esMensual()){
+                        List<Contribucion> bloquean= new ArrayList<>();
+                        for(Contribucion pendiente: contribucionesAnteriores){
+                            if(!config.mismaObligacion(pendiente.getFecha(), contribucion.getFecha())
+                                    && pagoDelMes(pendiente.getContribuyente().getCodigoContribuyente(), pendiente.getFecha(), pendiente.getPlaza().getCodigoPlaza())==null){
+                                bloquean.add(pendiente);
+                            }
+                        }
+                        contribucionesAnteriores= bloquean;
+                    }
 
                 }
 
@@ -1551,6 +1712,20 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Void vois) {
             super.onPostExecute(vois);
             pbBusqueda.setVisibility(View.INVISIBLE);
+            if(vencidaAnterior!=null){
+                final Date masAntigua= vencidaAnterior;
+                new AlertDialog.Builder(MainActivity.this).setTitle("ADEUDO MÁS ANTIGUO")
+                        .setMessage("La plaza tiene un cobro vencido del "+getSdf().format(masAntigua)
+                                +" que debe cubrirse antes del "+getSdf().format(contribucion.getFecha())
+                                +". No se guardó la contribución.\n\n¿Desea ir al cobro más antiguo?")
+                        .setPositiveButton("SI", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                setCurrentDateOnView(masAntigua);
+                            }
+                        })
+                        .setNegativeButton("NO", null).show();
+                return;
+            }
             //si hay contribuciones anteriores las muestra, de lo cotrario carga la
             if(contribucionesAnteriores!=null && contribucionesAnteriores.size()>0  ){
                 StringBuilder sb= new StringBuilder();

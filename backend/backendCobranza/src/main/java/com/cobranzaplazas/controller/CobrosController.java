@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,7 +18,6 @@ import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -43,12 +43,14 @@ import com.cobranzaplazas.repo.PropietarioPlazaDao;
 import com.cobranzaplazas.repo.TipoPlaza;
 import com.cobranzaplazas.repo.TipoPlazaDao;
 
+import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.data.JRMapCollectionDataSource;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
@@ -61,7 +63,6 @@ import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
  */
 @RestController
 @RequestMapping("/")
-@CrossOrigin(origins = "http://localhost:4200")
 public class CobrosController {
 	private static final int REPORTE_PDF = 1;
 
@@ -276,22 +277,70 @@ public class CobrosController {
 		return ResponseEntity.ok(Map.of("idPropietarioPlaza", idPropietarioPlaza));
 	}
 
+	/**
+	 * Corrige hacia atrás la fecha inicial del mismo registro ({vigenciaInicial: "yyyy-MM-dd"}).
+	 * Editar con una fecha posterior cierra el registro y crea otro (PUT /propietarioPlaza/{id});
+	 * una fecha anterior es una corrección, así que no puede encimarse con otro registro de la plaza.
+	 */
+	@PutMapping("/propietarioPlaza/{idPropietarioPlaza}/vigenciaInicial")
+	public ResponseEntity<?> corregirVigenciaInicial(@PathVariable String idPropietarioPlaza,
+			@RequestBody Map<String, String> datos) {
+		PropietarioPlaza pp = propietarioPlazaDao.findById(idPropietarioPlaza).orElse(null);
+		if (pp == null) {
+			return error("No existe el propietario de plaza " + idPropietarioPlaza);
+		}
+		LocalDate nueva;
+		try {
+			nueva = LocalDate.parse(datos.get("vigenciaInicial"));
+		} catch (Exception e) {
+			return error("La fecha inicial no es válida");
+		}
+		if (pp.getVigenciaFinal() != null && nueva.isAfter(CalculoCobroService.aLocalDate(pp.getVigenciaFinal()))) {
+			return error("La fecha inicial no puede ser posterior a la final");
+		}
+		String codigoPlaza = pp.getPlaza() != null ? pp.getPlaza().getCodigoPlaza() : null;
+		for (PropietarioPlaza otro : propietarioPlazaDao.findAll()) {
+			if (otro.getIdPropietarioPlaza().equals(idPropietarioPlaza) || otro.getPlaza() == null
+					|| !otro.getPlaza().getCodigoPlaza().equals(codigoPlaza) || otro.getVigenciaInicial() == null
+					|| otro.getVigenciaFinal() == null) {
+				continue;
+			}
+			LocalDate inicioOtro = CalculoCobroService.aLocalDate(otro.getVigenciaInicial());
+			LocalDate finOtro = CalculoCobroService.aLocalDate(otro.getVigenciaFinal());
+			// sólo importan los registros anteriores de la plaza que terminan en o después de la nueva fecha
+			if (inicioOtro.isBefore(CalculoCobroService.aLocalDate(pp.getVigenciaInicial())) && !finOtro.isBefore(nueva)) {
+				return error("La plaza " + codigoPlaza + " tiene otro registro vigente hasta el "
+						+ finOtro.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+						+ ": la fecha inicial debe ser posterior");
+			}
+		}
+		pp.setVigenciaInicial(CalculoCobroService.aDate(nueva));
+		propietarioPlazaDao.save(pp);
+		return ResponseEntity.ok(Map.of("idPropietarioPlaza", idPropietarioPlaza));
+	}
+
 	// --- Morosidad y requerimientos de pago ---
+
+	/** Fecha de corte "yyyy-MM-dd"; sin ella, hoy */
+	private static LocalDate corte(String fechaCorte) {
+		return fechaCorte == null || fechaCorte.isBlank() ? LocalDate.now() : LocalDate.parse(fechaCorte);
+	}
 
 	@GetMapping("/morosidad")
 	public List<JBAdeudo> getMorosidad(@RequestParam(defaultValue = "true") Boolean todosTP,
-			@RequestParam(required = false) String codigoTP) {
-		return calculoCobroService.calcularAdeudos(todosTP ? null : codigoTP, null, LocalDate.now());
+			@RequestParam(required = false) String codigoTP, @RequestParam(required = false) String fechaCorte) {
+		return calculoCobroService.calcularAdeudos(todosTP ? null : codigoTP, null, corte(fechaCorte));
 	}
 
 	@GetMapping("/morosidadreporte")
 	public byte[] reporteMorosidad(HttpServletResponse response, @RequestParam Integer formato,
-			@RequestParam(defaultValue = "true") Boolean todosTP, @RequestParam(required = false) String codigoTP)
-			throws Exception {
-		List<JBAdeudo> adeudos = calculoCobroService.calcularAdeudos(todosTP ? null : codigoTP, null,
-				LocalDate.now());
+			@RequestParam(defaultValue = "true") Boolean todosTP, @RequestParam(required = false) String codigoTP,
+			@RequestParam(required = false) String fechaCorte) throws Exception {
+		LocalDate corte = corte(fechaCorte);
+		List<JBAdeudo> adeudos = calculoCobroService.calcularAdeudos(todosTP ? null : codigoTP, null, corte);
 		Map<String, Object> parametros = new HashMap<>();
 		parametros.put("encabezadoTiposPlaza", todosTP ? "Todos" : codigoTP);
+		parametros.put("fechaCorte", CalculoCobroService.aDate(corte));
 		return generar("/reportes/morosidad_reporte.jrxml", parametros, adeudos, formato, "morosidad", response);
 	}
 
@@ -299,25 +348,31 @@ public class CobrosController {
 	@GetMapping("/requerimientopagoreporte")
 	public byte[] reporteRequerimientoPago(HttpServletResponse response,
 			@RequestParam(defaultValue = "true") Boolean todosTP, @RequestParam(required = false) String codigoTP,
-			@RequestParam(required = false) String codigoPlaza, @RequestParam(required = false) String observaciones)
-			throws Exception {
+			@RequestParam(required = false) String codigoPlaza, @RequestParam(required = false) String observaciones,
+			@RequestParam(required = false) String fechaCorte) throws Exception {
 		boolean unaPlaza = codigoPlaza != null && !codigoPlaza.isEmpty();
+		LocalDate corte = corte(fechaCorte);
 		List<JBAdeudo> adeudos = calculoCobroService.calcularAdeudos(todosTP ? null : codigoTP,
-				unaPlaza ? codigoPlaza : null, LocalDate.now());
+				unaPlaza ? codigoPlaza : null, corte);
 		Map<String, Object> parametros = new HashMap<>();
 		parametros.put("observaciones", observaciones != null ? observaciones : "");
+		parametros.put("fechaCorte", CalculoCobroService.aDate(corte));
 		return generar("/reportes/requerimiento_pago_reporte.jrxml", parametros, adeudos, REPORTE_PDF,
 				unaPlaza ? "requerimiento_" + codigoPlaza : "requerimientos_pago", response);
 	}
 
 	private byte[] generar(String plantilla, Map<String, Object> parametros, List<JBAdeudo> filas, Integer formato,
 			String nombre, HttpServletResponse response) throws Exception {
+		return generar(plantilla, parametros, new JRBeanCollectionDataSource(filas), formato, nombre, response);
+	}
+
+	private byte[] generar(String plantilla, Map<String, Object> parametros, JRDataSource datos, Integer formato,
+			String nombre, HttpServletResponse response) throws Exception {
 		parametros.put("logo", this.getClass().getResourceAsStream("/logos/logo.png"));
 		byte[] archivo;
 		try (InputStream plantillaStream = this.getClass().getResourceAsStream(plantilla)) {
 			JasperReport jasperReport = JasperCompileManager.compileReport(plantillaStream);
-			JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parametros,
-					new JRBeanCollectionDataSource(filas));
+			JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parametros, datos);
 			if (formato == REPORTE_PDF) {
 				archivo = JasperExportManager.exportReportToPdf(jasperPrint);
 				response.setContentType("application/pdf");
@@ -349,6 +404,21 @@ public class CobrosController {
 	@GetMapping("/condonaciones")
 	public List<Map<String, Object>> getCondonaciones(@RequestParam String fechaInicial,
 			@RequestParam String fechaFinal) throws Exception {
+		return condonacionesEnPeriodo(fechaInicial, fechaFinal);
+	}
+
+	/** La bitácora del período en PDF; mismas filas que /condonaciones. Fechas dd-MM-yyyy. */
+	@GetMapping("/condonacionesreporte")
+	public byte[] reporteCondonaciones(HttpServletResponse response, @RequestParam String fechaInicial,
+			@RequestParam String fechaFinal) throws Exception {
+		Map<String, Object> parametros = new HashMap<>();
+		parametros.put("periodo", "Del " + fechaInicial.replace('-', '/') + " al " + fechaFinal.replace('-', '/'));
+		Collection<Map<String, ?>> filas = new ArrayList<>(condonacionesEnPeriodo(fechaInicial, fechaFinal));
+		return generar("/reportes/condonaciones_reporte.jrxml", parametros, new JRMapCollectionDataSource(filas),
+				REPORTE_PDF, "condonaciones", response);
+	}
+
+	private List<Map<String, Object>> condonacionesEnPeriodo(String fechaInicial, String fechaFinal) throws Exception {
 		SimpleDateFormat sp = new SimpleDateFormat("dd-MM-yyyy");
 		Calendar hasta = Calendar.getInstance();
 		hasta.setTime(sp.parse(fechaFinal));

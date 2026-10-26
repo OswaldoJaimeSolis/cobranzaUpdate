@@ -9,16 +9,25 @@ import { ReporteContribuyentesComponent } from './reportes/reporte-contribuyente
 import { ListPropietarioPlazaJbComponent } from './catalogos/propietarioplaza/list-propietario-plaza-jb/list-propietario-plaza-jb.component';
 import { ReporteMorosidadComponent } from './reportes/reporte-morosidad/reporte-morosidad.component';
 import { BitacoraCondonacionesComponent } from './reportes/bitacora-condonaciones/bitacora-condonaciones.component';
+import { ListUsuarioComponent } from './catalogos/usuario/list-usuario/list-usuario.component';
+import { LoginComponent } from './auth/login/login.component';
+import { sesionGuard } from './auth/auth.guard';
+
+const soloAdmin = { roles: ['ADMIN'] };
 
 const routes: Routes = [
-  { path: 'contribuyentes', component: ListContribuyenteComponent },
-  { path: 'recaudadores', component: ListRecaudadorComponent },
-  { path: 'tiposPlaza', component: ListTiposplazaComponent },
-  { path: 'propietarioPlaza', component: ListPropietarioPlazaJbComponent },
-  { path: 'reporteContribuciones', component: ReporteContribucionesComponent },
-  { path: 'reporteContribuyentes', component: ReporteContribuyentesComponent },
-  { path: 'reporteMorosidad', component: ReporteMorosidadComponent },
-  { path: 'bitacoraCondonaciones', component: BitacoraCondonacionesComponent }
+  { path: 'login', component: LoginComponent },
+  { path: '', pathMatch: 'full', canActivate: [sesionGuard], children: [] },
+  { path: 'contribuyentes', component: ListContribuyenteComponent, canActivate: [sesionGuard], data: soloAdmin },
+  { path: 'recaudadores', component: ListRecaudadorComponent, canActivate: [sesionGuard], data: soloAdmin },
+  { path: 'tiposPlaza', component: ListTiposplazaComponent, canActivate: [sesionGuard], data: soloAdmin },
+  { path: 'propietarioPlaza', component: ListPropietarioPlazaJbComponent, canActivate: [sesionGuard], data: soloAdmin },
+  { path: 'usuarios', component: ListUsuarioComponent, canActivate: [sesionGuard], data: soloAdmin },
+  { path: 'reporteContribuciones', component: ReporteContribucionesComponent, canActivate: [sesionGuard] },
+  { path: 'reporteContribuyentes', component: ReporteContribuyentesComponent, canActivate: [sesionGuard] },
+  { path: 'reporteMorosidad', component: ReporteMorosidadComponent, canActivate: [sesionGuard] },
+  { path: 'bitacoraCondonaciones', component: BitacoraCondonacionesComponent, canActivate: [sesionGuard] },
+  { path: '**', redirectTo: '' }
 ];
 
 @NgModule({

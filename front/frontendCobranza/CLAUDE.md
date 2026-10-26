@@ -40,13 +40,13 @@ Source is organized by feature under `src/app/`:
 - `menu-principal/` — the top navigation bar (Angular Material `mat-menu`), hardcodes the two menu groups ("Catálogos", "Reportes") and their `routerLink`s.
 
 ### Routing
-Flat route table in `src/app/app-routing.module.ts`, no guards, no nesting, no lazy loading:
-`contribuyentes`, `recaudadores`, `tiposPlaza`, `propietarioPlaza` (→ `ListPropietarioPlazaJbComponent`), `reporteContribuciones`, `reporteContribuyentes`. There is no default/wildcard route or 404 handling.
+Flat route table in `src/app/app-routing.module.ts`, every route behind `sesionGuard` (see Auth below), no lazy loading:
+`login`, `contribuyentes`, `recaudadores`, `tiposPlaza`, `propietarioPlaza` (→ `ListPropietarioPlazaJbComponent`), `usuarios`, `reporteContribuciones`, `reporteContribuyentes`, `reporteMorosidad`, `bitacoraCondonaciones`. The empty path only runs the guard (redirects to `/login` without a session) and `**` redirects to it.
 
 ### Backend communication
 - The backend base URL is a **hardcoded static field**, not driven by `src/environments/*` (those only toggle `production: true/false` and are otherwise unused for API config): `src/app/shared/constantes.ts` exports `Constantes.base_url`. Commented-out alternatives in that file show it's manually edited per environment (LAN IP / plain localhost / context-path localhost).
 - Each feature has its own `*.service.ts` (e.g. `ContribuyenteService`, `RecaudadorService`, `TiposplazaService`, `PropietarioPlazaService`, `ReportesService`), injected via `providedIn: 'root'` and additionally listed in `AppModule.providers`. Services build their endpoint as `Constantes.base_url + '/<resource>'` and expose CRUD methods (`getTodos`, `get<Entity>(id)`, `add<Entity>`, `update<Entity>`, `delete<Entity>`) returning RxJS `Observable`s from `HttpClient.get/post/put/delete`.
-- **There is no auth/session layer**: no HTTP interceptors, no route guards, no token storage (no `localStorage`/`sessionStorage` usage), no login flow anywhere in the codebase. Requests go out unauthenticated.
+- **Auth** (`src/app/auth/`): `LoginComponent` (`/login`) calls `POST /auth/login`; `AuthService` keeps the session (JWT, expiration, nombre, rol) in `sessionStorage`. `AuthInterceptor` (registered via `HTTP_INTERCEPTORS`, works because of `withInterceptorsFromDi()`) adds `Authorization: Bearer` and logs out on 401. `sesionGuard` protects every route; `data: { roles: ['ADMIN'] }` restricts the catalog routes. Roles: `ADMIN` (everything, including the `catalogos/usuario` users catalog) and `CONSULTA` (reports only). The menu hides Catálogos for non-admins and has "Cambiar contraseña" / "Cerrar sesión".
 
 ### UI/data patterns
 - Templates use Angular's built-in control flow (`@if` / `@else` / `@for`), migrated from `*ngIf`/`*ngFor` by the v21 schematic. Layout that used to rely on `@angular/flex-layout` (`fxLayout`, `fxLayoutGap`, …) is now the global `.container` flexbox rule in `src/styles.css`.
@@ -65,5 +65,5 @@ Flat route table in `src/app/app-routing.module.ts`, no guards, no nesting, no l
 
 ## Configuración de cobros, morosidad y condonaciones
 - `catalogos/tiposplaza/config-cobro` es el diálogo (botón de calendario en la lista de tipos de plaza) que captura el esquema de cobro del tipo de plaza: diario, mensual o anual, precios y fecha de inicio. La validación completa la hace el backend, que responde `{mensaje}` con HTTP 400.
-- `reportes/reporte-morosidad` consulta los adeudos, descarga el reporte de morosidad y genera los requerimientos de pago (por plaza o todos en un PDF). `reportes/bitacora-condonaciones` es sólo de consulta: desde la web no se condona, las condonaciones llegan con la contribución desde la app móvil.
+- `reportes/reporte-morosidad` consulta los adeudos, descarga el reporte de morosidad y genera los requerimientos de pago (por plaza o todos en un PDF). `reportes/bitacora-condonaciones` consulta y exporta a PDF (`/condonacionesreporte`) la bitácora del período: desde la web no se condona, las condonaciones llegan con la contribución desde la app móvil.
 - En propietario de plaza, licencia de comercio y adeudo anterior se guardan sobre el mismo registro (`PUT /propietarioPlaza/{id}/datosCobro`); el resto de los cambios sigue creando un registro nuevo con nueva vigencia.

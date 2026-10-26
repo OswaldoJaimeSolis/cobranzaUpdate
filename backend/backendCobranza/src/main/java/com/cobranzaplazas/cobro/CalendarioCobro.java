@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
@@ -124,18 +125,25 @@ public class CalendarioCobro {
 			}
 			break;
 		case MENSUAL:
-			TreeSet<LocalDate> fechas = new TreeSet<>();
+			// Una obligación por mes: las fechas del mes son opciones para pagar y con un pago
+			// cualquiera de ellas queda cubierto. Vence en la última fecha de cobro del mes.
+			TreeMap<YearMonth, TreeSet<LocalDate>> porMes = new TreeMap<>();
 			for (int anio = desde.getYear(); anio <= hasta.getYear(); anio++) {
 				for (DiaMes diaMes : diasMesDelAnio(anio)) {
 					LocalDate d = fechaDe(diaMes, anio);
-					if (!d.isBefore(desde) && !d.isAfter(hasta)) {
-						fechas.add(d);
-					}
+					porMes.computeIfAbsent(YearMonth.from(d), k -> new TreeSet<>()).add(d);
 				}
 			}
-			for (LocalDate d : fechas) {
-				String mes = d.getMonth().getDisplayName(java.time.format.TextStyle.FULL, ES);
-				resultado.add(new Obligacion(d, d, mes + " " + d.getYear() + " (día " + d.getDayOfMonth() + ")"));
+			for (Map.Entry<YearMonth, TreeSet<LocalDate>> mes : porMes.entrySet()) {
+				TreeSet<LocalDate> fechas = mes.getValue();
+				LocalDate vence = fechas.last();
+				if (vence.isBefore(desde) || vence.isAfter(hasta)) {
+					continue;
+				}
+				String nombreMes = mes.getKey().getMonth().getDisplayName(java.time.format.TextStyle.FULL, ES);
+				String dias = String.join(", ", fechas.stream().map(f -> String.valueOf(f.getDayOfMonth())).toList());
+				resultado.add(new Obligacion(vence, fechas.first(), nombreMes + " " + mes.getKey().getYear()
+						+ (fechas.size() > 1 ? " (días " : " (día ") + dias + ")"));
 			}
 			break;
 		case ANUAL:

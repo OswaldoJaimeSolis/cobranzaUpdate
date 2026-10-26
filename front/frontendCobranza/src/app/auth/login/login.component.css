@@ -1,0 +1,17 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  padding: 48px 16px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.login-error {
+  color: #a94442;
+}

@@ -34,6 +34,11 @@ export class PropietarioPlazaService {
     return this.http.put(`${this.base_url}/${idPP}/datosCobro`, { licenciaComercio: licenciaComercio, adeudoAnterior: adeudoAnterior });
   }
 
+  /** Corrige hacia atrás la fecha inicial del mismo registro (fecha en formato yyyy-MM-dd). */
+  corregirVigenciaInicial(idPP: string, vigenciaInicial: string): Observable<any> {
+    return this.http.put(`${this.base_url}/${idPP}/vigenciaInicial`, { vigenciaInicial: vigenciaInicial });
+  }
+
   editPropietarioPlaza(newPP: PropietarioPlaza, idPP: string): Observable<PropietarioPlaza> {
     return this.http.put<PropietarioPlaza>(`${this.base_url}/${idPP}`, newPP, {
       headers: {

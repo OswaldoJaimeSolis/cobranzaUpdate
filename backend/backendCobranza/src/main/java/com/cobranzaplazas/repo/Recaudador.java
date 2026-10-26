@@ -2,6 +2,8 @@ package com.cobranzaplazas.repo;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
@@ -9,6 +11,8 @@ import jakarta.persistence.Id;
 public class Recaudador  implements Serializable {
 	@Id
 	String codigoRecaudador;
+	// hash con prefijo de algoritmo ({bcrypt}...); nunca se devuelve en JSON
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	String passRecaudador;
 	String nombreRecaudador;
 	Boolean activoRecaudador;

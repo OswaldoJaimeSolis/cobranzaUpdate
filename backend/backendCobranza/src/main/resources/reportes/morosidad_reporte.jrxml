@@ -2,6 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="morosidad_reporte" pageWidth="752" pageHeight="572" orientation="Landscape" columnWidth="752" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="56547f98-bb9a-4fe4-8633-185281c9e85b">
 	<parameter name="logo" class="java.io.InputStream"/>
 	<parameter name="encabezadoTiposPlaza" class="java.lang.String"/>
+	<parameter name="fechaCorte" class="java.util.Date"/>
 	<field name="codigoPlaza" class="java.lang.String"/>
 	<field name="tipoPlaza" class="java.lang.String"/>
 	<field name="codigoContribuyente" class="java.lang.String"/>
@@ -46,9 +47,9 @@
 				<textFieldExpression><![CDATA["Tipos de plaza: " + $P{encabezadoTiposPlaza}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="543" y="60" width="200" height="12" uuid="41b45cc8-ee77-4a02-9a5e-b9df014e8dc0"/>
+				<reportElement x="443" y="60" width="300" height="12" uuid="41b45cc8-ee77-4a02-9a5e-b9df014e8dc0"/>
 				<textElement textAlignment="Right"><font size="8" isBold="false"/></textElement>
-				<textFieldExpression><![CDATA["Fecha de emisión: " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Adeudo al: " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{fechaCorte} != null ? $P{fechaCorte} : new java.util.Date()) + "    Fecha de emisión: " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="6" y="82" width="100" height="12" uuid="164cde6f-898d-4a9a-9352-9012c64482b2"/>

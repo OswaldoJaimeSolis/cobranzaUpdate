@@ -1,5 +1,7 @@
 <mat-toolbar>
   <span>Cobro de plazas</span>
 </mat-toolbar>
+@if (auth.estaAutenticado()) {
   <app-menu-principal></app-menu-principal>
-  <router-outlet></router-outlet>
+}
+<router-outlet></router-outlet>

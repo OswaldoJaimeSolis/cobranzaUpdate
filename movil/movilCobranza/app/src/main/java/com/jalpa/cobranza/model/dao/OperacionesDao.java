@@ -14,6 +14,7 @@ import com.jalpa.cobranza.model.entidades.TipoPlaza;
 import com.jalpa.cobranza.model.entidades.TipoPlazaHistorial;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.text.SimpleDateFormat;
@@ -150,6 +151,25 @@ public abstract class OperacionesDao {
     public  List<PropietarioPlaza> recuperaPlazasPropietario(Date fecha, String codigoContribuyente){
         //List<PropietarioPlaza> propietarios= getPlazasaLLPropietario();
         List<PropietarioPlaza> propietarioPlaza= getPlazasVigentesPropietario(fecha, codigoContribuyente);
+        //también las vigentes hoy: si la fecha en pantalla es otra (p. ej. el fin del período anual de una
+        //plaza) el contribuyente no debe perder de la lista sus demás plazas
+        Calendar hoy= Calendar.getInstance();
+        hoy.set(Calendar.HOUR_OF_DAY, 0);
+        hoy.set(Calendar.MINUTE, 0);
+        hoy.set(Calendar.SECOND, 0);
+        hoy.set(Calendar.MILLISECOND, 0);
+        for(PropietarioPlaza vigenteHoy: getPlazasVigentesPropietario(hoy.getTime(), codigoContribuyente)){
+            boolean yaEsta= false;
+            for(PropietarioPlaza pp: propietarioPlaza){
+                if(pp.getCodigoPropietarioPlaza().equals(vigenteHoy.getCodigoPropietarioPlaza())){
+                    yaEsta= true;
+                    break;
+                }
+            }
+            if(!yaEsta){
+                propietarioPlaza.add(vigenteHoy);
+            }
+        }
         agregarHistorialTipoPlazaToPropietarioPlaza(propietarioPlaza, recuperarHistorialPlazas(getStringTiposPlazaFromPropietarioPlaza(propietarioPlaza),fecha));
 
 
@@ -386,10 +406,12 @@ public abstract class OperacionesDao {
             }
             else{
                 String fecha= new SimpleDateFormat("yyyy-MM-dd").format(con.getFecha());
+                //en el mensual un pago en cualquier fecha del mes cubre el mes, en el anual cualquiera del año
+                ConfiguracionCobro config= getConfiguracionCobro(con.getTipoPlaza().getCodigoTipoPlaza());
                 List<String> restantes= new ArrayList<>();
                 boolean estaba= false;
                 for(String vencida: vencidas.split(",")){
-                    if(vencida.trim().equals(fecha)){
+                    if(!estaba && cubre(config, fecha, vencida.trim())){
                         estaba= true;
                     }
                     else if(!vencida.trim().isEmpty()){
@@ -408,6 +430,25 @@ public abstract class OperacionesDao {
             actualizarAdeudo(pp.getCodigoPropietarioPlaza(), Math.max(0.0, adeudo), anterior, vencidas);
         }
     }
+
+    private static boolean cubre(ConfiguracionCobro config, String fechaPagada, String vencida){
+        if(vencida.isEmpty()){
+            return false;
+        }
+        if(config==null){
+            return vencida.equals(fechaPagada);
+        }
+        try {
+            SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd");
+            return config.mismaObligacion(sdf.parse(fechaPagada), sdf.parse(vencida));
+        }
+        catch (java.text.ParseException e){
+            return false;
+        }
+    }
+
+    @Query("SELECT * FROM ConfiguracionCobro WHERE codigoTipoPlazaCobro = :codigoTipoPlaza")
+    public abstract ConfiguracionCobro getConfiguracionCobro(String codigoTipoPlaza);
 
     /** Tras bajar el catálogo: vuelve a cancelar lo ya cobrado en este equipo que el servidor aún no recibe. */
     @Transaction

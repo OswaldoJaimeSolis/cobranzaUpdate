@@ -2,6 +2,7 @@ package com.cobranzaplazas.cobro;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -107,7 +108,8 @@ public class CalculoCobroService {
 	/**
 	 * @param codigoTP    filtra por tipo de plaza; null para todos
 	 * @param codigoPlaza filtra por plaza; null para todas
-	 * @param corte       fecha de consulta; una obligación está vencida si su fecha es anterior
+	 * @param corte       fecha de corte; una obligación está vencida si su fecha es anterior. Si es
+	 *                    pasada, sólo cuentan los pagos capturados hasta ese día
 	 */
 	public List<JBAdeudo> calcularAdeudos(String codigoTP, String codigoPlaza, LocalDate corte) {
 		Map<String, ConfiguracionCobro> configs = new HashMap<>();
@@ -145,14 +147,17 @@ public class CalculoCobroService {
 		}
 
 		Map<String, Set<LocalDate>> cubiertas = new HashMap<>();
-		for (Object[] fila : contribucionDao.findFechasPagadas()) {
+		// Con un corte en el pasado sólo cuentan los pagos capturados hasta ese día: el reporte
+		// muestra el adeudo como estaba entonces. Con corte hoy o futuro cuentan todos.
+		Date limite = corte.isBefore(LocalDate.now()) ? aDate(corte.plusDays(1)) : null;
+		for (Object[] fila : contribucionDao.findFechasPagadas(limite)) {
 			if (fila[2] != null) {
 				cubiertas.computeIfAbsent(clave((String) fila[1], (String) fila[0]), k -> new HashSet<>())
 						.add(aLocalDate((Date) fila[2]));
 			}
 		}
 		Map<String, Double> anteriorPagado = new HashMap<>();
-		for (Object[] fila : contribucionDao.findPagosAdeudoAnterior()) {
+		for (Object[] fila : contribucionDao.findPagosAdeudoAnterior(limite)) {
 			anteriorPagado.put(clave((String) fila[1], (String) fila[0]),
 					fila[2] != null ? ((Number) fila[2]).doubleValue() : 0.0);
 		}
@@ -209,10 +214,15 @@ public class CalculoCobroService {
 		return adeudos;
 	}
 
-	// El cobro anual se liquida con un solo pago registrado en cualquier fecha de ese año
-	private boolean estaCubierta(Obligacion ob, String tipoCobro, Set<LocalDate> pagadas) {
+	// El cobro anual se liquida con un solo pago registrado en cualquier fecha de ese año y el
+	// mensual con un solo pago en cualquier fecha de ese mes; el diario, con el pago de ese día
+	static boolean estaCubierta(Obligacion ob, String tipoCobro, Set<LocalDate> pagadas) {
 		if (CalendarioCobro.ANUAL.equals(tipoCobro)) {
 			return pagadas.stream().anyMatch(d -> d.getYear() == ob.fecha().getYear());
+		}
+		if (CalendarioCobro.MENSUAL.equals(tipoCobro)) {
+			YearMonth mes = YearMonth.from(ob.fecha());
+			return pagadas.stream().anyMatch(d -> YearMonth.from(d).equals(mes));
 		}
 		return pagadas.contains(ob.fecha());
 	}

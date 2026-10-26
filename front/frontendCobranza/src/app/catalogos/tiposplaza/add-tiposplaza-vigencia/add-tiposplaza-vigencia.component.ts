@@ -100,8 +100,10 @@ export class AddTiposplazaVigenciaComponent implements OnInit {
 
           //revisamos que  sea mayor
           let toDateL = new Date(vigenciaLast.vigenciaInicial);
-          let nInicio = new Date(newO.vigenciaInicial.getUTCFullYear(), newO.vigenciaInicial.getUTCMonth(), newO.vigenciaInicial.getUTCDay());
-          let lInicio = new Date(toDateL.getUTCFullYear(), toDateL.getUTCMonth(), toDateL.getUTCDay());
+          // se comparan sólo los días (getDate es el día del mes; getUTCDay era el día de la semana)
+          let nuevaFecha = new Date(newO.vigenciaInicial);
+          let nInicio = new Date(nuevaFecha.getFullYear(), nuevaFecha.getMonth(), nuevaFecha.getDate());
+          let lInicio = new Date(toDateL.getFullYear(), toDateL.getMonth(), toDateL.getDate());
         
           if (nInicio.getTime() > lInicio.getTime()) {
             //vamos a actualizar el último periodo

@@ -41,16 +41,23 @@ export class ReportesService {
     }
   }
 
-  getMorosidad(_todosTP: boolean, _codigoTP: string) {
-    let params = new HttpParams().set("todosTP", _todosTP.toString()).set("codigoTP", _codigoTP);
+  /** _fechaCorte en formato yyyy-MM-dd: las obligaciones vencen antes de esa fecha y, si es pasada, sólo cuentan los pagos capturados hasta ese día */
+  getMorosidad(_todosTP: boolean, _codigoTP: string, _fechaCorte: string) {
+    let params = new HttpParams().set("todosTP", _todosTP.toString()).set("codigoTP", _codigoTP).set("fechaCorte", _fechaCorte);
     return this.http.get<any[]>(`${Constantes.base_url}/morosidad`, { params: params });
   }
 
   /** Sin _codigoPlaza genera una hoja por cada plaza con adeudo; con él, sólo la de esa plaza */
-  getRequerimientoPagoReporte(_todosTP: boolean, _codigoTP: string, _codigoPlaza: string, _observaciones: string) {
+  getRequerimientoPagoReporte(_todosTP: boolean, _codigoTP: string, _codigoPlaza: string, _observaciones: string, _fechaCorte: string) {
     let params = new HttpParams().set("todosTP", _todosTP.toString()).set("codigoTP", _codigoTP)
-      .set("codigoPlaza", _codigoPlaza).set("observaciones", _observaciones);
+      .set("codigoPlaza", _codigoPlaza).set("observaciones", _observaciones).set("fechaCorte", _fechaCorte);
     return this.http.get(`${Constantes.base_url}/requerimientopagoreporte`, { params: params, responseType: 'arraybuffer' });
+  }
+
+  /** Bitácora de condonaciones del período en PDF (fechas dd-MM-yyyy) */
+  getCondonacionesReporte(_fechaInicial: string, _fechaFinal: string) {
+    let params = new HttpParams().set("fechaInicial", _fechaInicial).set("fechaFinal", _fechaFinal);
+    return this.http.get(`${Constantes.base_url}/condonacionesreporte`, { params: params, responseType: 'arraybuffer' });
   }
 
   getCondonaciones(_fechaInicial: string, _fechaFinal: string) {

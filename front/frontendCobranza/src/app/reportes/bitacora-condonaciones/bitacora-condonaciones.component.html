@@ -11,6 +11,9 @@
     <mat-datepicker #picker2></mat-datepicker>
   </mat-form-field>
   <button mat-raised-button color="primary" disabled={{isLoading}} (click)="consultar()">Consultar</button>
+  <button mat-stroked-button disabled={{isLoading}} (click)="exportarPdf()">
+    <mat-icon>picture_as_pdf</mat-icon> Exportar PDF
+  </button>
 </div>
 
 <div class="container">

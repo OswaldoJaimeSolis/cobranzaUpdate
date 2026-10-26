@@ -82,6 +82,8 @@ public class LogueoActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         RecaudadorActivo.setRecaudadorActivo(null);
+        Sesion.init(this);
+        Sesion.cerrar();
         recaudadores=(List<Recaudador>)getIntent().getExtras().get("recaudadores");
 
         etUsuario= findViewById(R.id.etUsuario);
@@ -101,6 +103,10 @@ public class LogueoActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(etUsuario.getText().toString().trim().isEmpty() || etPassword.getText().toString().isEmpty()){
+                    Toast.makeText(getApplicationContext(), "Escribe tu usuario y contraseña para descargar los recaudadores", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 new ActualizarCatalogosRemoto().execute();
             }
         });
@@ -110,40 +116,89 @@ public class LogueoActivity extends AppCompatActivity {
 
 
     }
+    /**
+     * El inicio de sesión es local: compara contra el hash descargado del servidor, así que
+     * funciona sin conexión. Sólo si no coincide localmente (recaudador nuevo, contraseña
+     * cambiada o primera vez en el equipo) se intenta con el servidor y, si acepta, se
+     * vuelven a descargar los recaudadores.
+     */
     private void validarUsuario(){
-        String codigoRecaudador= etUsuario.getText().toString();
+        String codigoRecaudador= etUsuario.getText().toString().trim();
         String passRecaudador= etPassword.getText().toString();
-        if(!codigoRecaudador.isEmpty() || !passRecaudador.isEmpty()) {
-            if (recaudadores != null && recaudadores.size()>0) {
-                boolean valido=false;
-                for (Recaudador rec : recaudadores) {
-                    if (rec.getCodigoRecaudador().equals(codigoRecaudador) && rec.getPassRecaudador().equals(passRecaudador)){
-                        if(rec.getActivoRecaudador()){
-                            RecaudadorActivo.setRecaudadorActivo(rec);
-                            valido=true;
-                            finish();
-                        }
-                        else{
-                            Toast.makeText(getApplicationContext(),"El usuario no está activo, avise al administrador", Toast.LENGTH_SHORT);
-                            limpiarCajas();
-                            break;
-                        }
+        if(codigoRecaudador.isEmpty() || passRecaudador.isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Llena los datos correctamente", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Recaudador rec= buscarLocal(codigoRecaudador, passRecaudador);
+        if(rec!=null){
+            entrar(rec, passRecaudador);
+            return;
+        }
+        new ValidarEnServidor(codigoRecaudador, passRecaudador).execute();
+    }
 
-                    }
-
+    private Recaudador buscarLocal(String codigoRecaudador, String passRecaudador){
+        if(recaudadores!=null){
+            for (Recaudador rec : recaudadores) {
+                if (rec.getCodigoRecaudador().equals(codigoRecaudador) && Contrasenas.coincide(passRecaudador, rec.getPassRecaudador())){
+                    return rec;
                 }
-                if(!valido) {
-                    Toast.makeText(getApplicationContext(), "Los datos son incorrectos o el usuario no existe", Toast.LENGTH_SHORT).show();
-                }
-
-            } else {
-                Toast.makeText(getApplicationContext(), "Actualiza los recaudadores", Toast.LENGTH_SHORT).show();
-                limpiarCajas();
             }
         }
-        else{
-            Toast.makeText(getApplicationContext(), "Llena los datos correctamente", Toast.LENGTH_SHORT).show();
+        return null;
+    }
+
+    private void entrar(Recaudador rec, String passRecaudador){
+        if(!Boolean.TRUE.equals(rec.getActivoRecaudador())){
+            Toast.makeText(getApplicationContext(),"El usuario no está activo, avise al administrador", Toast.LENGTH_SHORT).show();
             limpiarCajas();
+            return;
+        }
+        Sesion.setCredenciales(rec.getCodigoRecaudador(), passRecaudador);
+        RecaudadorActivo.setRecaudadorActivo(rec);
+        finish();
+    }
+
+    private class ValidarEnServidor extends AsyncTask<Void, Void, Integer> {
+        private final String codigoRecaudador;
+        private final String passRecaudador;
+
+        ValidarEnServidor(String codigoRecaudador, String passRecaudador){
+            this.codigoRecaudador= codigoRecaudador;
+            this.passRecaudador= passRecaudador;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            pbActualizaRecaudadores.setVisibility(View.VISIBLE);
+            pbActualizaRecaudadores.bringToFront();
+            btnConfirmarUsuario.setEnabled(false);
+        }
+
+        @Override
+        protected Integer doInBackground(Void... voids) {
+            int resultado= getWebService().login(codigoRecaudador, passRecaudador);
+            if(resultado==WebService.LOGIN_CORRECTO){
+                actualizaRecaudadores();
+            }
+            return resultado;
+        }
+
+        @Override
+        protected void onPostExecute(Integer resultado) {
+            pbActualizaRecaudadores.setVisibility(View.INVISIBLE);
+            btnConfirmarUsuario.setEnabled(true);
+            Recaudador rec= resultado==WebService.LOGIN_CORRECTO? buscarLocal(codigoRecaudador, passRecaudador): null;
+            if(rec!=null){
+                entrar(rec, passRecaudador);
+            }
+            else if(resultado==WebService.LOGIN_SIN_CONEXION && (recaudadores==null || recaudadores.isEmpty())){
+                Toast.makeText(getApplicationContext(), "Sin conexión: la primera vez hay que conectarse para descargar los recaudadores", Toast.LENGTH_LONG).show();
+            }
+            else{
+                Toast.makeText(getApplicationContext(), "Los datos son incorrectos o el usuario no existe", Toast.LENGTH_SHORT).show();
+                etPassword.setText("");
+            }
         }
     }
 
@@ -167,6 +222,11 @@ public class LogueoActivity extends AppCompatActivity {
     }
 
     private class ActualizarCatalogosRemoto extends AsyncTask<Void, Void, Void > {
+        private final String usuario= etUsuario.getText().toString().trim();
+        private final String password= etPassword.getText().toString();
+        private boolean descargados;
+        private int resultadoLogin;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -184,8 +244,9 @@ public class LogueoActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... voids) {
-
-            actualizaRecaudadores();
+            //descargar los recaudadores requiere token: se pide con el usuario y contraseña escritos
+            resultadoLogin= getWebService().login(usuario, password);
+            descargados= resultadoLogin==WebService.LOGIN_CORRECTO && actualizaRecaudadores();
             return null;
         }
 
@@ -193,18 +254,30 @@ public class LogueoActivity extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             pbActualizaRecaudadores.setVisibility(View.INVISIBLE);
-            if(recaudadores==null || recaudadores.size()==0){
-                Toast.makeText(getApplicationContext(), "Verifique su conexión a internet", Toast.LENGTH_LONG).show();
+            if(descargados){
+                Toast.makeText(getApplicationContext(), "Recaudadores actualizados", Toast.LENGTH_SHORT).show();
+            }
+            else if(resultadoLogin==WebService.LOGIN_RECHAZADO){
+                Toast.makeText(getApplicationContext(), "Usuario o contraseña incorrectos, o recaudador inactivo", Toast.LENGTH_LONG).show();
+            }
+            else if(resultadoLogin==WebService.LOGIN_SIN_CONEXION){
+                Toast.makeText(getApplicationContext(), "No hay conexión con el servidor", Toast.LENGTH_LONG).show();
+            }
+            else{
+                Toast.makeText(getApplicationContext(), "El servidor no devolvió recaudadores", Toast.LENGTH_LONG).show();
             }
 
         }
     }
-    private void actualizaRecaudadores() {
+    /** true si se descargaron y guardaron los recaudadores (requiere token). */
+    private boolean actualizaRecaudadores() {
         List<Recaudador> recaudadores = getWebService().getRecaudadores("", 100);
         if (recaudadores != null && recaudadores.size() > 0) {
             Database.getInstance(this).getAppDatabase().operacionesDao().borrarInsertarRecaudadoresWithTipoPlaza(recaudadores);
             this.recaudadores= Database.getInstance(getApplicationContext()).getAppDatabase().operacionesDao().getAllRecaudadores();
+            return true;
         }
+        return false;
     }
 
     private void limpiarCajas(){

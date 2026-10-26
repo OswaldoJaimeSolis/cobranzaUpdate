@@ -32,7 +32,8 @@ export class AddRecaudadorComponent implements OnInit {
     private service: RecaudadorService, private dialog: MatDialog) {
     if (this.dd != null) {
       this.oFinal.codigoRecaudador = dd.recaudador.codigoRecaudador;
-      this.oFinal.passRecaudador = dd.recaudador.passRecaudador;
+      //el servidor no devuelve la contraseña; vacía se conserva la actual
+      this.oFinal.passRecaudador = "";
       this.oFinal.nombreRecaudador = dd.recaudador.nombreRecaudador;
       this.oFinal.activoRecaudador = dd.recaudador.activoRecaudador;
       this.oFinal.puedeCondonar = dd.recaudador.puedeCondonar === true;

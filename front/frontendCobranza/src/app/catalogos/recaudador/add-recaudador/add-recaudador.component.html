@@ -12,8 +12,9 @@
       <input matInput placeholder="Nombre: " [(ngModel)]="oFinal.nombreRecaudador" #data="ngModel" required>
     </mat-form-field>
     <mat-form-field>
-      <input matInput placeholder="Contraseña: " [(ngModel)]="oFinal.passRecaudador" type="password" #data="ngModel"
-        required>
+      <input matInput [placeholder]="editarId ? 'Contraseña (vacía conserva la actual): ' : 'Contraseña: '"
+        [(ngModel)]="oFinal.passRecaudador" type="password" autocomplete="new-password" #data="ngModel"
+        [required]="!editarId">
     </mat-form-field>
 
     <mat-checkbox class="check-container" [(ngModel)]="oFinal.activoRecaudador">Activo</mat-checkbox>

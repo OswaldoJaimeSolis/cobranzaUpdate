@@ -1,0 +1,10 @@
+.columns-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 8px;
+}
+
+.error {
+  color: #a94442;
+}

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="condonaciones_reporte" pageWidth="752" pageHeight="572" orientation="Landscape" columnWidth="752" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="7da1ac52-afec-46d0-95bd-50f611e7b2db">
+	<parameter name="logo" class="java.io.InputStream"/>
+	<parameter name="periodo" class="java.lang.String"/>
+	<field name="fechaCondonacion" class="java.lang.String"/>
+	<field name="codigoRecaudador" class="java.lang.String"/>
+	<field name="nombreRecaudador" class="java.lang.String"/>
+	<field name="codigoPlaza" class="java.lang.String"/>
+	<field name="tipoPlaza" class="java.lang.String"/>
+	<field name="codigoContribuyente" class="java.lang.String"/>
+	<field name="nombreContribuyente" class="java.lang.String"/>
+	<field name="fechaObligacion" class="java.lang.String"/>
+	<field name="motivo" class="java.lang.String"/>
+	<field name="origen" class="java.lang.String"/>
+	<field name="codigoEquipo" class="java.lang.String"/>
+	<field name="montoCondonado" class="java.lang.Double"/>
+	<variable name="totalCondonado" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{montoCondonado}]]></variableExpression>
+	</variable>
+	<title>
+		<band height="96" splitType="Stretch">
+			<staticText>
+				<reportElement x="9" y="6" width="734" height="16" uuid="83b1514f-b64f-4f5b-9843-3062df271315"/>
+				<textElement textAlignment="Center"><font size="11" isBold="false"/></textElement>
+				<text><![CDATA[PRESIDENCIA MUNICIPAL DE JALPA, ZAC.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="9" y="22" width="734" height="16" uuid="7f3bba9c-fe64-4c42-be40-18669ce5f99d"/>
+				<textElement textAlignment="Center"><font size="11" isBold="false"/></textElement>
+				<text><![CDATA[TESORERÍA MUNICIPAL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="9" y="38" width="734" height="16" uuid="b31c4d0b-7a2e-4041-96a5-50610661c6a0"/>
+				<textElement textAlignment="Center"><font size="11" isBold="true"/></textElement>
+				<text><![CDATA[BITÁCORA DE CONDONACIONES]]></text>
+			</staticText>
+			<image scaleImage="FillFrame">
+				<reportElement x="660" y="4" width="62" height="54" uuid="da31f283-86e0-4435-ba2f-9dbdc71847a7"/>
+				<imageExpression><![CDATA[$P{logo}]]></imageExpression>
+			</image>
+			<textField isBlankWhenNull="true">
+				<reportElement x="9" y="60" width="400" height="12" uuid="d874a8bc-a588-4651-bd89-d2e61d0a48e8"/>
+				<textElement textAlignment="Left"><font size="8" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA["Período: " + $P{periodo}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="443" y="60" width="300" height="12" uuid="52dcd6fa-4987-4dd6-a126-5f84a3fbc948"/>
+				<textElement textAlignment="Right"><font size="8" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA["Fecha de emisión: " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="6" y="82" width="70" height="12" uuid="6065cc9e-9d82-49c7-ad0c-7bfeba9c444c"/>
+				<textElement textAlignment="Left"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[Fecha y hora]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="76" y="82" width="100" height="12" uuid="23cd152e-edd0-4323-86f0-d6b42b72d6ca"/>
+				<textElement textAlignment="Left"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[Usuario]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="176" y="82" width="70" height="12" uuid="ac831410-6fb1-4cc8-9afa-94de8151d031"/>
+				<textElement textAlignment="Left"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[Plaza]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="246" y="82" width="140" height="12" uuid="e18e29c6-c74d-4a0a-89ef-67a76373481e"/>
+				<textElement textAlignment="Left"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[Propietario]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="384" y="82" width="60" height="12" uuid="428751d5-51e4-40ad-b194-d4d314e6c0e2"/>
+				<textElement textAlignment="Center"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[F. condonada]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="444" y="82" width="50" height="12" uuid="7fb3406c-e42c-4e62-afe1-bcb976298727"/>
+				<textElement textAlignment="Right"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[Monto]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="494" y="82" width="180" height="12" uuid="2cd5b2cb-5c0e-40e8-977a-68f5ea9feab4"/>
+				<textElement textAlignment="Left"><font size="7" isBold="true"/><paragraph leftIndent="8"/></textElement>
+				<text><![CDATA[Motivo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" forecolor="#FFFFFF" backcolor="#000000" x="674" y="82" width="72" height="12" uuid="89c15286-cfc3-48dc-97e9-5d5d4d4d1199"/>
+				<textElement textAlignment="Left"><font size="7" isBold="true"/></textElement>
+				<text><![CDATA[Origen]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="13" splitType="Prevent">
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="6" y="1" width="70" height="11" uuid="6f62aa3f-4588-4793-973f-e82bded7b99b"/>
+				<textElement textAlignment="Left"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{fechaCondonacion} == null || $F{fechaCondonacion}.isEmpty() ? "" : new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse($F{fechaCondonacion}))]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="76" y="1" width="100" height="11" uuid="182e8171-4cc3-49d8-a410-914629ee540f"/>
+				<textElement textAlignment="Left"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{codigoRecaudador} + " " + ($F{nombreRecaudador} == null ? "" : $F{nombreRecaudador})]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="176" y="1" width="70" height="11" uuid="fbf95dee-e380-4a4e-99ee-e49046b77356"/>
+				<textElement textAlignment="Left"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{codigoPlaza} + " (" + $F{tipoPlaza} + ")"]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="246" y="1" width="140" height="11" uuid="c871c9c3-0e34-449d-926c-a9520f024ac2"/>
+				<textElement textAlignment="Left"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{codigoContribuyente} + " " + ($F{nombreContribuyente} == null ? "" : $F{nombreContribuyente})]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="384" y="1" width="60" height="11" uuid="7ee7dc66-a126-4651-aec3-2889092e379d"/>
+				<textElement textAlignment="Center"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{fechaObligacion} == null || $F{fechaObligacion}.isEmpty() ? "" : new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.text.SimpleDateFormat("yyyy-MM-dd").parse($F{fechaObligacion}))]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true" pattern="#,##0.00">
+				<reportElement stretchType="RelativeToTallestObject" x="444" y="1" width="50" height="11" uuid="cf041f8f-559f-4eb2-80b7-61085c3de2a7"/>
+				<textElement textAlignment="Right"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{montoCondonado}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="502" y="1" width="168" height="11" uuid="ab4d0f4b-84fc-4a7f-b62b-ab553a599aab"/>
+				<textElement textAlignment="Left"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[$F{motivo}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="674" y="1" width="72" height="11" uuid="91a6b91e-a635-4379-b791-55e248940d23"/>
+				<textElement textAlignment="Left"><font size="7" isBold="false"/></textElement>
+				<textFieldExpression><![CDATA[($F{origen} == null ? "" : $F{origen}) + " " + ($F{codigoEquipo} == null ? "" : $F{codigoEquipo})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="40" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="6" y="8" width="400" height="14" uuid="383730d3-6fea-4098-a960-0db7965df8a6"/>
+				<textElement textAlignment="Left"><font size="9" isBold="true"/></textElement>
+				<textFieldExpression><![CDATA["Condonaciones: " + $V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="480" y="8" width="266" height="14" uuid="6b0205b3-959d-42cb-be33-c822f1e4a186"/>
+				<textElement textAlignment="Right"><font size="9" isBold="true"/></textElement>
+				<textFieldExpression><![CDATA["Total condonado: $" + new java.text.DecimalFormat("#,##0.00").format($V{totalCondonado} == null ? 0.0 : $V{totalCondonado})]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

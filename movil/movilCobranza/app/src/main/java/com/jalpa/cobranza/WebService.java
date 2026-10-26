@@ -49,7 +49,64 @@ public class WebService {
     // el emulador de Android usa para llegar al localhost de la máquina anfitriona; en un
     // dispositivo físico en la misma red hay que sustituirlo por la IP LAN del backend.
     //private final String URL_BASE="http://10.0.2.2:8080/";
-    private final String URL_BASE="http://192.168.1.101:8080/";
+    private final String URL_BASE="http://192.168.1.103:8080/";
+
+    public static final int LOGIN_CORRECTO=0;
+    public static final int LOGIN_RECHAZADO=1;
+    public static final int LOGIN_SIN_CONEXION=2;
+
+    /**
+     * Pide un token al servidor (POST /auth/movil/login) y lo guarda en Sesion. Sólo se usa
+     * al sincronizar o para descargar los recaudadores; el inicio de sesión es local.
+     */
+    public int login(String usuario, String password) {
+        try {
+            HttpURLConnection c = (HttpURLConnection) new URL(URL_BASE+"auth/movil/login").openConnection();
+            c.setReadTimeout(15000);
+            c.setConnectTimeout(15000);
+            c.setRequestMethod("POST");
+            c.setDoOutput(true);
+            c.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            JSONObject credenciales = new JSONObject();
+            credenciales.put("usuario", usuario);
+            credenciales.put("password", password);
+            OutputStreamWriter writer = new OutputStreamWriter(c.getOutputStream(), "UTF-8");
+            writer.write(credenciales.toString());
+            writer.flush();
+            writer.close();
+            int status = c.getResponseCode();
+            if (status == HttpURLConnection.HTTP_OK) {
+                JSONObject respuesta = new JSONObject(leer(c));
+                Sesion.guardarToken(respuesta.getString("token"), respuesta.getLong("expira"), usuario);
+                return LOGIN_CORRECTO;
+            }
+            Log.e("WebService", "login " + usuario + ": HTTP " + status);
+            return status == HttpURLConnection.HTTP_UNAUTHORIZED ? LOGIN_RECHAZADO : LOGIN_SIN_CONEXION;
+        } catch (Exception e) {
+            Log.e("WebService", e.toString());
+            return LOGIN_SIN_CONEXION;
+        }
+    }
+
+    /** Conexión con el token; si no hay uno vigente lo pide con las credenciales del recaudador activo. */
+    private HttpURLConnection abrir(URL url) throws IOException {
+        String token = Sesion.getToken();
+        if (token == null && Sesion.getUsuario() != null && login(Sesion.getUsuario(), Sesion.getPassword()) == LOGIN_CORRECTO) {
+            token = Sesion.getToken();
+        }
+        HttpURLConnection c = (HttpURLConnection) url.openConnection();
+        if (token != null) {
+            c.setRequestProperty("Authorization", "Bearer " + token);
+        }
+        return c;
+    }
+
+    /** Un 401 es un token vencido o revocado: se descarta para pedir otro en el siguiente intento. */
+    private void revisarAutorizacion(int status) {
+        if (status == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            Sesion.invalidarToken();
+        }
+    }
     protected List<TipoPlaza> getTiposPlaza(String url, int timeOut) {
         List<TipoPlaza> tiposPlaza= new ArrayList<>();
         url=URL_BASE+"getTipoPlaza";
@@ -63,11 +120,12 @@ public class WebService {
         InputStream inputStream = null;
         try {
             URL u = new URL(url);
-            c = (HttpURLConnection) u.openConnection();
+            c = abrir(u);
 
             c.connect();
 
             int status = c.getResponseCode();
+            revisarAutorizacion(status);
             switch (status) {
                 case 200:
                 case 201:
@@ -150,7 +208,7 @@ public class WebService {
         InputStream inputStream = null;
         try {
             URL u = new URL(url);
-            c = (HttpURLConnection) u.openConnection();
+            c = abrir(u);
             c.setRequestMethod("POST");
             c.setDoInput(true);
             //c.setRequestProperty("fechaRecuperar",spdf.format(fecha));
@@ -166,6 +224,7 @@ public class WebService {
             c.connect();
 
             int status = c.getResponseCode();
+            revisarAutorizacion(status);
             switch (status) {
                 case 200:
                 case 201:
@@ -286,7 +345,7 @@ public class WebService {
         InputStream inputStream = null;
         try {
             URL u = new URL(url);
-            c = (HttpURLConnection) u.openConnection();
+            c = abrir(u);
             c.setRequestMethod("POST");
             c.setDoInput(true);
 
@@ -304,6 +363,7 @@ public class WebService {
             c.connect();
 
             int status = c.getResponseCode();
+            revisarAutorizacion(status);
             switch (status) {
                 case 200:
                 case 201:
@@ -400,11 +460,12 @@ public class WebService {
         InputStream inputStream = null;
         try {
             URL u = new URL(url);
-            c = (HttpURLConnection) u.openConnection();
+            c = abrir(u);
 
             c.connect();
 
             int status = c.getResponseCode();
+            revisarAutorizacion(status);
             switch (status) {
                 case 200:
                 case 201:
@@ -488,9 +549,10 @@ public class WebService {
     /** Configuración de cobro de todos los tipos de plaza; null si no se pudo consultar. */
     protected List<ConfiguracionCobro> getConfiguracionesCobro() {
         try {
-            HttpURLConnection c = (HttpURLConnection) new URL(URL_BASE+"getConfiguracionCobro").openConnection();
+            HttpURLConnection c = abrir(new URL(URL_BASE+"getConfiguracionCobro"));
             c.setReadTimeout(15000);
             c.setConnectTimeout(15000);
+            revisarAutorizacion(c.getResponseCode());
             if (c.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 return null;
             }
@@ -536,7 +598,7 @@ public class WebService {
         try {
             URL url = new URL(requestURL);
 
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = abrir(url);
             conn.setReadTimeout(15000);
             conn.setConnectTimeout(15000);
 
@@ -553,6 +615,7 @@ public class WebService {
             writer.close();
 
             int responseCode=conn.getResponseCode();
+            revisarAutorizacion(responseCode);
 
             if (responseCode == HttpsURLConnection.HTTP_OK) {
                 String line;
@@ -590,7 +653,7 @@ public class WebService {
         try {
             URL url = new URL(requestURL);
 
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = abrir(url);
             conn.setReadTimeout(15000);
             conn.setConnectTimeout(15000);
 
@@ -607,6 +670,7 @@ public class WebService {
             writer.close();
 
             int responseCode=conn.getResponseCode();
+            revisarAutorizacion(responseCode);
 
             if (responseCode == HttpsURLConnection.HTTP_OK) {
                 String line;
@@ -640,7 +704,7 @@ public class WebService {
         try {
             URL url = new URL(requestURL);
 
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = abrir(url);
             conn.setReadTimeout(15000);
             conn.setConnectTimeout(15000);
 
@@ -659,6 +723,7 @@ public class WebService {
             writer.close();
 
             int responseCode=conn.getResponseCode();
+            revisarAutorizacion(responseCode);
 
             if (responseCode == HttpsURLConnection.HTTP_OK) {
                 String line;
@@ -692,7 +757,7 @@ public class WebService {
         try {
             URL url = new URL(requestURL);
 
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = abrir(url);
             conn.setReadTimeout(15000);
             conn.setConnectTimeout(15000);
 
@@ -710,6 +775,7 @@ public class WebService {
             writer.close();
 
             int responseCode=conn.getResponseCode();
+            revisarAutorizacion(responseCode);
 
             if (responseCode == HttpsURLConnection.HTTP_OK) {
                 String line;
@@ -743,7 +809,7 @@ public class WebService {
         try {
             URL url = new URL(requestURL);
 
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = abrir(url);
             conn.setReadTimeout(15000);
             conn.setConnectTimeout(15000);
 
@@ -763,6 +829,7 @@ public class WebService {
             writer.close();
 
             int responseCode=conn.getResponseCode();
+            revisarAutorizacion(responseCode);
 
             if (responseCode == HttpsURLConnection.HTTP_OK) {
                 String line;

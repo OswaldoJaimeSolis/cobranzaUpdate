@@ -2,6 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="requerimiento_pago_reporte" pageWidth="612" pageHeight="792" columnWidth="532" leftMargin="40" rightMargin="40" topMargin="36" bottomMargin="36" uuid="b1da8a2b-a7ee-4a81-9410-f1ce6420195c">
 	<parameter name="logo" class="java.io.InputStream"/>
 	<parameter name="observaciones" class="java.lang.String"/>
+	<parameter name="fechaCorte" class="java.util.Date"/>
 	<field name="codigoPlaza" class="java.lang.String"/>
 	<field name="tipoPlaza" class="java.lang.String"/>
 	<field name="codigoContribuyente" class="java.lang.String"/>
@@ -42,7 +43,7 @@
 			<textField isBlankWhenNull="true">
 				<reportElement x="0" y="76" width="532" height="14" uuid="0d15fd64-0060-4f48-8f6c-1de6bc66b196"/>
 				<textElement textAlignment="Right"><font size="10" isBold="false"/></textElement>
-				<textFieldExpression><![CDATA["Fecha de emisión: " + new java.text.SimpleDateFormat("dd 'de' MMMM 'de' yyyy", new java.util.Locale("es", "MX")).format(new java.util.Date())]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Adeudo al " + new java.text.SimpleDateFormat("dd 'de' MMMM 'de' yyyy", new java.util.Locale("es", "MX")).format($P{fechaCorte} != null ? $P{fechaCorte} : new java.util.Date()) + ".  Fecha de emisión: " + new java.text.SimpleDateFormat("dd 'de' MMMM 'de' yyyy", new java.util.Locale("es", "MX")).format(new java.util.Date())]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="0" y="100" width="130" height="14" uuid="510f951d-0839-43f3-b922-75ee26909126"/>

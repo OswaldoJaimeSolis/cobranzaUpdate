@@ -410,6 +410,7 @@ public class ServiceUpload extends IntentService {
 
     public WebService getwS() {
         if(wS==null){
+            Sesion.init(getApplicationContext());
             wS= new WebService();
         }
         return wS;

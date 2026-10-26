@@ -17,6 +17,15 @@
     </div>
   </div>
   <div class="centerText">
+    <h4 class="centerText">Fecha de corte</h4>
+    <mat-form-field>
+      <mat-label>Adeudo al</mat-label>
+      <input matInput [matDatepicker]="pickerCorte" name="fechaCorte" [(ngModel)]="fechaCorte" required>
+      <mat-datepicker-toggle matSuffix [for]="pickerCorte"></mat-datepicker-toggle>
+      <mat-datepicker #pickerCorte></mat-datepicker>
+    </mat-form-field>
+  </div>
+  <div class="centerText">
     <h4 class="centerText">Requerimientos de pago</h4>
     <mat-form-field class="observaciones">
       <mat-label>Observaciones</mat-label>
@@ -42,10 +51,10 @@
 </div>
 
 @if (consultado && plazas.length == 0) {
-  <h4 class="centerText">No hay plazas con adeudo</h4>
+  <h4 class="centerText">No hay plazas con adeudo al {{corteConsultado | date:'dd/MM/yyyy'}}</h4>
 }
 @if (plazas.length > 0) {
-  <h4 class="centerText">{{plazas.length}} plazas con adeudo · Total {{total | currency}}</h4>
+  <h4 class="centerText">{{plazas.length}} plazas con adeudo al {{corteConsultado | date:'dd/MM/yyyy'}} · Total {{total | currency}}</h4>
   <div class="tabla">
     <table mat-table [dataSource]="plazas">
       <ng-container matColumnDef="plaza">

@@ -3,6 +3,8 @@ package com.cobranzaplazas.cobro;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -73,8 +75,8 @@ class CalculoCobroServiceTest {
 		when(service.cobroPeriodoAnualDao.porTipoPlaza("TP")).thenReturn(List.of());
 		when(service.propietarioPlazaDao.findAll()).thenReturn(propietarios);
 		when(service.tipoPlazaVigenciaDao.findAll()).thenReturn(vigencias);
-		when(service.contribucionDao.findFechasPagadas()).thenReturn(pagadas);
-		when(service.contribucionDao.findPagosAdeudoAnterior()).thenReturn(List.of());
+		when(service.contribucionDao.findFechasPagadas(any())).thenReturn(pagadas);
+		when(service.contribucionDao.findPagosAdeudoAnterior(any())).thenReturn(List.of());
 	}
 
 	private void vigencia(String inicio, String fin, double importe, double descuento) {
@@ -134,5 +136,43 @@ class CalculoCobroServiceTest {
 
 		tipoPlaza.setPorImporteGlobalTipoPlaza(false);
 		assertTrue(service.calcularAdeudos(null, null, LocalDate.parse("2026-03-15")).isEmpty());
+	}
+
+	@Test
+	void elCobroMensualSeCubreConUnPagoEnCualquierFechaDelMes() {
+		// Además del 10, se cobra el 25 de cada mes
+		List<CobroMensualDia> dias = new ArrayList<>(service.cobroMensualDiaDao.porTipoPlaza("TP"));
+		for (int mes = 1; mes <= 12; mes++) {
+			CobroMensualDia dia = new CobroMensualDia();
+			dia.setMes(mes);
+			dia.setDia(25);
+			dia.setUltimoDia(false);
+			dias.add(dia);
+		}
+		when(service.cobroMensualDiaDao.porTipoPlaza("TP")).thenReturn(dias);
+		vigencia("2026-01-01", "2099-12-31", 100, 80);
+		propietario("PP-A", "A", "2026-01-01", "2099-12-31");
+		// Enero pagado el 10, febrero pagado el 25; marzo sin pago
+		pagadas.add(new Object[] { "P1", "TP", d("2026-01-10") });
+		pagadas.add(new Object[] { "P1", "TP", d("2026-02-25") });
+
+		// Al 20 de marzo marzo aún no vence: le queda el 25
+		assertTrue(service.calcularAdeudos(null, null, LocalDate.parse("2026-03-20")).isEmpty());
+		// Al 26 de marzo se adeuda un solo mes, al precio normal, con vencimiento en su última fecha
+		List<JBAdeudo> adeudos = service.calcularAdeudos(null, null, LocalDate.parse("2026-03-26"));
+		assertEquals(List.of(d("2026-03-25")), adeudos.stream().map(JBAdeudo::getFechaVencimiento).toList());
+		assertEquals(100.0, adeudos.get(0).getMonto());
+	}
+
+	@Test
+	void conCorteEnElPasadoSoloCuentanLosPagosCapturadosHastaEseDia() {
+		propietario("PP-A", "A", "2026-01-01", "2099-12-31");
+		service.calcularAdeudos(null, null, LocalDate.parse("2026-03-15"));
+		// el límite es el inicio del día siguiente al corte
+		verify(service.contribucionDao).findFechasPagadas(d("2026-03-16"));
+		verify(service.contribucionDao).findPagosAdeudoAnterior(d("2026-03-16"));
+
+		service.calcularAdeudos(null, null, LocalDate.now());
+		verify(service.contribucionDao).findFechasPagadas(null);
 	}
 }

@@ -59,6 +59,8 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.2'
     implementation 'com.google.android.material:material:1.14.0'
+    // verificación local del hash BCrypt de la contraseña del recaudador (login sin conexión)
+    implementation 'org.mindrot:jbcrypt:0.4'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.7.0'

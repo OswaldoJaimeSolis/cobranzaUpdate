@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';  //for the form element
 
@@ -55,6 +55,11 @@ import { BusquedaRecaudadoresComponent } from './shared/busqueda/busqueda-recaud
 import { ConfigCobroComponent } from './catalogos/tiposplaza/config-cobro/config-cobro.component';
 import { ReporteMorosidadComponent } from './reportes/reporte-morosidad/reporte-morosidad.component';
 import { BitacoraCondonacionesComponent } from './reportes/bitacora-condonaciones/bitacora-condonaciones.component';
+import { LoginComponent } from './auth/login/login.component';
+import { CambiarPasswordComponent } from './auth/cambiar-password/cambiar-password.component';
+import { AuthInterceptor } from './auth/auth.interceptor';
+import { ListUsuarioComponent } from './catalogos/usuario/list-usuario/list-usuario.component';
+import { AddUsuarioComponent } from './catalogos/usuario/add-usuario/add-usuario.component';
 
 
 
@@ -86,7 +91,11 @@ import { BitacoraCondonacionesComponent } from './reportes/bitacora-condonacione
         BusquedaRecaudadoresComponent,
         ConfigCobroComponent,
         ReporteMorosidadComponent,
-        BitacoraCondonacionesComponent
+        BitacoraCondonacionesComponent,
+        LoginComponent,
+        CambiarPasswordComponent,
+        ListUsuarioComponent,
+        AddUsuarioComponent
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,
@@ -107,5 +116,5 @@ import { BitacoraCondonacionesComponent } from './reportes/bitacora-condonacione
         FormsModule,
         BrowserModule,
         MatProgressBarModule,
-        MatProgressSpinnerModule], providers: [ContribuyenteService, RecaudadorService, TiposplazaService, PropietarioPlazaService, ReportesService, { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, DatePipe, provideHttpClient(withXhr(), withInterceptorsFromDi())] })
+        MatProgressSpinnerModule], providers: [ContribuyenteService, RecaudadorService, TiposplazaService, PropietarioPlazaService, ReportesService, { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, DatePipe, provideHttpClient(withXhr(), withInterceptorsFromDi()), { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }] })
 export class AppModule { }

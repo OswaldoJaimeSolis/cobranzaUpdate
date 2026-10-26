@@ -33,6 +33,9 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jfree.util.Log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,7 +45,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -107,7 +109,6 @@ import net.sf.jasperreports.export.SimpleXlsxReportConfiguration;
 public class CobranzaPlazasController {
 	private final Integer REPORTE_PDF = 1;
 	private final Integer REPORTE_EXCEL = 2;
-	private final String port = "4200";
 
 	@Autowired
 	RecaudadorDao recaudadorDao;
@@ -145,19 +146,20 @@ public class CobranzaPlazasController {
 	@Autowired
 	CalculoCobroService calculoCobroService;
 
+	@Autowired
+	PasswordEncoder passwordEncoder;
+
 	private SimpleDateFormat spdf;
 	private GeneradorCodigos generadorCodigos;
 
 	// @Secured("ROLE_ADMIN")
 	@GetMapping("/tiposPlazaVigencia/{codigoTipoPlaza}")
-	@CrossOrigin(origins = "http://localhost:" + port)
 	public Collection<TipoPlazaVigencia> getTiposPlaza(@PathVariable String codigoTipoPlaza) {
 
 		return tipoPlazaVigenciaDao.historialTipoPlaza(codigoTipoPlaza);
 	}
 
 	@PostMapping("/tiposPlazaVigencia")
-	@CrossOrigin(origins = "http://localhost:" + port)
 	TipoPlazaVigencia newTipoPlaza(@RequestBody TipoPlazaVigencia tipoPlazaVigencia) {
 		// El frontend mandaba 0 en un período nuevo; Hibernate 6 lo toma como un registro
 		// existente y falla con StaleObjectStateException en lugar de insertarlo
@@ -168,7 +170,6 @@ public class CobranzaPlazasController {
 	}
 
 	@PutMapping("/tiposPlazaVigencia/{id}")
-	@CrossOrigin(origins = "http://localhost:" + port)
 	TipoPlazaVigencia replaceTipoPlazaVigencia(@RequestBody TipoPlazaVigencia newTipoPlazaVigencia,
 			@PathVariable Integer id) {
 
@@ -182,8 +183,6 @@ public class CobranzaPlazasController {
 	}
 
 	@DeleteMapping("/tiposPlazaVigencia/{id}")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	void deleteTipoPlazaVigencia(@PathVariable Integer id) {
 		tipoPlazaVigenciaDao.deleteById(id);
 	}
@@ -191,30 +190,22 @@ public class CobranzaPlazasController {
 	// @Secured("ROLE_ADMIN")
 
 	@GetMapping("/tiposPlaza")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	public Collection<TipoPlaza> getTiposPlaza() {
 		return tipoPlazaDao.findAll().stream().collect(Collectors.toList());
 	}
 
 	@PostMapping("/tiposPlaza")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	TipoPlaza newTipoPlaza(@RequestBody TipoPlaza tipoPlaza) {
 		return tipoPlazaDao.save(tipoPlaza);
 	}
 
 	@GetMapping("/tiposPlaza/{id}")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	TipoPlaza oneTipoPlaza(@PathVariable String id) {
 
 		return tipoPlazaDao.findById(id).orElseThrow(() -> new RuntimeException(id));
 	}
 
 	@PutMapping("/tiposPlaza/{id}")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	TipoPlaza replaceTipoPlaza(@RequestBody TipoPlaza newTipoPlaza, @PathVariable String id) {
 
 		return tipoPlazaDao.findById(id).map(tp -> {
@@ -231,8 +222,6 @@ public class CobranzaPlazasController {
 	}
 
 	@DeleteMapping("/tiposPlaza/{id}")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	void deleteTipoPlaza(@PathVariable String id) {
 		tipoPlazaDao.deleteById(id);
 	}
@@ -240,15 +229,11 @@ public class CobranzaPlazasController {
 	// @Secured("ROLE_ADMIN")
 
 	@GetMapping("/contribuyentes")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	public Collection<Contribuyente> getContribuyentes() {
 		return contribuyenteDao.findAll().stream().collect(Collectors.toList());
 	}
 
 	@PostMapping("/contribuyentes")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	Contribuyente newContribuyene(@RequestBody Contribuyente contribuyente) {
 
 		return contribuyenteDao.save(crearContribuyente(contribuyente));
@@ -278,16 +263,12 @@ public class CobranzaPlazasController {
 	}
 
 	@GetMapping("/contribuyentes/{id}")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	Contribuyente oneContribuyente(@PathVariable String id) {
 
 		return contribuyenteDao.findById(id).orElseThrow(() -> new RuntimeException(id));
 	}
 
 	@PutMapping("/contribuyentes/{id}")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	Contribuyente replaceContribuyente(@RequestBody Contribuyente newContribuyente, @PathVariable String id) {
 
 		return contribuyenteDao.findById(id).map(con -> {
@@ -304,83 +285,79 @@ public class CobranzaPlazasController {
 	}
 
 	@DeleteMapping("/contribuyentes/{id}")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	void deleteContribuyente(@PathVariable String id) {
 		contribuyenteDao.deleteById(id);
 	}
 
 	@GetMapping("/recaudadores")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	public Collection<Recaudador> getRecaudadores() {
 		return recaudadorDao.findAll().stream().collect(Collectors.toList());
 	}
 
 	@PostMapping("/recaudadores")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	Recaudador newRecaudador(@RequestBody Recaudador recaudador) {
+		recaudador.setPassRecaudador(passwordRecaudador(recaudador.getCodigoRecaudador(), recaudador.getPassRecaudador()));
+		if (recaudador.getPassRecaudador() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Capture la contraseña");
+		}
 		return recaudadorDao.save(recaudador);
 	}
 
-	@GetMapping("/recaudadores/{id}")
+	/** Hash de la contraseña nueva; vacía conserva la que ya tenía el recaudador. */
+	private String passwordRecaudador(String codigoRecaudador, String nueva) {
+		if (nueva == null || nueva.isEmpty()) {
+			return codigoRecaudador == null ? null
+					: recaudadorDao.findById(codigoRecaudador).map(Recaudador::getPassRecaudador).orElse(null);
+		}
+		return passwordEncoder.encode(nueva);
+	}
 
-	@CrossOrigin(origins = "http://localhost:" + port)
+	@GetMapping("/recaudadores/{id}")
 	Recaudador one(@PathVariable String id) {
 
 		return recaudadorDao.findById(id).orElseThrow(() -> new RuntimeException(id));
 	}
 
 	@PutMapping("/recaudadores/{id}")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	Recaudador replaceRecaudador(@RequestBody Recaudador newRecaudador, @PathVariable String id) {
 
 		return recaudadorDao.findById(id).map(rec -> {
 			rec.setCodigoRecaudador(newRecaudador.getCodigoRecaudador());
 			rec.setActivoRecaudador(newRecaudador.getActivoRecaudador());
 			rec.setNombreRecaudador(newRecaudador.getNombreRecaudador());
-			rec.setPassRecaudador(newRecaudador.getPassRecaudador());
+			rec.setPassRecaudador(passwordRecaudador(id, newRecaudador.getPassRecaudador()));
 			rec.setPuedeCondonar(newRecaudador.getPuedeCondonar());
 
 			return recaudadorDao.save(rec);
 		}).orElseGet(() -> {
 			newRecaudador.setCodigoRecaudador(id);
+			newRecaudador.setPassRecaudador(passwordRecaudador(id, newRecaudador.getPassRecaudador()));
 			return recaudadorDao.save(newRecaudador);
 		});
 	}
 
 	@DeleteMapping("/recaudadores/{id}")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	void deleteRecaudador(@PathVariable String id) {
 		recaudadorDao.deleteById(id);
 	}
 
 	@GetMapping("/recaudadoresTP/{codigoRecaudador}")
-	@CrossOrigin(origins = "http://localhost:" + port)
 	public Collection<RecaudadorTipoPlaza> getRecaudadorTP(@PathVariable String codigoRecaudador) {
 
 		return recaudadorTipoPlazaDao.recaudadorTiposPlaza(codigoRecaudador);
 	}
 
 	@PostMapping("/recaudadoresTP")
-	@CrossOrigin(origins = "http://localhost:" + port)
 	RecaudadorTipoPlaza newRecaudadorTP(@RequestBody RecaudadorTipoPlaza recaudadorTipoPlaza) {
 		return recaudadorTipoPlazaDao.save(recaudadorTipoPlaza);
 	}
 
 	@DeleteMapping("/recaudadoresTP/{id}")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	void deleteRecaudadorTP(@PathVariable Integer id) {
 		recaudadorTipoPlazaDao.deleteById(id);
 	}
 
 	@GetMapping("/propietarioPlaza")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	public Collection<PropietarioPlaza> getPropietariosPlaza() {
 		try {
 			Pageable pp = PageRequest.of(0, 1);
@@ -392,7 +369,6 @@ public class CobranzaPlazasController {
 	}
 
 	@GetMapping("/propietarioPlazaJB")
-	@CrossOrigin(origins = "http://localhost:" + port)
 	public Collection<JBPropietarioPlaza> getPropietariosPlazaJB() {
 		try {
 			Pageable pp = PageRequest.of(0, 1);
@@ -404,15 +380,12 @@ public class CobranzaPlazasController {
 	}
 
 	@GetMapping("/propietarioPlaza/{id}")
-
-	@CrossOrigin(origins = "http://localhost:" + port)
 	PropietarioPlaza onePropietarioPlaza(@PathVariable String id) {
 
 		return propietarioPlazaDao.findById(id).orElseThrow(() -> new RuntimeException(id));
 	}
 
 	@PostMapping("/propietarioPlaza")
-	@CrossOrigin(origins = "http://localhost:" + port)
 	@Transactional
 	PropietarioPlaza newPropietarioPlaza(@RequestBody PropietarioPlaza propietarioPlaza) {
 
@@ -460,7 +433,6 @@ public class CobranzaPlazasController {
 	}
 
 	@PutMapping("/propietarioPlaza/{idPropietarioPlaza}")
-	@CrossOrigin(origins = "http://localhost:" + port)
 	PropietarioPlaza propietarioPlazaEditar(@RequestBody PropietarioPlaza propietarioPlaza,
 			@PathVariable String idPropietarioPlaza) {
 		PropietarioPlaza ppOld = propietarioPlazaDao.getReferenceById(idPropietarioPlaza);
@@ -640,12 +612,18 @@ public class CobranzaPlazasController {
 	private Map<String, Object> filaRecaudador(Recaudador r, TipoPlaza tp) {
 		Map<String, Object> fila = new HashMap<>();
 		fila.put("codigoR", r.getCodigoRecaudador());
-		fila.put("passR", r.getPassRecaudador());
+		// hash BCrypt sin el prefijo {bcrypt}: la app lo usa para iniciar sesión sin conexión
+		fila.put("passR", hashMovil(r.getPassRecaudador()));
 		fila.put("nombreR", urlEncode(r.getNombreRecaudador()));
 		fila.put("activoR", Boolean.TRUE.equals(r.getActivoRecaudador()) ? "1" : "0");
 		fila.put("puedeCondonar", Boolean.TRUE.equals(r.getPuedeCondonar()) ? "1" : "0");
 		fila.put("tipoPlaza", tp != null ? tp.getCodigoTipoPlaza() : "");
 		return fila;
+	}
+
+	private String hashMovil(String password) {
+		String prefijo = "{bcrypt}";
+		return password != null && password.startsWith(prefijo) ? password.substring(prefijo.length()) : "";
 	}
 
 	private String urlEncode(String valor) {
@@ -857,7 +835,6 @@ public class CobranzaPlazasController {
 	}
 
 	@RequestMapping(value = "/contribucionesreporte", method = RequestMethod.GET)
-	@CrossOrigin(origins = "http://localhost:" + port)
 	public @ResponseBody byte[] generateReport(HttpServletResponse response, @RequestParam String fechaInicial,
 			@RequestParam String fechaFinal, @RequestParam Integer formato, @RequestParam Boolean todosTP,
 			@RequestParam Boolean todosContribuyente, @RequestParam String codigoContribuyente,
@@ -990,7 +967,6 @@ public class CobranzaPlazasController {
 	}
 
 	@RequestMapping(value = "/contribucionespagoreporte", method = RequestMethod.GET)
-	@CrossOrigin(origins = "http://localhost:" + port)
 	public @ResponseBody byte[] generateReportPago(HttpServletResponse response, @RequestParam String fechaInicial,
 			@RequestParam String fechaFinal, @RequestParam Integer formato, @RequestParam Boolean todosTP,
 			@RequestParam Boolean todosContribuyente, @RequestParam String codigoContribuyente,
@@ -1290,7 +1266,6 @@ public class CobranzaPlazasController {
 	}
 
 	@RequestMapping(value = "/contribuyentesreporte", method = RequestMethod.GET)
-	@CrossOrigin(origins = "http://localhost:" + port)
 	public @ResponseBody byte[] generateReportContribuyentes(HttpServletResponse response,
 			@RequestParam Integer formato, @RequestParam Boolean todosTP, @RequestParam String codigoTP)
 			throws Exception {

@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { DatePipe } from '@angular/common';
 import { TipoPlaza } from 'src/app/catalogos/tiposplaza/model/tipo-plaza';
 import { BusquedaTiposPlazaComponent } from 'src/app/shared/busqueda/busqueda-tipos-plaza/busqueda-tipos-plaza.component';
 import { DialogInformativoComponent } from 'src/app/shared/dialog-informativo/dialog-informativo.component';
@@ -34,11 +35,15 @@ export class ReporteMorosidadComponent implements OnInit {
   isLoading: boolean = false;
   consultado: boolean = false;
   observaciones: string = "";
+  // Fecha de corte: se adeuda lo vencido antes de ese día; si es pasada, sin los pagos capturados después
+  fechaCorte: Date = new Date();
+  // Corte con el que se hizo la última consulta (se muestra junto al total)
+  corteConsultado: Date = null;
   plazas: PlazaMorosa[] = [];
   total: number = 0;
   columnas = ['plaza', 'tipoPlaza', 'propietario', 'licencia', 'tipoCobro', 'vencidas', 'total', 'acciones'];
 
-  constructor(private dialog: MatDialog, private service: ReportesService) { }
+  constructor(private dialog: MatDialog, private service: ReportesService, private datePipe: DatePipe) { }
 
   ngOnInit() {
   }
@@ -52,7 +57,17 @@ export class ReporteMorosidadComponent implements OnInit {
     });
   }
 
+  private corte(): string {
+    return this.datePipe.transform(this.fechaCorte, 'yyyy-MM-dd');
+  }
+
   private filtroValido(): boolean {
+    if (this.fechaCorte == null) {
+      this.dialog.open(DialogInformativoComponent, {
+        data: { title: 'Atención!', message: 'Debe indicar la fecha de corte' }
+      });
+      return false;
+    }
     if (this.todosTP || this.tipoPlaza.codigoTipoPlaza.length > 0) {
       return true;
     }
@@ -67,7 +82,8 @@ export class ReporteMorosidadComponent implements OnInit {
       return;
     }
     this.isLoading = true;
-    this.service.getMorosidad(this.todosTP, this.tipoPlaza.codigoTipoPlaza).subscribe({
+    const corte = this.fechaCorte;
+    this.service.getMorosidad(this.todosTP, this.tipoPlaza.codigoTipoPlaza, this.corte()).subscribe({
       next: (adeudos: any[]) => {
         const porPlaza = new Map<string, PlazaMorosa>();
         this.total = 0;
@@ -86,6 +102,7 @@ export class ReporteMorosidadComponent implements OnInit {
           this.total += a.monto;
         }
         this.plazas = Array.from(porPlaza.values());
+        this.corteConsultado = corte;
         this.consultado = true;
         this.isLoading = false;
       },
@@ -100,10 +117,14 @@ export class ReporteMorosidadComponent implements OnInit {
 
   /** Descarga masiva: un solo PDF con una hoja por cada plaza con adeudo del tipo seleccionado, o de todos si no hay */
   requerimientosMasivo() {
+    if (this.fechaCorte == null) {
+      this.filtroValido();
+      return;
+    }
     const codigoTP = this.tipoPlazaRequerimientos();
     const todos = codigoTP.length == 0;
     this.isLoading = true;
-    this.service.getRequerimientoPagoReporte(todos, codigoTP, "", this.observaciones).subscribe({
+    this.service.getRequerimientoPagoReporte(todos, codigoTP, "", this.observaciones, this.corte()).subscribe({
       next: (data) => {
         this.entregar(data, 1, "requerimientos_pago_" + (todos ? "Todos" : codigoTP), true);
         this.isLoading = false;
@@ -115,7 +136,7 @@ export class ReporteMorosidadComponent implements OnInit {
   /** Requerimiento de una sola plaza: se descarga o se abre en otra pestaña para imprimirlo */
   requerimientoPlaza(plaza: PlazaMorosa, descargar: boolean) {
     this.isLoading = true;
-    this.service.getRequerimientoPagoReporte(false, plaza.tipoPlaza, plaza.codigoPlaza, this.observaciones).subscribe({
+    this.service.getRequerimientoPagoReporte(false, plaza.tipoPlaza, plaza.codigoPlaza, this.observaciones, this.datePipe.transform(this.corteConsultado, 'yyyy-MM-dd')).subscribe({
       next: (data) => {
         this.entregar(data, 1, "requerimiento_" + plaza.codigoPlaza, descargar);
         this.isLoading = false;

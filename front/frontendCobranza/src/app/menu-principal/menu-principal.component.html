@@ -1,15 +1,27 @@
-<button mat-button [matMenuTriggerFor]="catalogos">Catálogos</button>
-<mat-menu #catalogos="matMenu">
-  <button mat-menu-item [routerLink]="['contribuyentes']" onclick="">Contribuyentes</button>
-  <button mat-menu-item [routerLink]="['recaudadores']" onclick="">Recaudadores </button>
-  <button mat-menu-item [routerLink]="['tiposPlaza']" onclick="">Tipos de plaza </button>
-  <button mat-menu-item [routerLink]="['propietarioPlaza']" onclick="">Plazas </button>
-</mat-menu>
+@if (auth.esAdmin()) {
+  <button mat-button [matMenuTriggerFor]="catalogos">Catálogos</button>
+  <mat-menu #catalogos="matMenu">
+    <button mat-menu-item [routerLink]="['contribuyentes']">Contribuyentes</button>
+    <button mat-menu-item [routerLink]="['recaudadores']">Recaudadores </button>
+    <button mat-menu-item [routerLink]="['tiposPlaza']">Tipos de plaza </button>
+    <button mat-menu-item [routerLink]="['propietarioPlaza']">Plazas </button>
+    <button mat-menu-item [routerLink]="['usuarios']">Usuarios </button>
+  </mat-menu>
+}
 
 <button mat-button [matMenuTriggerFor]="reportes">Reportes</button>
 <mat-menu #reportes="matMenu">
-  <button mat-menu-item [routerLink]="['reporteContribuciones']" onclick="">Reporte contribuciones</button>
-  <button mat-menu-item [routerLink]="['reporteContribuyentes']" onclick="">Reporte contribuyentes</button>
-  <button mat-menu-item [routerLink]="['reporteMorosidad']" onclick="">Morosidad y requerimientos de pago</button>
-  <button mat-menu-item [routerLink]="['bitacoraCondonaciones']" onclick="">Bitácora de condonaciones</button>
+  <button mat-menu-item [routerLink]="['reporteContribuciones']">Reporte contribuciones</button>
+  <button mat-menu-item [routerLink]="['reporteContribuyentes']">Reporte contribuyentes</button>
+  <button mat-menu-item [routerLink]="['reporteMorosidad']">Morosidad y requerimientos de pago</button>
+  <button mat-menu-item [routerLink]="['bitacoraCondonaciones']">Bitácora de condonaciones</button>
+</mat-menu>
+
+<span class="espacio"></span>
+<button mat-button [matMenuTriggerFor]="cuenta">
+  <mat-icon>account_circle</mat-icon> {{auth.sesion?.nombre}}
+</button>
+<mat-menu #cuenta="matMenu">
+  <button mat-menu-item (click)="cambiarPassword()">Cambiar contraseña</button>
+  <button mat-menu-item (click)="auth.logout()">Cerrar sesión</button>
 </mat-menu>

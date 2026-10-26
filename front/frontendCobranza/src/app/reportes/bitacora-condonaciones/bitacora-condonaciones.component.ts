@@ -26,6 +26,27 @@ export class BitacoraCondonacionesComponent implements OnInit {
     this.consultar();
   }
 
+  /** Descarga en PDF la bitácora del período seleccionado */
+  exportarPdf() {
+    const inicial = this.datePipe.transform(this.fechaInicial, 'dd-MM-yyyy');
+    const final = this.datePipe.transform(this.fechaFinal, 'dd-MM-yyyy');
+    this.isLoading = true;
+    this.service.getCondonacionesReporte(inicial, final).subscribe({
+      next: (data: ArrayBuffer) => {
+        const url = URL.createObjectURL(new Blob([data], { type: 'application/pdf' }));
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'condonaciones_' + inicial + '_' + final + '.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        this.isLoading = false;
+      },
+      error: (error: any) => { console.log(error); this.isLoading = false; }
+    });
+  }
+
   consultar() {
     this.isLoading = true;
     this.service.getCondonaciones(this.datePipe.transform(this.fechaInicial, 'dd-MM-yyyy'),

@@ -103,12 +103,15 @@ public interface ContribucionDao extends JpaRepository<Contribucion, Integer> {
 	@Query(value = QUERY_CONTRIBUYENTES_TP)
 	Collection<JBContribuyente> findTPConribuyentes(@Param("codigoTP") String codigoTP, Sort sort);
 
-	// Pagos registrados (plaza, tipo de plaza, fecha cobrada) para cruzarlos con las obligaciones
-	@Query("SELECT c.plaza.codigoPlaza, c.tipoPlaza.codigoTipoPlaza, c.fechaContribucion FROM Contribucion c WHERE c.estadoPago = 1 AND (c.pagoAdeudoAnterior IS NULL OR c.pagoAdeudoAnterior = false)")
-	List<Object[]> findFechasPagadas();
+	// Pagos registrados (plaza, tipo de plaza, fecha cobrada) para cruzarlos con las obligaciones.
+	// limite: sólo los capturados (fechaModificacion) antes de esa fecha; null = todos
+	@Query("SELECT c.plaza.codigoPlaza, c.tipoPlaza.codigoTipoPlaza, c.fechaContribucion FROM Contribucion c WHERE c.estadoPago = 1 AND (c.pagoAdeudoAnterior IS NULL OR c.pagoAdeudoAnterior = false)"
+			+ " AND (CAST(:limite AS timestamp) IS NULL OR c.fechaModificacion IS NULL OR c.fechaModificacion < :limite)")
+	List<Object[]> findFechasPagadas(@Param("limite") Date limite);
 
-	// Abonos al adeudo anterior (plaza, tipo de plaza, total pagado)
-	@Query("SELECT c.plaza.codigoPlaza, c.tipoPlaza.codigoTipoPlaza, SUM(c.importeContribucion) FROM Contribucion c WHERE c.estadoPago = 1 AND c.pagoAdeudoAnterior = true GROUP BY c.plaza.codigoPlaza, c.tipoPlaza.codigoTipoPlaza")
-	List<Object[]> findPagosAdeudoAnterior();
+	// Abonos al adeudo anterior (plaza, tipo de plaza, total pagado), con el mismo límite de captura
+	@Query("SELECT c.plaza.codigoPlaza, c.tipoPlaza.codigoTipoPlaza, SUM(c.importeContribucion) FROM Contribucion c WHERE c.estadoPago = 1 AND c.pagoAdeudoAnterior = true"
+			+ " AND (CAST(:limite AS timestamp) IS NULL OR c.fechaModificacion IS NULL OR c.fechaModificacion < :limite) GROUP BY c.plaza.codigoPlaza, c.tipoPlaza.codigoTipoPlaza")
+	List<Object[]> findPagosAdeudoAnterior(@Param("limite") Date limite);
 
 }

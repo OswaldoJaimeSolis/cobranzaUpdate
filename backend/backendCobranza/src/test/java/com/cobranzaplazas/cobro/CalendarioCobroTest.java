@@ -38,11 +38,15 @@ class CalendarioCobroTest {
 				new DiaMes(4, 31, false));
 		CalendarioCobro calendario = new CalendarioCobro(CalendarioCobro.MENSUAL, null, dias, null, null, null, null,
 				null);
-		// marzo no tiene cobro; febrero toma su último día; el 31 de abril se ajusta al 30
-		assertEquals(
-				List.of(LocalDate.parse("2026-01-05"), LocalDate.parse("2026-01-20"), LocalDate.parse("2026-02-28"),
-						LocalDate.parse("2026-04-30")),
+		// una obligación por mes que vence en su última fecha; marzo no tiene cobro; febrero toma su
+		// último día; el 31 de abril se ajusta al 30
+		assertEquals(List.of(LocalDate.parse("2026-01-20"), LocalDate.parse("2026-02-28"), LocalDate.parse("2026-04-30")),
 				fechas(calendario, "2026-01-01", "2026-12-31"));
+		Obligacion enero = calendario.obligaciones(LocalDate.parse("2026-01-01"), LocalDate.parse("2026-01-31")).get(0);
+		assertEquals(LocalDate.parse("2026-01-05"), enero.inicioPeriodo());
+		assertEquals("enero 2026 (días 5, 20)", enero.periodo());
+		// el mes no se genera mientras no llegue su última fecha
+		assertTrue(fechas(calendario, "2026-01-01", "2026-01-19").isEmpty());
 		assertEquals(List.of(LocalDate.parse("2028-02-29")), fechas(calendario, "2028-02-01", "2028-02-29"));
 	}
 

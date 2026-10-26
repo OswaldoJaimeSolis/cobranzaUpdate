@@ -1,0 +1,19 @@
+<div class="login-container">
+  <form class="login-form" (ngSubmit)="entrar()">
+    <h2>Iniciar sesión</h2>
+    <mat-form-field>
+      <input matInput placeholder="Usuario" name="usuario" [(ngModel)]="usuario" autocomplete="username" required>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Contraseña" name="password" type="password" [(ngModel)]="password"
+        autocomplete="current-password" required>
+    </mat-form-field>
+    @if (error) {
+      <div class="login-error">{{error}}</div>
+    }
+    <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">Entrar</button>
+    @if (isLoading) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+  </form>
+</div>
