@@ -1,0 +1,17 @@
+[Unit]
+Description=Cobranza de plazas - Backend
+After=network.target mysql.service
+
+[Service]
+User=ubuntu
+WorkingDirectory=/opt/cobranza
+EnvironmentFile=/etc/cobranza/cobranza.env
+ExecStart=/usr/bin/java -Xms128m -Xmx384m -Duser.timezone=America/Mexico_City -jar /opt/cobranza/cobranza.war --spring.profiles.active=PROD
+SuccessExitStatus=143
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

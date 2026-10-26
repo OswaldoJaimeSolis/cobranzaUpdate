@@ -1,5 +1,7 @@
+import { environment } from 'src/environments/environment';
+
 export class Constantes {
-    //static base_url:string="http://192.168.1.108:8080";
-    //static base_url:string="http://localhost:8080";
-    static base_url:string="http://localhost:8080";
+    // Viene del entorno: environment.ts en desarrollo, environment.prod.ts al compilar con
+    // --configuration production (ver angular.json fileReplacements)
+    static base_url: string = environment.apiUrl;
 }

@@ -15,6 +15,10 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+        // Backend al que se conecta la app. Por omisión, producción (EC2); para desarrollo:
+        //   ./gradlew installDebug -PservidorUrl=http://192.168.1.103:8080/
+        // La IP debe estar también en res/xml/network_security_config.xml (HTTP sin TLS).
+        buildConfigField "String", "SERVIDOR_URL", "\"${project.findProperty('servidorUrl') ?: 'http://18.190.32.174:8083/'}\""
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -22,6 +26,9 @@ android {
             minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    buildFeatures {
+        buildConfig = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21

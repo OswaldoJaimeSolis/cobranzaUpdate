@@ -14,5 +14,7 @@
         <!-- Backend's LAN IP, for a physical device on the same network. Must match
              URL_BASE in WebService. -->
         <domain includeSubdomains="false">192.168.1.103</domain>
+        <!-- Servidor de producción (EC2); debe coincidir con SERVIDOR_URL en app/build.gradle. -->
+        <domain includeSubdomains="false">18.190.32.174</domain>
     </domain-config>
 </network-security-config>

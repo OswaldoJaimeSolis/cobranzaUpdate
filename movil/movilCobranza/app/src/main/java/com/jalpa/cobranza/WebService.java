@@ -43,13 +43,10 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class WebService {
     // Antes apuntaba a los scripts PHP de producción (https://jalpa.gob.mx/cobranza/*.php);
-    // ahora apunta al backend local (backendCobranza), que expone el mismo contrato bajo
-    // los mismos nombres mostrados abajo pero sin ".php". "./mvnw spring-boot:run" lo sirve
-    // en la raíz (sin prefijo de contexto), verificado localmente. 10.0.2.2 es el alias que
-    // el emulador de Android usa para llegar al localhost de la máquina anfitriona; en un
-    // dispositivo físico en la misma red hay que sustituirlo por la IP LAN del backend.
-    //private final String URL_BASE="http://10.0.2.2:8080/";
-    private final String URL_BASE="http://192.168.1.103:8080/";
+    // ahora al backendCobranza, que expone el mismo contrato sin ".php". La URL sale de
+    // app/build.gradle (SERVIDOR_URL): producción por omisión; en desarrollo se cambia con
+    // -PservidorUrl=http://<ip>:8080/ (10.0.2.2 es el localhost del anfitrión en el emulador).
+    private final String URL_BASE=BuildConfig.SERVIDOR_URL;
 
     public static final int LOGIN_CORRECTO=0;
     public static final int LOGIN_RECHAZADO=1;
