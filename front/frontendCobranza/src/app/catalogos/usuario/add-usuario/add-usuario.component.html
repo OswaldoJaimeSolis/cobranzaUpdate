@@ -1,33 +1,46 @@
-<h2 mat-dialog-title>{{encabezado}}</h2>
+<h2 mat-dialog-title>{{editarId ? 'Editar usuario' : 'Nuevo usuario'}}</h2>
 
 <mat-dialog-content>
-  <div class="columns-container">
-    <mat-form-field>
-      <input matInput placeholder="Usuario: " [(ngModel)]="oFinal.usuario" [disabled]="editarId" [readonly]="editarId"
-        required>
+  <div class="form-grid">
+    <mat-form-field appearance="outline">
+      <mat-label>Usuario</mat-label>
+      <input matInput [(ngModel)]="oFinal.usuario" [disabled]="editarId" [readonly]="editarId" required
+        autocomplete="off">
+      <mat-error>Capture el usuario</mat-error>
     </mat-form-field>
-    <mat-form-field>
-      <input matInput placeholder="Nombre: " [(ngModel)]="oFinal.nombre" required>
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre</mat-label>
+      <input matInput [(ngModel)]="oFinal.nombre" required>
+      <mat-error>Capture el nombre</mat-error>
     </mat-form-field>
-    <mat-form-field>
-      <input matInput [placeholder]="editarId ? 'Contraseña (vacía conserva la actual):' : 'Contraseña:'"
-        [(ngModel)]="oFinal.password" type="password" autocomplete="new-password" [required]="!editarId">
+    <mat-form-field appearance="outline">
+      <mat-label>Contraseña</mat-label>
+      <input matInput [(ngModel)]="oFinal.password" type="password" autocomplete="new-password" [required]="!editarId">
+      @if (editarId) {
+        <mat-hint>Déjela vacía para conservar la actual</mat-hint>
+      }
+      <mat-error>Capture la contraseña</mat-error>
     </mat-form-field>
-    <mat-form-field>
-      <mat-select placeholder="Rol" [(ngModel)]="oFinal.rol">
+    <mat-form-field appearance="outline">
+      <mat-label>Rol</mat-label>
+      <mat-select [(ngModel)]="oFinal.rol">
         @for (r of roles; track r.valor) {
           <mat-option [value]="r.valor">{{r.nombre}}</mat-option>
         }
       </mat-select>
     </mat-form-field>
-    <mat-checkbox [(ngModel)]="oFinal.activo">Activo</mat-checkbox>
+    <div class="completo">
+      <mat-checkbox [(ngModel)]="oFinal.activo">Activo</mat-checkbox>
+    </div>
     @if (error) {
-      <div class="error">{{error}}</div>
+      <div class="texto-error completo" role="alert">
+        <mat-icon aria-hidden="true">error</mat-icon><span>{{error}}</span>
+      </div>
     }
   </div>
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button mat-button (click)="onCancel()">Cancelar</button>
-  <button mat-raised-button color="primary" (click)="onSave()">Guardar</button>
+  <button mat-button type="button" (click)="onCancel()">Cancelar</button>
+  <button mat-flat-button type="button" (click)="onSave()">Guardar</button>
 </mat-dialog-actions>

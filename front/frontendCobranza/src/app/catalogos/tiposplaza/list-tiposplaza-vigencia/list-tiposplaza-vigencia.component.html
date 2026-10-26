@@ -1,38 +1,54 @@
-<mat-list>
-
-
-  <div class="centerTitle">
-    <h2>{{tipoPlaza.descripcionTipoPlaza}}</h2>
-    <h3>Vigencias </h3>
-  </div>
-  <div class="centerTitle">
-    <button mat-fab color="primary" (click)="openDialog()">
-      <mat-icon>add</mat-icon>
+<h2 mat-dialog-title>Vigencias (períodos y precios)</h2>
+<mat-dialog-content>
+  <p class="dialog-subtitulo">{{tipoPlaza.codigoTipoPlaza}} · {{tipoPlaza.descripcionTipoPlaza}}</p>
+  <div class="acciones-barra barra-superior">
+    <button mat-stroked-button type="button" (click)="openDialog()">
+      <mat-icon>add</mat-icon> Nuevo período
     </button>
   </div>
-  @if (displayOrNot) {
-    <h2 mat-subheader>No hay períodos</h2>
-  } @else {
-    @for (o of vigencias; track o) {
-      <mat-list-item>
-        <mat-icon matListItemIcon>watch_later</mat-icon>
-        <span matListItemTitle>De {{o.vigenciaInicial|date: 'dd/MM/yyyy'}} al {{o.vigenciaFinal|date: 'dd/MM/yyyy'}} Importe:
-        {{o.importe }}@if (o.precioDescuento != null) { · Con descuento: {{o.precioDescuento}} }</span>
-        <div matListItemMeta>
-          <button mat-raised-button color="primary" (click)="deleteO(o.idTipoPlazaVigencia)">
-            Eliminar
-          </button>
-        </div>
-      </mat-list-item>
-      <mat-divider></mat-divider>
-    }
-  }
-
-
-
-</mat-list>
-<div class="container">
   @if (isLoading) {
-    <mat-progress-spinner mode="indeterminate"  ></mat-progress-spinner>
+    <mat-progress-bar mode="indeterminate" aria-label="Cargando vigencias"></mat-progress-bar>
   }
-</div>
+  @if (!displayOrNot) {
+    <div class="tabla-contenedor">
+      <div class="tabla-scroll">
+        <table mat-table [dataSource]="vigencias">
+          <ng-container matColumnDef="inicio">
+            <th mat-header-cell *matHeaderCellDef>Desde</th>
+            <td mat-cell *matCellDef="let o">{{o.vigenciaInicial | date: 'dd/MM/yyyy'}}</td>
+          </ng-container>
+          <ng-container matColumnDef="fin">
+            <th mat-header-cell *matHeaderCellDef>Hasta</th>
+            <td mat-cell *matCellDef="let o">{{o.vigenciaFinal | date: 'dd/MM/yyyy'}}</td>
+          </ng-container>
+          <ng-container matColumnDef="importe">
+            <th mat-header-cell *matHeaderCellDef class="celda-numero">Precio normal</th>
+            <td mat-cell *matCellDef="let o" class="celda-numero">{{o.importe | currency}}</td>
+          </ng-container>
+          <ng-container matColumnDef="descuento">
+            <th mat-header-cell *matHeaderCellDef class="celda-numero">Con descuento</th>
+            <td mat-cell *matCellDef="let o" class="celda-numero">
+              {{o.precioDescuento != null ? (o.precioDescuento | currency) : '—'}}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef><span class="cdk-visually-hidden">Acciones</span></th>
+            <td mat-cell *matCellDef="let o">
+              <button mat-icon-button class="boton-eliminar" (click)="deleteO(o.idTipoPlazaVigencia)"
+                matTooltip="Eliminar" aria-label="Eliminar período">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+        </table>
+      </div>
+    </div>
+  } @else if (!isLoading) {
+    <app-empty-state icono="date_range" texto="No hay períodos"></app-empty-state>
+  }
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button type="button" mat-dialog-close>Cerrar</button>
+</mat-dialog-actions>

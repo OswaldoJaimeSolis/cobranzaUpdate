@@ -1,190 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical"
     tools:context=".contribuyente.ContribuyenteActivity">
-    <TextView
-        android:id="@+id/tvCNombre"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Nombre"
-        android:layout_marginTop="80px"
-        android:layout_marginLeft="10px"
-        />
-    <EditText
-        android:id="@+id/etCNombre"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/tvCNombre"
-        android:layout_marginLeft="80px"
-        android:layout_marginTop="50px"
-        android:inputType="textCapCharacters"
-        android:ems="10"/>
-    <TextView
-        android:id="@+id/tvFechaInicial"
-        android:layout_below="@+id/etCNombre"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ape. Paterno"
-        android:layout_marginTop="30px"
-        android:layout_marginLeft="10px"
 
-        />
+    <include layout="@layout/toolbar" />
 
-    <EditText
-        android:id="@+id/etCApePaterno"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/etCNombre"
-        android:layout_marginLeft="48px"
-        android:layout_toRightOf="@id/tvFechaInicial"
-        android:ems="8"
-        android:inputType="textCapCharacters" />
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/screen_margin">
 
-    <TextView
-        android:id="@+id/tvCApeMaterno"
-        android:layout_below="@+id/etCApePaterno"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ape. Materno"
-        android:layout_marginTop="30px"
-        android:layout_marginLeft="10px"
-        />
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/nombre">
 
-    <EditText
-        android:id="@+id/etCApeMaterno"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/etCApePaterno"
-        android:layout_marginLeft="46px"
-        android:layout_toRightOf="@id/tvCApeMaterno"
-        android:ems="8"
-        android:inputType="textCapCharacters" />
+                <com.google.android.material.textfield.TextInputEditText
+                    style="@style/Widget.Cobranza.TextInputEditText"
+                    android:id="@+id/etCNombre"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="textCapCharacters"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-    <TextView
-        android:id="@+id/tvCFechaNacimiento"
-        android:layout_below="@+id/etCApeMaterno"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="F. Nacimiento"
-        android:layout_marginTop="30px"
-        android:layout_marginLeft="10px"
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_md"
+                android:hint="@string/ape_paterno">
 
-        />
-    <CheckBox
-        android:id="@+id/cbSinFechaNacimiento"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No disponible"
-        android:layout_toRightOf="@id/etCFechaNacimiento"
-        android:layout_below="@+id/etCApeMaterno"
-        android:layout_marginTop="10px"
-        android:layout_marginLeft="10px"/>
+                <com.google.android.material.textfield.TextInputEditText
+                    style="@style/Widget.Cobranza.TextInputEditText"
+                    android:id="@+id/etCApePaterno"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="textCapCharacters"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-    <EditText
-        android:id="@+id/etCFechaNacimiento"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/etCApeMaterno"
-        android:layout_marginLeft="45px"
-        android:layout_toRightOf="@id/tvCFechaNacimiento"
-        android:ems="6"
-        android:inputType="date" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_md"
+                android:hint="@string/ape_materno">
 
-    <TextView
-        android:id="@+id/tvCRfc"
-        android:layout_below="@+id/etCFechaNacimiento"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="RFC"
-        android:layout_marginTop="30px"
-        android:layout_marginLeft="10px"
-        />
+                <com.google.android.material.textfield.TextInputEditText
+                    style="@style/Widget.Cobranza.TextInputEditText"
+                    android:id="@+id/etCApeMaterno"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="textCapCharacters"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-    <EditText
-        android:id="@+id/etCRfc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/etCFechaNacimiento"
-        android:layout_marginLeft="107px"
-        android:layout_toRightOf="@id/tvCRfc"
-        android:ems="8"
-        android:inputType="textCapCharacters" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_md"
+                android:hint="@string/fecha_nacimiento"
+                app:startIconDrawable="@drawable/ic_calendar"
+                app:startIconTint="@color/primary_medium">
 
-    <TextView
-        android:id="@+id/tvTipoPlaza"
-        android:layout_below="@+id/etCRfc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Tipo plaza"
-        android:layout_marginTop="30px"
-        android:layout_marginLeft="10px"
-        />
+                <com.google.android.material.textfield.TextInputEditText
+                    style="@style/Widget.Cobranza.TextInputEditText"
+                    android:id="@+id/etCFechaNacimiento"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:cursorVisible="false"
+                    android:focusable="false"
+                    android:inputType="date" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-    <Spinner
-        android:id="@+id/cbTipoPlaza"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/etCRfc"
-        android:layout_marginLeft="65px"
-        android:layout_toRightOf="@id/tvTipoPlaza"
-        android:ems="8" />
+            <CheckBox
+                android:id="@+id/cbSinFechaNacimiento"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/sin_fecha_nacimiento" />
 
-    <TextView
-        android:id="@+id/tvGiro"
-        android:layout_below="@+id/cbTipoPlaza"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Giro"
-        android:layout_marginTop="30px"
-        android:layout_marginLeft="10px"
-        />
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_md"
+                android:hint="@string/rfc">
 
-    <EditText
-        android:id="@+id/etGiro"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/cbTipoPlaza"
-        android:layout_marginLeft="108px"
-        android:layout_toRightOf="@id/tvGiro"
-        android:ems="10"
-        android:inputType="textCapCharacters" />
+                <com.google.android.material.textfield.TextInputEditText
+                    style="@style/Widget.Cobranza.TextInputEditText"
+                    android:id="@+id/etCRfc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="textCapCharacters"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
 
+            <TextView
+                android:id="@+id/tvTipoPlaza"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_md"
+                android:layout_marginBottom="@dimen/space_xs"
+                android:text="@string/tipo_plaza"
+                android:textAppearance="@style/TextAppearance.Cobranza.Label" />
 
+            <FrameLayout
+                style="@style/Widget.Cobranza.SpinnerBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/tvCImporte"
-        android:layout_below="@+id/etGiro"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Importe"
-        android:layout_marginTop="30px"
-        android:layout_marginLeft="10px"
-        />
-    <EditText
-        android:id="@+id/etCImporte"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/tvCImporte"
-        android:layout_below="@id/etGiro"
-        android:layout_marginLeft="83px"
-        android:inputType="numberDecimal"
-        android:gravity="right"
-        android:ems="6"/>
+                <Spinner
+                    android:id="@+id/cbTipoPlaza"
+                    style="@style/Widget.Cobranza.Spinner"
+                    android:layout_gravity="center_vertical"
+                    android:spinnerMode="dropdown" />
+            </FrameLayout>
 
-    <Button
-        android:id="@+id/btnCrear"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/etCImporte"
-        android:layout_marginTop="50px"
-        android:text="Crear"/>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_md"
+                android:hint="@string/giro">
 
+                <com.google.android.material.textfield.TextInputEditText
+                    style="@style/Widget.Cobranza.TextInputEditText"
+                    android:id="@+id/etGiro"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="textCapCharacters"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_md"
+                android:hint="@string/importe"
+                app:prefixText="@string/moneda">
 
+                <com.google.android.material.textfield.TextInputEditText
+                    style="@style/Widget.Cobranza.TextInputEditText"
+                    android:id="@+id/etCImporte"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end|center_vertical"
+                    android:inputType="numberDecimal"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-</RelativeLayout>
+            <Button
+                android:id="@+id/btnCrear"
+                style="@style/Widget.Cobranza.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xl"
+                android:text="@string/crear_contribuyente" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

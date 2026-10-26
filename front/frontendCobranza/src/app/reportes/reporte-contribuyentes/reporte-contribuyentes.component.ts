@@ -25,7 +25,7 @@ export class ReporteContribuyentesComponent implements OnInit {
 
 
   buscarTipoPlaza() {
-    let dBusTP = this.dialog.open(BusquedaTiposPlazaComponent);
+    let dBusTP = this.dialog.open(BusquedaTiposPlazaComponent, { width: '900px', maxWidth: '95vw' });
     dBusTP.afterClosed().subscribe((data: BusResultTP) => {
       if (data != undefined) {
         this.tipoPlaza.codigoTipoPlaza = data.tipoPlazaSelect.codigoTipoPlaza;
@@ -94,7 +94,7 @@ export class ReporteContribuyentesComponent implements OnInit {
       let dInfo = this.dialog.open(DialogInformativoComponent, {
         data: {
           title: 'Atención!',
-          message: 'Debe seleccionar un tipo de plaza'
+          message: 'Seleccione un tipo de plaza o marque «Todos los tipos de plaza»'
         }
       });
     }

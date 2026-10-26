@@ -9,6 +9,7 @@ import { BusquedaContribuyentesComponent } from 'src/app/shared/busqueda/busqued
 import { DialogInformativoComponent } from 'src/app/shared/dialog-informativo/dialog-informativo.component';
 import { DatePipe } from '@angular/common';
 import { UntypedFormGroup } from '@angular/forms';
+import { AvisoService } from 'src/app/shared/aviso.service';
 export interface BusResultTP {
   tipoPlazaSelect: TipoPlaza
 }
@@ -33,7 +34,8 @@ export class AddPropietarioPlazaComponent implements OnInit {
   formPropietarioPlaza: UntypedFormGroup;
 
   constructor(private dialogRef: MatDialogRef<AddPropietarioPlazaComponent>,
-    @Inject(MAT_DIALOG_DATA) dd: DialogData, private dialog: MatDialog, private service: PropietarioPlazaService, public datePipe: DatePipe) {
+    @Inject(MAT_DIALOG_DATA) dd: DialogData, private dialog: MatDialog, private service: PropietarioPlazaService, public datePipe: DatePipe,
+    private aviso: AvisoService) {
     if (dd != null) {
       this.oOriginal = dd.propietarioPlaza;
       this.oFinal = new PropietarioPlaza();
@@ -73,6 +75,12 @@ export class AddPropietarioPlazaComponent implements OnInit {
     this.dialogRef.close();
   }
 
+  /** Cierra el diálogo avisando que se guardó */
+  private guardado(): void {
+    this.aviso.exito('Plaza guardada');
+    this.onCancel();
+  }
+
   guardarPropietarioPlaza(newO: PropietarioPlaza) {
     console.log("NOO DEBERIA");
     if (this.nuevo) {
@@ -97,7 +105,8 @@ export class AddPropietarioPlazaComponent implements OnInit {
   private mostrarError(error: any, porOmision: string) {
     this.dialog.open(DialogInformativoComponent, {
       data: {
-        title: "Atención!",
+        title: "No se pudo guardar",
+        tipo: 'error',
         message: error && error.error && error.error.mensaje ? error.error.mensaje : porOmision
       }
     });
@@ -119,12 +128,12 @@ export class AddPropietarioPlazaComponent implements OnInit {
     this.service.corregirVigenciaInicial(newO.idPropietarioPlaza, fecha).subscribe({
       next: () => {
         if (!this.cambiaronDatosCobro(newO)) {
-          this.onCancel();
+          this.guardado();
           return;
         }
         this.service.updateDatosCobro(newO.idPropietarioPlaza, newO.licenciaComercio === true, newO.adeudoAnterior)
           .subscribe({
-            next: () => this.onCancel(),
+            next: () => this.guardado(),
             error: (error: any) => this.mostrarError(error, 'No se pudo guardar')
           });
       },
@@ -140,7 +149,7 @@ export class AddPropietarioPlazaComponent implements OnInit {
     if (!this.validarAlgunCambio(newO) && this.cambiaronDatosCobro(newO)) {
       this.service.updateDatosCobro(newO.idPropietarioPlaza, newO.licenciaComercio === true, newO.adeudoAnterior)
         .subscribe({
-          next: () => this.onCancel(),
+          next: () => this.guardado(),
           error: (error: any) => this.dialog.open(DialogInformativoComponent, {
             data: {
               title: "Atención!",
@@ -156,7 +165,7 @@ export class AddPropietarioPlazaComponent implements OnInit {
           .subscribe(
             (data: PropietarioPlaza) => {
               console.log('created: ', data);
-              this.onCancel();
+              this.guardado();
             }, // (1)
             (error: any) => console.log(error), //(2)
             () => console.log('completed') //(3)
@@ -174,7 +183,8 @@ export class AddPropietarioPlazaComponent implements OnInit {
     else {
       this.dialog.open(DialogInformativoComponent, {
         data: {
-          title: "F. inicial INCORRECTA",
+          title: "Fecha inicial incorrecta",
+          tipo: 'aviso',
           message: 'Para cambiar contribuyente, tipo de plaza, giro o importe indica una fecha mayor a '
             + this.datePipe.transform(this.oOriginal.vigenciaInicial, 'dd-MM-yyyy')
             + '. Para corregir la fecha inicial indica una fecha anterior sin cambiar otros datos'
@@ -190,7 +200,7 @@ export class AddPropietarioPlazaComponent implements OnInit {
       .subscribe(
         (data: PropietarioPlaza) => {
           console.log('created: ', data);
-          this.onCancel();
+          this.guardado();
         }, // (1)
         (error: any) => console.log(error), //(2)
         () => console.log('completed') //(3)
@@ -198,7 +208,7 @@ export class AddPropietarioPlazaComponent implements OnInit {
   }
 
   buscarTipoPlaza() {
-    let dBusTP = this.dialog.open(BusquedaTiposPlazaComponent);
+    let dBusTP = this.dialog.open(BusquedaTiposPlazaComponent, { width: '900px', maxWidth: '95vw' });
     dBusTP.afterClosed().subscribe((data: BusResultTP) => {
       if (data == undefined) {
 
@@ -238,7 +248,7 @@ export class AddPropietarioPlazaComponent implements OnInit {
   }
 
   buscarContribuyente() {
-    let dBusCon = this.dialog.open(BusquedaContribuyentesComponent);
+    let dBusCon = this.dialog.open(BusquedaContribuyentesComponent, { width: '900px', maxWidth: '95vw' });
     dBusCon.afterClosed().subscribe((data: BusResultContribuyente) => {
       if (data != undefined) {
         this.oFinal.contribuyente = data.contribuyenteSelect;

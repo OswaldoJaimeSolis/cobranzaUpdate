@@ -1,4 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
+import { AvisoService } from 'src/app/shared/aviso.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { DialgAnswerSiNoComponent } from 'src/app/shared/dialg-answer-si-no/dialg-answer-si-no.component';
 import { DialogInformativoComponent } from 'src/app/shared/dialog-informativo/dialog-informativo.component';
@@ -16,8 +19,17 @@ import { UsuarioService } from '../service/usuario.service';
 export class ListUsuarioComponent implements OnInit {
   usuarios: Usuario[] = [];
   isLoading = false;
+  readonly columnas = ['usuario', 'nombre', 'rol', 'estado', 'acciones'];
+  dataSource = new MatTableDataSource<Usuario>([]);
 
-  constructor(private service: UsuarioService, public dialog: MatDialog) { }
+  @ViewChild(MatSort) set sort(sort: MatSort) {
+    this.dataSource.sort = sort;
+  }
+
+  constructor(private service: UsuarioService, public dialog: MatDialog, private aviso: AvisoService) {
+    this.dataSource.sortingDataAccessor = (o: Usuario, columna: string) =>
+      columna == 'rol' ? this.nombreRol(o.rol) : String(o[columna] ?? '').toLocaleLowerCase();
+  }
 
   ngOnInit() {
     this.getUsuarios();
@@ -26,7 +38,7 @@ export class ListUsuarioComponent implements OnInit {
   getUsuarios() {
     this.isLoading = true;
     this.service.getTodos().subscribe({
-      next: (data: Usuario[]) => { this.usuarios = data; this.isLoading = false; },
+      next: (data: Usuario[]) => { this.usuarios = data; this.dataSource.data = data; this.isLoading = false; },
       error: (error: any) => { console.log(error); this.isLoading = false; }
     });
   }
@@ -37,25 +49,33 @@ export class ListUsuarioComponent implements OnInit {
 
   openDialog(usuario?: Usuario): void {
     const dialogRef = this.dialog.open(AddUsuarioComponent, {
-      width: '500px',
+      width: '560px',
+      maxWidth: '95vw',
       data: usuario ? { usuario: usuario } : null
     });
-    dialogRef.afterClosed().subscribe(() => this.getUsuarios());
+    dialogRef.afterClosed().subscribe(guardado => {
+      if (guardado) {
+        this.aviso.exito('Usuario guardado');
+      }
+      this.getUsuarios();
+    });
   }
 
   deleteUsuario(usuario: string) {
     const dConfig = new MatDialogConfig();
     dConfig.data = {
-      title: "Eliminando",
-      message: '¿Está seguro de eliminar el usuario ' + usuario + '?',
-      respuesta: false
+      title: "Eliminar usuario",
+      message: '¿Seguro que desea eliminar el usuario ' + usuario + '? Esta acción no se puede deshacer.',
+      respuesta: false,
+      textoAceptar: 'Eliminar',
+      destructivo: true
     };
     this.dialog.open(DialgAnswerSiNoComponent, dConfig).afterClosed().subscribe(data => {
       if (data?.respuesta) {
         this.service.deleteUsuario(usuario).subscribe({
-          next: () => this.getUsuarios(),
+          next: () => { this.aviso.exito('Usuario eliminado'); this.getUsuarios(); },
           error: (error: any) => this.dialog.open(DialogInformativoComponent, {
-            data: { title: 'Atención', message: error.error?.mensaje || 'No se pudo eliminar el usuario' }
+            data: { title: 'No se pudo eliminar', message: error.error?.mensaje || 'No se pudo eliminar el usuario', tipo: 'error' }
           })
         });
       }

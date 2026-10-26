@@ -27,6 +27,7 @@ export class ListTipoPlazaRecaudadorComponent implements OnInit {
   tpsRecaudador: RecuadadorTipoPlaza[];
   service: RecaudadorService;
   displayOrNot: boolean = true;
+  readonly columnas = ['codigo', 'descripcion', 'acciones'];
   constructor(private dialogRef: MatDialogRef<ListTipoPlazaRecaudadorComponent>,
     @Inject(MAT_DIALOG_DATA) dd: DialogData, private dialogBus: MatDialog) {
     this.recaudador = dd.recaudador;
@@ -58,7 +59,7 @@ export class ListTipoPlazaRecaudadorComponent implements OnInit {
 
   openDialogAdd(): void {
 
-    let dBus = this.dialogBus.open(BusquedaTiposPlazaComponent);
+    let dBus = this.dialogBus.open(BusquedaTiposPlazaComponent, { width: '900px', maxWidth: '95vw' });
     let tipoPlaza: TipoPlaza;
 
     dBus.afterClosed().subscribe((data: BusResult) => {
@@ -90,8 +91,9 @@ export class ListTipoPlazaRecaudadorComponent implements OnInit {
         else {
           let dM = this.dialogBus.open(DialogInformativoComponent, {
             data: {
-              title: 'Atención!',
-              message: "El tipo de plaza ya había sido agregado"
+              title: 'Ya asignado',
+              message: "El tipo de plaza ya estaba asignado a este recaudador",
+              tipo: 'aviso'
             }
           });
         }
@@ -107,8 +109,10 @@ export class ListTipoPlazaRecaudadorComponent implements OnInit {
     var respuesta: Boolean = false;
     const dConfig = new MatDialogConfig();
     dConfig.data = {
-      title: "Eliminando",
-      message: '¿Está seguro de eliminar el registro?',
+      title: "Quitar tipo de plaza",
+      message: '¿Seguro que desea quitar este tipo de plaza al recaudador?',
+      textoAceptar: 'Quitar',
+      destructivo: true,
       respuesta: respuesta
     }
     const dialogAnswer = this.dialogBus.open(DialgAnswerSiNoComponent, dConfig);

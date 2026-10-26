@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
 
+import com.jalpa.cobranza.Pantalla;
 import com.jalpa.cobranza.R;
 import com.jalpa.cobranza.model.dao.Database;
 import com.jalpa.cobranza.model.entidades.Contribuyente;
@@ -27,6 +28,7 @@ public class BusquedaContribuyente extends AppCompatActivity implements SearchVi
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_busqueda_contribuyente);
+        Pantalla.configurarBarra(this, true);
         mSearchView=(SearchView) findViewById(R.id.searchView1);
         mListView=(ListView) findViewById(R.id.listView1);
         new CargaContribuyentes().execute();

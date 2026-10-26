@@ -1,41 +1,40 @@
-<mat-list>
-  <div class="add-btn">
-    <button mat-fab color="primary" (click)="openDialog()">
-      <mat-icon>add</mat-icon>
+<!-- Variante anterior (no está en el ruteo; la vigente es list-propietario-plaza-jb) -->
+<div class="page">
+  <app-page-header titulo="Plazas">
+    <button mat-flat-button (click)="openDialog()">
+      <mat-icon>add</mat-icon> Nuevo propietario de plaza
     </button>
-  </div>
-  <div class="centerTitle">
-    <h2>Propietario plazas</h2>
-  </div>
+  </app-page-header>
+  @if (isLoading) {
+    <mat-progress-bar mode="indeterminate" aria-label="Cargando plazas"></mat-progress-bar>
+  }
   @if (displayOrNot) {
-    <h2 mat-subheader>No hay plazas con propietario</h2>
+    @if (!isLoading) {
+      <app-empty-state icono="storefront" texto="No hay plazas con propietario"></app-empty-state>
+    }
   } @else {
-    <div>
-      <mat-form-field>
-        <input matInput #myInput placeholder="Búsqueda..." [(ngModel)]="stringBusqueda">
+    <div class="filtros">
+      <mat-form-field appearance="outline" class="campo-busqueda" subscriptSizing="dynamic">
+        <mat-label>Buscar</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [(ngModel)]="stringBusqueda">
       </mat-form-field>
     </div>
-    @for (pp of propietariosPlaza | filterPropietarioPlaza: stringBusqueda; track pp) {
-      <mat-list-item>
-        <mat-icon matListItemIcon>watch_later</mat-icon>
-        <span matListItemTitle>{{pp.plaza.codigoPlaza}}</span>
-        <span matListItemLine>{{pp.tipoPlaza.codigoTipoPlaza}} {{pp.contribuyente.codigoContribuyente}} {{pp.contribuyente.nombre}}
-          {{pp.contribuyente.apePaterno}} {{pp.contribuyente.apeMaterno}} {{pp.vigenciaInicial|date: 'dd/MM/yyyy'}} al
-        {{pp.vigenciaFinal|date: 'dd/MM/yyyy'}}</span>
-        <div matListItemMeta>
-          <button mat-mini-fab color="primary" (click)="openDialogEdit(pp)">
-            <mat-icon>edit</mat-icon>
-          </button>
-        </div>
-      </mat-list-item>
-      <mat-divider></mat-divider>
-    }
-  }
-
-
-</mat-list>
-<div class="container">
-  @if (isLoading) {
-    <mat-progress-spinner mode="indeterminate"  ></mat-progress-spinner>
+    <mat-list class="tabla-contenedor">
+      @for (pp of propietariosPlaza | filterPropietarioPlaza: stringBusqueda; track pp) {
+        <mat-list-item>
+          <span matListItemTitle>{{pp.plaza.codigoPlaza}}</span>
+          <span matListItemLine>{{pp.tipoPlaza.codigoTipoPlaza}} {{pp.contribuyente.codigoContribuyente}} {{pp.contribuyente.nombre}}
+            {{pp.contribuyente.apePaterno}} {{pp.contribuyente.apeMaterno}} {{pp.vigenciaInicial|date: 'dd/MM/yyyy'}} al
+          {{pp.vigenciaFinal|date: 'dd/MM/yyyy'}}</span>
+          <div matListItemMeta>
+            <button mat-icon-button (click)="openDialogEdit(pp)" matTooltip="Editar" aria-label="Editar plaza">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+      }
+    </mat-list>
   }
 </div>

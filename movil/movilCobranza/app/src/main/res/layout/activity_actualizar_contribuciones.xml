@@ -1,65 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:background="@color/background"
+    android:orientation="vertical"
     tools:context=".ActualizarContribucionesRemotasActivity">
 
+    <include layout="@layout/toolbar" />
 
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-    <TextView
-        android:id="@+id/tvFechaInicial"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/screen_margin">
 
-        android:layout_marginLeft="10px"
-        android:layout_marginTop="50px"
-        android:text="Fecha Inicial"
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fecha_inicial"
+                app:startIconDrawable="@drawable/ic_calendar"
+                app:startIconTint="@color/primary_medium">
 
-        />
+                <!-- No enfocable: al tocarla abre el calendario sin mostrar el teclado. -->
+                <com.google.android.material.textfield.TextInputEditText
+                    style="@style/Widget.Cobranza.TextInputEditText"
+                    android:id="@+id/etFechaInicial"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:cursorVisible="false"
+                    android:focusable="false"
+                    android:inputType="date" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-    <EditText
-        android:id="@+id/etFechaInicial"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:layout_marginLeft="200px"
-        android:layout_marginTop="50px"
-        android:inputType="date" />
+            <TextView
+                android:id="@+id/tvTipoPlaza"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_md"
+                android:layout_marginBottom="@dimen/space_xs"
+                android:text="@string/tipo_plaza"
+                android:textAppearance="@style/TextAppearance.Cobranza.Label" />
 
+            <FrameLayout
+                style="@style/Widget.Cobranza.SpinnerBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/tvTipoPlaza"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tvFechaInicial"
-        android:layout_marginLeft="10px"
-        android:layout_marginTop="50px"
-        android:text="Tipo plaza" />
+                <Spinner
+                    android:id="@+id/cbTipoPlazaRecuperarContribuciones"
+                    style="@style/Widget.Cobranza.Spinner"
+                    android:layout_gravity="center_vertical"
+                    android:spinnerMode="dropdown" />
+            </FrameLayout>
 
-    <Spinner
-        android:id="@+id/cbTipoPlazaRecuperarContribuciones"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/etFechaInicial"
-        android:layout_marginLeft="200px"
-        android:layout_marginTop="20px"
-        android:layout_toRightOf="@id/tvTipoPlaza"
-        android:ems="8" />
-
-
-    <Button
-        android:id="@+id/btnRecuperaContribucionesRemotas"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/cbTipoPlazaRecuperarContribuciones"
-        android:layout_marginTop="100px"
-        android:layout_centerHorizontal="true"
-        android:text="Recuperar contribuciones remotas" />
-
-
-
-
-</RelativeLayout>
+            <Button
+                android:id="@+id/btnRecuperaContribucionesRemotas"
+                style="@style/Widget.Cobranza.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xl"
+                android:text="@string/recuperar_contribuciones" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

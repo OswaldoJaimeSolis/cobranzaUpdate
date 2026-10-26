@@ -6,8 +6,6 @@ import androidx.core.content.ContextCompat;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -20,11 +18,12 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.jalpa.cobranza.Avisos;
+import com.jalpa.cobranza.Pantalla;
 import com.jalpa.cobranza.R;
 import com.jalpa.cobranza.RecaudadorActivo;
 import com.jalpa.cobranza.model.dao.Database;
@@ -70,6 +69,7 @@ public class ContribuyenteActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contribuyente);
+        Pantalla.configurarBarra(this, true);
         fusedLocationProviderClient= LocationServices.getFusedLocationProviderClient(this);
         //contribuyentes=(List<Contribuyente>)getIntent().getExtras().get("contribuyentes");
         tiposPlaza =(List<TipoPlaza>)getIntent().getExtras().get("tiposPlaza");
@@ -100,8 +100,7 @@ public class ContribuyenteActivity extends AppCompatActivity {
                 int year= cal.get(Calendar.YEAR);
                 int month= cal.get(Calendar.MONTH);
                 int day= cal.get(Calendar.DAY_OF_MONTH);
-                DatePickerDialog dialog= new DatePickerDialog(ContribuyenteActivity.this,android.R.style.Theme_Holo_Dialog_MinWidth,mDateSetListener,year,month,day);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                DatePickerDialog dialog= new DatePickerDialog(ContribuyenteActivity.this, mDateSetListener,year,month,day);
                 dialog.show();
             }
         });
@@ -143,7 +142,7 @@ public class ContribuyenteActivity extends AppCompatActivity {
     }
 
     private void cargarTiposPlaza(){
-        ArrayAdapter<TipoPlaza> adapterTipos= new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_item,tiposPlaza);
+        ArrayAdapter<TipoPlaza> adapterTipos= new ArrayAdapter<>(getApplicationContext(), R.layout.item_spinner,tiposPlaza);
         cbTipoPlaza.setAdapter(adapterTipos);
         establecerImporte((TipoPlaza) cbTipoPlaza.getSelectedItem());
 
@@ -174,17 +173,17 @@ public class ContribuyenteActivity extends AppCompatActivity {
                     return creacionCorrecta;
                 }
                 else{
-                    Toast.makeText(getApplicationContext(),"USTED no tiene permiso para crear registros de este tipo", Toast.LENGTH_LONG).show();
+                    Avisos.error(this, "No autorizado", "Usted no tiene permiso para crear registros de este tipo");
                     return  false;
                 }
             }
             else{
-                Toast.makeText(getApplicationContext(),"NO se permite crear registros de este tipo localmente", Toast.LENGTH_LONG).show();
+                Avisos.error(this, "No permitido", "No se permite crear registros de este tipo localmente");
                 return  false;
             }
         }
         else{
-            Toast.makeText(getApplicationContext(),"No se puede crear sin tipo de plaza", Toast.LENGTH_LONG).show();
+            Avisos.error(this, "Sin tipo de plaza", "No se puede crear sin tipo de plaza");
             return false;
         }
     }
@@ -283,7 +282,7 @@ public class ContribuyenteActivity extends AppCompatActivity {
 
             //validar si no está dado de alta
             if(inLista(contribuyente)){
-                Toast.makeText(this,"El contribuyente ya estaba registrado",Toast.LENGTH_SHORT).show();
+                Avisos.error(this, "Contribuyente existente", "El contribuyente ya estaba registrado");
             }
             else{
                 return contribuyente;
@@ -295,7 +294,7 @@ public class ContribuyenteActivity extends AppCompatActivity {
 
         }
         else{
-            Toast.makeText(this, respuestaValidacion,Toast.LENGTH_SHORT).show();
+            Avisos.error(this, "Datos incompletos", respuestaValidacion);
         }
         return null;
     }
@@ -361,7 +360,8 @@ public class ContribuyenteActivity extends AppCompatActivity {
         protected void onPostExecute(PlazaTipoContribuyenteContenedor con) {
             super.onPostExecute(con);
             if(con!=null) {
-                Toast.makeText(ContribuyenteActivity.this, "Se ha agregado correctamente", Toast.LENGTH_SHORT).show();
+                //la pantalla se cierra enseguida: sólo un toast sobrevive al cierre
+                Avisos.alCerrar(ContribuyenteActivity.this, "Se ha agregado correctamente");
                 contribuyentes.add(con.getContribuyente());
                 //plazas.add(con.getPlaza());
                 //propietarioPlazas.add(con.getPropietarioPlaza());
@@ -375,7 +375,7 @@ public class ContribuyenteActivity extends AppCompatActivity {
 
             }
             else{
-                Toast.makeText(ContribuyenteActivity.this, "Hubo un problema, intentalo de nuevo", Toast.LENGTH_SHORT).show();
+                Avisos.error(ContribuyenteActivity.this, "Error", "Hubo un problema, inténtalo de nuevo");
             }
         }
     }

@@ -1,7 +1,28 @@
-<mat-toolbar>
-  <span>Cobro de plazas</span>
-</mat-toolbar>
-@if (auth.estaAutenticado()) {
-  <app-menu-principal></app-menu-principal>
-}
-<router-outlet></router-outlet>
+<mat-sidenav-container class="shell">
+  <mat-sidenav #nav class="shell__nav" mode="over"
+    aria-label="Menú principal">
+    @if (esMovil && auth.estaAutenticado()) {
+      <app-menu-principal modo="lateral" (navego)="nav.close()"></app-menu-principal>
+    }
+  </mat-sidenav>
+
+  <mat-sidenav-content class="shell__contenido">
+    @if (auth.estaAutenticado()) {
+      <mat-toolbar class="shell__barra">
+        @if (esMovil) {
+          <button mat-icon-button (click)="nav.toggle()" aria-label="Abrir menú" matTooltip="Menú">
+            <mat-icon>menu</mat-icon>
+          </button>
+        }
+        <a class="marca" routerLink="/" aria-label="Inicio">
+          <mat-icon class="marca__icono" aria-hidden="true">account_balance</mat-icon>
+          <span class="marca__texto">Tesorería Municipal · Jalpa, Zac.</span>
+        </a>
+        <app-menu-principal class="shell__menu" [modo]="esMovil ? 'cuenta' : 'barra'"></app-menu-principal>
+      </mat-toolbar>
+    }
+    <main class="shell__main">
+      <router-outlet></router-outlet>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -6,39 +6,39 @@
     <item
         android:id="@+id/busqueda_contribuyente_setting"
         android:orderInCategory="100"
-        android:title="Buscar contribuyente"
+        android:title="@string/menu_buscar_contribuyente"
         />
     <item
         android:id="@+id/busqueda_contribucion_setting"
         android:orderInCategory="101"
-        android:title="Contribuciones"
+        android:title="@string/menu_contribuciones"
         />
 
     <item
         android:id="@+id/actualizar_catalogo_setting"
         android:orderInCategory="102"
-        android:title="Actualizar catálogos"
+        android:title="@string/menu_actualizar_catalogos"
         />
 
     <item
         android:id="@+id/actualizar_catalogo_contribuciones_setting"
         android:orderInCategory="103"
-        android:title="Recuperar contribuciones"
+        android:title="@string/menu_recuperar_contribuciones"
         />
 
     <item
         android:id="@+id/agregar_contribuyente_setting"
         android:orderInCategory="104"
-        android:title="Agregar contribuyente"
+        android:title="@string/menu_agregar_contribuyente"
         />
     <item
         android:id="@+id/datos_equipo_setting"
         android:orderInCategory="105"
-        android:title="Datos equipo"
+        android:title="@string/menu_datos_equipo"
         />
     <item
         android:id="@+id/forzar_envio_setting"
         android:orderInCategory="106"
-        android:title="Forzar envío"
+        android:title="@string/menu_forzar_envio"
         />
 </menu>

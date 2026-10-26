@@ -4,6 +4,7 @@ import { TipoPlaza } from '../model/tipo-plaza';
 import { ConfiguracionCobro, DiaMes, PeriodoAnual } from '../model/configuracion-cobro';
 import { TiposplazaService } from '../service/tiposplaza.service';
 import { DialogInformativoComponent } from 'src/app/shared/dialog-informativo/dialog-informativo.component';
+import { AvisoService } from 'src/app/shared/aviso.service';
 
 export interface DialogData {
   tipoPlaza: TipoPlaza;
@@ -36,7 +37,7 @@ export class ConfigCobroComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<ConfigCobroComponent>,
     @Inject(MAT_DIALOG_DATA) public dd: DialogData,
-    private service: TiposplazaService, private dialog: MatDialog) {
+    private service: TiposplazaService, private dialog: MatDialog, private aviso: AvisoService) {
     this.config.codigoTipoPlaza = dd.tipoPlaza.codigoTipoPlaza;
   }
 
@@ -124,7 +125,7 @@ export class ConfigCobroComponent implements OnInit {
   }
 
   mensaje(texto: string) {
-    this.dialog.open(DialogInformativoComponent, { data: { title: 'Atención!', message: texto } });
+    this.dialog.open(DialogInformativoComponent, { data: { title: 'Revise la configuración', message: texto, tipo: 'aviso' } });
   }
 
   onCancel(): void {
@@ -134,7 +135,11 @@ export class ConfigCobroComponent implements OnInit {
   onSave() {
     this.isLoading = true;
     this.service.saveConfiguracionCobro(this.config).subscribe({
-      next: () => { this.isLoading = false; this.dialogRef.close(true); },
+      next: () => {
+        this.isLoading = false;
+        this.aviso.exito('Configuración de cobro guardada');
+        this.dialogRef.close(true);
+      },
       error: (error: any) => {
         this.isLoading = false;
         // El backend valida la configuración completa y responde el motivo

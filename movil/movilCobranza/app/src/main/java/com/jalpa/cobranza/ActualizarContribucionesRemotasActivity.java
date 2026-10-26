@@ -2,8 +2,6 @@ package com.jalpa.cobranza;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -38,13 +36,14 @@ public class ActualizarContribucionesRemotasActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_actualizar_contribuciones);
+        Pantalla.configurarBarra(this, true);
 
         this.btnRecupera = findViewById(R.id.btnRecuperaContribucionesRemotas);
         this.etFechaInicial = findViewById(R.id.etFechaInicial);
         this.spTiposPlaza = findViewById(R.id.cbTipoPlazaRecuperarContribuciones);
 
         tiposPlaza = (List<TipoPlaza>) getIntent().getExtras().get("tiposPlaza");
-        ArrayAdapter adapterPP = new ArrayAdapter<TipoPlaza>(this, android.R.layout.simple_spinner_item, tiposPlaza);
+        ArrayAdapter adapterPP = new ArrayAdapter<TipoPlaza>(this, R.layout.item_spinner, tiposPlaza);
         spTiposPlaza.setAdapter(adapterPP);
 
         etFechaInicial.setOnClickListener(new View.OnClickListener() {
@@ -66,8 +65,7 @@ public class ActualizarContribucionesRemotasActivity extends AppCompatActivity {
                     year = Integer.parseInt(fecha[2]);
                 }
 
-                DatePickerDialog dialog = new DatePickerDialog(ActualizarContribucionesRemotasActivity.this, android.R.style.Theme_Holo_Dialog_MinWidth, mDateSetListener, year, month, day);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                DatePickerDialog dialog = new DatePickerDialog(ActualizarContribucionesRemotasActivity.this,  mDateSetListener, year, month, day);
                 dialog.show();
             }
         });

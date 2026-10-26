@@ -10,10 +10,7 @@
         habrá que aplicar insets (ViewCompat.setOnApplyWindowInsetsListener) en cada
         Activity.
     -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="AppTheme" parent="Base.AppTheme">
         <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
     </style>
 

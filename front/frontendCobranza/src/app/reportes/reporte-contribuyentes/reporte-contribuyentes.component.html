@@ -1,36 +1,35 @@
-<h3 class="centerText"> Reporte contribuyentes</h3>
-<div class="container">
+<div class="page">
+  <app-page-header titulo="Reporte de contribuyentes" subtitulo="Contribuyentes y sus plazas, por tipo de plaza">
+  </app-page-header>
 
-  <div fxflex="50%" class="centertText">
-    <h4 class="centerText">Tipos de plaza</h4>
-    <div class="centerText">
-      <mat-checkbox name="todosTP" [(ngModel)]="todosTP" >
-        Todos
-      </mat-checkbox>
-      <mat-form-field style="position: relative;text-align: right; margin-left: 50px">
-
-        <button mat-mini-fab color="primary" color="primary" (click)="buscarTipoPlaza()" disabled={{todosTP}}>
+  <section class="panel" aria-labelledby="titulo-filtros">
+    <h2 class="panel__titulo" id="titulo-filtros">Filtros</h2>
+    <div class="filtros">
+      <mat-checkbox name="todosTP" [(ngModel)]="todosTP">Todos los tipos de plaza</mat-checkbox>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Tipo de plaza</mat-label>
+        <input name="codigoTipoPlaza" matInput [(ngModel)]="tipoPlaza.codigoTipoPlaza" readonly
+          [disabled]="todosTP" required (click)="buscarTipoPlaza()">
+        <button mat-icon-button matSuffix type="button" (click)="buscarTipoPlaza()" [disabled]="todosTP"
+          aria-label="Buscar tipo de plaza" matTooltip="Buscar tipo de plaza">
           <mat-icon>search</mat-icon>
         </button>
-        <input name="codigoTipoPlaza" matInput placeholder="Tipo plaza: "
-          style="position: relative;text-align: left; margin-left: 50px" [(ngModel)]="tipoPlaza.codigoTipoPlaza"
-          #data="ngModel" readonly=true disabled={{todosTP}} required>
       </mat-form-field>
     </div>
-  </div>
-</div>
+  </section>
 
-<mat-divider>
-</mat-divider>
-
-<div class="centerText" layout="row" layout-align="space-between center" flex>
-  <button mat-stroked-button disabled={{isLoading}} (click)="recuperaReporte(1)">Reporte pdf</button>
-  <button mat-stroked-button disabled={{isLoading}} (click)="recuperaReporte(2)">Reporte xls</button>
-  <span flex></span>
-  <span flex></span>
-</div>
-<div class="container">
-  @if (isLoading) {
-    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-  }
+  <section class="panel" aria-labelledby="titulo-generar">
+    <h2 class="panel__titulo" id="titulo-generar">Generar</h2>
+    <div class="acciones-barra">
+      <button mat-flat-button [disabled]="isLoading" (click)="recuperaReporte(1)">
+        <mat-icon>picture_as_pdf</mat-icon> Reporte PDF
+      </button>
+      <button mat-stroked-button [disabled]="isLoading" (click)="recuperaReporte(2)">
+        <mat-icon>table_view</mat-icon> Reporte Excel (XLS)
+      </button>
+    </div>
+    @if (isLoading) {
+      <mat-progress-bar class="barra-reporte" mode="indeterminate" aria-label="Generando reporte"></mat-progress-bar>
+    }
+  </section>
 </div>

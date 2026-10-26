@@ -1,44 +1,31 @@
-<h2 mat-dialog-title class="centerText">{{encabezado}} </h2>
+<h2 mat-dialog-title>{{editarId ? 'Editar período' : 'Nuevo período'}}</h2>
 
 <mat-dialog-content>
-
-  <div class="columns-container">
-
-    <mat-form-field>
-      <input matInput placeholder="Tipo plaza: " [(ngModel)]="oFinal.tipoPlaza.codigoTipoPlaza" #data="ngModel"
-        disabled=true readonly=true required>
+  <div class="form-grid">
+    <mat-form-field appearance="outline">
+      <mat-label>Tipo de plaza</mat-label>
+      <input matInput [(ngModel)]="oFinal.tipoPlaza.codigoTipoPlaza" disabled readonly>
     </mat-form-field>
-    <!--<mat-form-field>
-      <input matInput placeholder="Id: " [(ngModel)]="oFinal.idTipoPlazaVigencia" #data="ngModel" disabled=true
-        readonly=true>
-        
-    </mat-form-field>
-    -->
-    <mat-form-field>
-      <input matInput [matDatepicker]="picker1" placeholder="Fecha inicial" [(ngModel)]="oFinal.vigenciaInicial"
-        >
+    <mat-form-field appearance="outline">
+      <mat-label>Fecha inicial</mat-label>
+      <input matInput [matDatepicker]="picker1" [(ngModel)]="oFinal.vigenciaInicial">
       <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
       <mat-datepicker #picker1></mat-datepicker>
     </mat-form-field>
-    <!--<mat-form-field style="margin-left: 10px">
-      <input matInput [matDatepicker]="picker2" placeholder="Fecha final" [(ngModel)]="oFinal.vigenciaFinal">
-      <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
-      <mat-datepicker #picker2></mat-datepicker>
+    <mat-form-field appearance="outline">
+      <mat-label>Precio normal</mat-label>
+      <input matInput class="numero" [(ngModel)]="oFinal.importe" inputmode="decimal" required>
+      <mat-error>Capture el precio normal</mat-error>
     </mat-form-field>
-    -->
-    <mat-form-field style="text-align: right">
-      <input matInput placeholder="Precio normal: " [(ngModel)]="oFinal.importe" #data="ngModel" inputmode="numeric" required>
+    <mat-form-field appearance="outline">
+      <mat-label>Precio con descuento</mat-label>
+      <input matInput class="numero" [(ngModel)]="oFinal.precioDescuento" inputmode="decimal">
+      <mat-hint>Opcional</mat-hint>
     </mat-form-field>
-    <mat-form-field style="text-align: right">
-      <input matInput placeholder="Precio con descuento: " [(ngModel)]="oFinal.precioDescuento" inputmode="numeric">
-    </mat-form-field>
-
-
   </div>
-
 </mat-dialog-content>
 
-<mat-dialog-actions class="centerContent" >
-  <button mat-button (click)="onCancel()">Cancel</button>
-  <button mat-raised-button color="primary" (click)="validarPeriodo(oFinal)">Save</button>
+<mat-dialog-actions>
+  <button mat-button type="button" (click)="onCancel()">Cancelar</button>
+  <button mat-flat-button type="button" (click)="validarPeriodo(oFinal)">Guardar</button>
 </mat-dialog-actions>

@@ -1,17 +1,67 @@
-.login-container {
+.login {
   display: flex;
   justify-content: center;
-  padding: 48px 16px;
+  align-items: flex-start;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 10vh var(--app-space-4) var(--app-space-8);
+  background: var(--app-background);
 }
 
-.login-form {
+.login__tarjeta {
+  width: 100%;
+  max-width: 400px;
+  padding: var(--app-space-8) var(--app-space-6) var(--app-space-6);
+  box-sizing: border-box;
+  background: var(--app-surface);
+}
+
+.login__marca {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  width: 100%;
-  max-width: 320px;
+  align-items: center;
+  text-align: center;
+  margin-bottom: var(--app-space-6);
 }
 
-.login-error {
-  color: #a94442;
+.login__simbolo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: var(--app-primary);
+  color: var(--app-on-primary);
+  margin-bottom: var(--app-space-4);
+}
+
+.login__simbolo .mat-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+}
+
+.login__titulo {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 28px;
+  margin: 0;
+}
+
+.login__subtitulo {
+  margin: var(--app-space-1) 0 0;
+  color: var(--app-text-secondary);
+}
+
+.login__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-2);
+}
+
+.login__boton {
+  width: 100%;
+  height: 44px;
+  margin-top: var(--app-space-2);
 }

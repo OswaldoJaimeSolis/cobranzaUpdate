@@ -46,12 +46,15 @@ export class ReporteContribucionesComponent implements OnInit {
   { value: 1, viewValue: 'Pagados' },
   { value: 2, viewValue: 'Pendientes' },
   { value: 3, viewValue: 'Ausente' },
-  { value: 4, viewValue: 'Sin Registro' }
+  { value: 4, viewValue: 'Sin registro' }
   ];
 
 
+  /** Icono de cada estado de pago (los estados siempre llevan icono y etiqueta) */
+  readonly iconoEstado: Record<number, string> = { 1: 'check_circle', 2: 'schedule', 3: 'person_off' };
+
   formatoSelect:number=1;
-  formatos:Estado[]=[{value:1, viewValue:'PDF'}, {value:2,viewValue:'EXCEL'}];
+  formatos:Estado[]=[{value:1, viewValue:'PDF'}, {value:2,viewValue:'Excel (XLS)'}];
   isLoading:boolean=false;
   constructor(private dialog: MatDialog, private datePipe: DatePipe, private service: ReportesService) { }
 
@@ -60,7 +63,7 @@ export class ReporteContribucionesComponent implements OnInit {
   }
 
   buscarTipoPlaza() {
-    let dBusTP = this.dialog.open(BusquedaTiposPlazaComponent);
+    let dBusTP = this.dialog.open(BusquedaTiposPlazaComponent, { width: '900px', maxWidth: '95vw' });
     dBusTP.afterClosed().subscribe((data: BusResultTP) => {
       if (data != undefined) {
         this.tipoPlaza.codigoTipoPlaza = data.tipoPlazaSelect.codigoTipoPlaza;
@@ -70,7 +73,7 @@ export class ReporteContribucionesComponent implements OnInit {
   }
 
   buscarContribuyente() {
-    let dBusCon = this.dialog.open(BusquedaContribuyentesComponent);
+    let dBusCon = this.dialog.open(BusquedaContribuyentesComponent, { width: '900px', maxWidth: '95vw' });
     dBusCon.afterClosed().subscribe((data: BusResultContribuyente) => {
       if (data != undefined) {
         this.contribuyente = data.contribuyenteSelect;
@@ -78,7 +81,7 @@ export class ReporteContribucionesComponent implements OnInit {
     });
   }
   buscarRecaudador() {
-    let dBusCon = this.dialog.open(BusquedaRecaudadoresComponent);
+    let dBusCon = this.dialog.open(BusquedaRecaudadoresComponent, { width: '900px', maxWidth: '95vw' });
     dBusCon.afterClosed().subscribe((data: BusResultRecaudador) => {
       if (data != undefined) {
         this.recaudador = data.recaudadorSelect;
@@ -161,7 +164,7 @@ export class ReporteContribucionesComponent implements OnInit {
             let dInfo = this.dialog.open(DialogInformativoComponent, {
               data: {
                 title: 'Atención!',
-                message: 'Debe seleccionar un un contribuyente'
+                message: 'Seleccione un contribuyente o marque «Todos los contribuyentes»'
               }
             });
           }
@@ -171,7 +174,7 @@ export class ReporteContribucionesComponent implements OnInit {
           let dInfo = this.dialog.open(DialogInformativoComponent, {
             data: {
               title: 'Atención!',
-              message: 'Debe seleccionar un tipo de plaza'
+              message: 'Seleccione un tipo de plaza o marque «Todos los tipos de plaza»'
             }
           });
         }
@@ -183,7 +186,7 @@ export class ReporteContribucionesComponent implements OnInit {
         let dInfo = this.dialog.open(DialogInformativoComponent, {
           data: {
             title: 'Atención!',
-            message: 'Fechas incorrectas, la inicial debe ser menor a la final'
+            message: 'La fecha inicial no puede ser posterior a la fecha final'
           }
         });
       }

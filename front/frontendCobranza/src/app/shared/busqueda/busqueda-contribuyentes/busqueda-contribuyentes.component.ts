@@ -38,11 +38,24 @@ export class BusquedaContribuyentesComponent implements OnInit {
   }
 
   openAddContribuyente() {
-    let dAdd = this.dialog.open(AddContribuyenteComponent);
+    let dAdd = this.dialog.open(AddContribuyenteComponent, { width: '560px', maxWidth: '95vw' });
     dAdd.afterClosed().subscribe((result) => {
       this.getContribuyentes(), console.error();
 
     }, (error: any) => console.log(error));
+  }
+
+  /** Texto del renglón para lectores de pantalla */
+  etiqueta(row: Contribuyente): string {
+    return row.codigoContribuyente + ' ' + row.nombre + ' ' + row.apePaterno + ' ' + row.apeMaterno;
+  }
+
+  /** Enter en la búsqueda elige el primer resultado */
+  seleccionarPrimero() {
+    const filas = this.dataSource.filteredData;
+    if (filas.length > 0) {
+      this.selectRow(filas[0]);
+    }
   }
 
   selectRow(row: Contribuyente) {

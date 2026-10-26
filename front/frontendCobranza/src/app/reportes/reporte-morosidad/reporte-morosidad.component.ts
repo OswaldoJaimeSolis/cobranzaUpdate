@@ -49,7 +49,7 @@ export class ReporteMorosidadComponent implements OnInit {
   }
 
   buscarTipoPlaza() {
-    let dBusTP = this.dialog.open(BusquedaTiposPlazaComponent);
+    let dBusTP = this.dialog.open(BusquedaTiposPlazaComponent, { width: '900px', maxWidth: '95vw' });
     dBusTP.afterClosed().subscribe((data: BusResultTP) => {
       if (data != undefined) {
         this.tipoPlaza.codigoTipoPlaza = data.tipoPlazaSelect.codigoTipoPlaza;
@@ -64,7 +64,7 @@ export class ReporteMorosidadComponent implements OnInit {
   private filtroValido(): boolean {
     if (this.fechaCorte == null) {
       this.dialog.open(DialogInformativoComponent, {
-        data: { title: 'Atención!', message: 'Debe indicar la fecha de corte' }
+        data: { title: 'Atención!', message: 'Indique la fecha de corte' }
       });
       return false;
     }
@@ -72,7 +72,7 @@ export class ReporteMorosidadComponent implements OnInit {
       return true;
     }
     this.dialog.open(DialogInformativoComponent, {
-      data: { title: 'Atención!', message: 'Debe seleccionar un tipo de plaza' }
+      data: { title: 'Atención!', message: 'Seleccione un tipo de plaza o marque «Todos los tipos de plaza»' }
     });
     return false;
   }

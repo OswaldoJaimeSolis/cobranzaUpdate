@@ -1,8 +1,12 @@
-<h2 mat-dialog-title class="centerText">Configuración de cobro: {{config.codigoTipoPlaza}}</h2>
+<h2 mat-dialog-title>Configuración de cobro</h2>
 
 <mat-dialog-content>
+  @if (isLoading) {
+    <mat-progress-bar mode="indeterminate" aria-label="Cargando configuración"></mat-progress-bar>
+  }
+  <p class="dialog-subtitulo">Tipo de plaza {{config.codigoTipoPlaza}}</p>
   <div class="columns-container">
-    <mat-form-field>
+    <mat-form-field appearance="outline">
       <mat-label>Tipo de cobro</mat-label>
       <mat-select [(ngModel)]="config.tipoCobro" required>
         <mat-option value="DIARIO">Diario</mat-option>
@@ -11,7 +15,7 @@
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field>
+    <mat-form-field appearance="outline">
       <mat-label>Inicio de cobro</mat-label>
       <input matInput type="date" [(ngModel)]="config.fechaInicioCobro" required>
       <mat-hint>Las obligaciones se generan a partir de esta fecha</mat-hint>
@@ -23,7 +27,7 @@
     </p>
 
     @if (config.tipoCobro == 'DIARIO') {
-      <h4>Días de la semana en que aplica el cobro</h4>
+      <h3 class="seccion">Días de la semana en que aplica el cobro</h3>
       <div class="fila">
         @for (d of diasSemana; track d.valor) {
           <mat-checkbox [checked]="tieneDiaSemana(d.valor)" (change)="cambiarDiaSemana(d.valor, $event.checked)">
@@ -34,9 +38,9 @@
     }
 
     @if (config.tipoCobro == 'MENSUAL') {
-      <h4>Días de cobro de cada mes</h4>
+      <h3 class="seccion">Días de cobro de cada mes</h3>
       <div class="fila">
-        <mat-form-field class="anio">
+        <mat-form-field appearance="outline" class="anio">
           <mat-label>Año</mat-label>
           <mat-select [(ngModel)]="anioSeleccionado">
             <mat-option [value]="null">Todos los años</mat-option>
@@ -46,8 +50,8 @@
           </mat-select>
         </mat-form-field>
         @if (anioSeleccionado != null) {
-          <button mat-icon-button type="button" [disabled]="diasDelAnioVacio()" (click)="quitarAnio(anioSeleccionado)" aria-label="Quitar año"
-            title="Quitar las fechas de {{anioSeleccionado}}">
+          <button mat-icon-button type="button" class="boton-eliminar" [disabled]="diasDelAnioVacio()" (click)="quitarAnio(anioSeleccionado)"
+            [attr.aria-label]="'Quitar las fechas de ' + anioSeleccionado" matTooltip="Quitar las fechas de {{anioSeleccionado}}">
             <mat-icon>delete</mat-icon>
           </button>
         }
@@ -67,7 +71,7 @@
             @for (d of diasDelMes(i + 1); track d) {
               <span class="dia">
                 {{d.ultimoDia ? 'Último día' : d.dia}}
-                <button mat-icon-button type="button" (click)="quitarDia(d)" aria-label="Quitar día">
+                <button mat-icon-button type="button" class="quitar-dia" (click)="quitarDia(d)" aria-label="Quitar día" matTooltip="Quitar día">
                   <mat-icon>close</mat-icon>
                 </button>
               </span>
@@ -76,6 +80,7 @@
             }
           </span>
           <input class="dia-nuevo" type="number" min="1" [max]="largoMes(i + 1)" placeholder="Día"
+            [attr.aria-label]="'Día de cobro de ' + nombreMes"
             [(ngModel)]="diaNuevo[i]" (keyup.enter)="agregarDia(i + 1)">
           <button mat-stroked-button type="button" (click)="agregarDia(i + 1)">Agregar</button>
           <button mat-stroked-button type="button" (click)="agregarUltimoDia(i + 1)">Último día</button>
@@ -84,14 +89,14 @@
     }
 
     @if (config.tipoCobro == 'ANUAL') {
-      <h4>Período de pago</h4>
+      <h3 class="seccion">Período de pago</h3>
       <div class="fila">
         <span class="etiqueta">Del</span>
-        <mat-form-field class="corto">
+        <mat-form-field appearance="outline" class="corto">
           <mat-label>Día</mat-label>
           <input matInput type="number" min="1" max="31" [(ngModel)]="config.periodoInicioDia" required>
         </mat-form-field>
-        <mat-form-field class="medio">
+        <mat-form-field appearance="outline" class="medio">
           <mat-label>Mes</mat-label>
           <mat-select [(ngModel)]="config.periodoInicioMes" required>
             @for (nombreMes of meses; track nombreMes; let i = $index) {
@@ -100,11 +105,11 @@
           </mat-select>
         </mat-form-field>
         <span class="etiqueta">al</span>
-        <mat-form-field class="corto">
+        <mat-form-field appearance="outline" class="corto">
           <mat-label>Día</mat-label>
           <input matInput type="number" min="1" max="31" [(ngModel)]="config.periodoFinDia" required>
         </mat-form-field>
-        <mat-form-field class="medio">
+        <mat-form-field appearance="outline" class="medio">
           <mat-label>Mes</mat-label>
           <mat-select [(ngModel)]="config.periodoFinMes" required>
             @for (nombreMes of meses; track nombreMes; let i = $index) {
@@ -114,34 +119,34 @@
         </mat-form-field>
       </div>
 
-      <h4>Períodos distintos para años específicos</h4>
+      <h3 class="seccion">Períodos distintos para años específicos</h3>
       @for (p of config.periodosAnuales; track p) {
         <div class="fila">
-          <mat-form-field class="corto">
+          <mat-form-field appearance="outline" class="corto">
             <mat-label>Año</mat-label>
             <input matInput type="number" [(ngModel)]="p.anio" required>
           </mat-form-field>
-          <mat-form-field>
+          <mat-form-field appearance="outline">
             <mat-label>Inicio</mat-label>
             <input matInput type="date" [(ngModel)]="p.fechaInicio" required>
           </mat-form-field>
-          <mat-form-field>
+          <mat-form-field appearance="outline">
             <mat-label>Fin</mat-label>
             <input matInput type="date" [(ngModel)]="p.fechaFin" required>
           </mat-form-field>
-          <button mat-icon-button type="button" (click)="quitarPeriodo(p)" aria-label="Quitar período">
+          <button mat-icon-button type="button" class="boton-eliminar" (click)="quitarPeriodo(p)" aria-label="Quitar período" matTooltip="Quitar período">
             <mat-icon>delete</mat-icon>
           </button>
         </div>
       }
       <div>
-        <button mat-stroked-button type="button" (click)="agregarPeriodo()">Agregar año</button>
+        <button mat-stroked-button type="button" (click)="agregarPeriodo()"><mat-icon>add</mat-icon> Agregar año</button>
       </div>
     }
   </div>
 </mat-dialog-content>
 
-<mat-dialog-actions class="centerContent">
-  <button mat-button (click)="onCancel()">Cancelar</button>
-  <button mat-raised-button color="primary" [disabled]="isLoading" (click)="onSave()">Guardar</button>
+<mat-dialog-actions>
+  <button mat-button type="button" (click)="onCancel()">Cancelar</button>
+  <button mat-flat-button type="button" [disabled]="isLoading" (click)="onSave()">Guardar</button>
 </mat-dialog-actions>

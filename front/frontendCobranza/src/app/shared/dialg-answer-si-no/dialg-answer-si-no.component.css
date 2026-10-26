@@ -1,0 +1,27 @@
+.confirmacion {
+  max-width: 480px;
+}
+
+.confirmacion__titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-3);
+}
+
+.confirmacion__icono {
+  flex: none;
+  color: var(--app-accent);
+}
+
+.confirmacion__icono--error {
+  color: var(--app-error);
+}
+
+.confirmacion__texto {
+  margin: 0;
+}
+
+.boton-destructivo {
+  --mat-button-filled-container-color: var(--app-error);
+  --mat-button-filled-label-text-color: var(--app-on-primary);
+}

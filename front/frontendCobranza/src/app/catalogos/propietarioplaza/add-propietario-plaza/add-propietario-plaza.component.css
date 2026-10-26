@@ -1,22 +1,12 @@
-columns-container {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .columns-container > * {
-    width: 30%;
-    margin-left: 50px;
-  }
-  
-  .columns-right-align {
-    text-align: right;
-  }
-  
-  input.columns-right-align::-webkit-outer-spin-button,
-  input.columns-right-align::-webkit-inner-spin-button {
-    display: none;
-  }
-  
-  input.columns-right-align {
-    -moz-appearance: textfield;
-  }
+.numero {
+  text-align: right;
+}
+
+input.numero::-webkit-outer-spin-button,
+input.numero::-webkit-inner-spin-button {
+  display: none;
+}
+
+input.numero {
+  -moz-appearance: textfield;
+}

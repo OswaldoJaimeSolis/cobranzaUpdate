@@ -1,0 +1,446 @@
+// Estilos globales y tema de Angular Material (M3).
+// Las paletas de `_theme-colors.scss` se generaron con
+//   ng generate @angular/material:theme-color --primary-color=#123E6B --tertiary-color=#1F6FB8
+// y los hex exactos de la identidad se fuerzan con theme-overrides / overrides de componentes.
+@use '@angular/material' as mat;
+@use './theme-colors' as theme-colors;
+
+// Tema usado por la compatibilidad con `color="primary|accent|warn"`.
+// `use-system-variables` hace que esas clases lean las variables --mat-sys-* (con los overrides).
+$app-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: theme-colors.$primary-palette,
+    tertiary: theme-colors.$tertiary-palette,
+    use-system-variables: true,
+  ),
+  typography: (
+    use-system-variables: true,
+  ),
+));
+
+// ---------------------------------------------------------------------------
+// Tokens propios de la aplicación (comunes con la app móvil)
+// ---------------------------------------------------------------------------
+:root {
+  --app-primary-dark: #0B2E4F;
+  --app-primary: #123E6B;
+  --app-primary-medium: #1A5490;
+  --app-accent: #1F6FB8;
+  --app-blue-light: #2E86D1;
+  --app-primary-container: #DCEAF7;
+  --app-background: #F3F7FB;
+  --app-surface: #FFFFFF;
+  --app-text: #1F2933;
+  --app-text-secondary: #56606B;
+  --app-outline-control: #8A96A3;
+  --app-divider: #DDE3E7;
+  --app-on-primary: #FFFFFF;
+
+  // Estados: texto / contenedor (y sólido o borde cuando aplica)
+  --app-pagado: #1E6B3F;
+  --app-pagado-container: #E6F4EA;
+  --app-pagado-solid: #2E7D4F;
+  --app-pendiente: #7A5200;
+  --app-pendiente-container: #FFF4D6;
+  --app-pendiente-border: #F2A900;
+  --app-error: #B3261E;
+  --app-error-container: #FDECEA;
+  --app-ausente: #56606B;
+  --app-ausente-container: #EDF0F3;
+  --app-condonado: #3F3D9E;
+  --app-condonado-container: #E8E7F8;
+
+  // Radios y espaciado (base 4)
+  --app-radius-field: 4px;
+  --app-radius-button: 8px;
+  --app-radius-card: 12px;
+  --app-space-1: 4px;
+  --app-space-2: 8px;
+  --app-space-3: 12px;
+  --app-space-4: 16px;
+  --app-space-6: 24px;
+  --app-space-8: 32px;
+}
+
+html {
+  color-scheme: light;
+
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: theme-colors.$primary-palette,
+      tertiary: theme-colors.$tertiary-palette,
+    ),
+    typography: (
+      plain-family: Roboto,
+      brand-family: Roboto,
+      bold-weight: 700,
+      medium-weight: 500,
+      regular-weight: 400,
+    ),
+    density: 0,
+  ));
+
+  // Hex exactos de la identidad sobre las paletas generadas
+  @include mat.theme-overrides((
+    primary: #123E6B,
+    on-primary: #FFFFFF,
+    primary-container: #DCEAF7,
+    on-primary-container: #0B2E4F,
+    secondary: #1A5490,
+    on-secondary: #FFFFFF,
+    secondary-container: #DCEAF7,
+    on-secondary-container: #0B2E4F,
+    tertiary: #1F6FB8,
+    on-tertiary: #FFFFFF,
+    error: #B3261E,
+    on-error: #FFFFFF,
+    error-container: #FDECEA,
+    on-error-container: #B3261E,
+    background: #F3F7FB,
+    on-background: #1F2933,
+    surface: #FFFFFF,
+    on-surface: #1F2933,
+    on-surface-variant: #56606B,
+    surface-container-lowest: #FFFFFF,
+    surface-container-low: #FFFFFF,
+    surface-container: #FFFFFF,
+    surface-container-high: #FFFFFF,
+    surface-container-highest: #EDF0F3,
+    outline: #8A96A3,
+    outline-variant: #DDE3E7,
+  ));
+
+  @include mat.toolbar-overrides((
+    container-background-color: #123E6B,
+    container-text-color: #FFFFFF,
+  ));
+
+  @include mat.button-overrides((
+    filled-container-shape: 8px,
+    outlined-container-shape: 8px,
+    protected-container-shape: 8px,
+    text-container-shape: 8px,
+    tonal-container-shape: 8px,
+  ));
+
+  @include mat.form-field-overrides((
+    outlined-container-shape: 4px,
+    filled-container-shape: 4px,
+  ));
+
+  @include mat.dialog-overrides((
+    container-shape: 12px,
+    container-color: #FFFFFF,
+    subhead-size: 22px,
+    subhead-weight: 500,
+    subhead-line-height: 28px,
+    supporting-text-color: #1F2933,
+  ));
+
+  @include mat.card-overrides((
+    elevated-container-shape: 12px,
+    outlined-container-shape: 12px,
+    filled-container-shape: 12px,
+    outlined-outline-color: #DDE3E7,
+  ));
+
+  @include mat.chips-overrides((
+    container-shape-radius: 8px,
+  ));
+
+  @include mat.menu-overrides((
+    container-shape: 8px,
+  ));
+
+  @include mat.table-overrides((
+    background-color: #FFFFFF,
+    header-headline-color: #56606B,
+    header-headline-weight: 500,
+    row-item-outline-color: #DDE3E7,
+  ));
+
+  @include mat.sidenav-overrides((
+    container-shape: 0,
+    content-background-color: #F3F7FB,
+  ));
+
+  @include mat.snack-bar-overrides((
+    container-shape: 8px,
+  ));
+}
+
+// `color="primary" | "accent" | "warn"` siguen funcionando con el tema M3
+@include mat.color-variants-backwards-compatibility($app-theme);
+
+// ---------------------------------------------------------------------------
+// Base
+// ---------------------------------------------------------------------------
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--app-text);
+  background: var(--app-background);
+}
+
+h1, h2, h3, h4 {
+  color: var(--app-text);
+}
+
+// Densidad -1 sólo en tablas, barras de filtros y la barra de la página
+.mat-mdc-table,
+.filtros,
+.page-header__acciones,
+.densidad-compacta {
+  @include mat.theme((density: -1));
+}
+
+// ---------------------------------------------------------------------------
+// Diseño de página
+// ---------------------------------------------------------------------------
+.page {
+  box-sizing: border-box;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--app-space-6);
+}
+
+@media (max-width: 599.98px) {
+  .page {
+    padding: var(--app-space-4);
+  }
+}
+
+// Barra de búsqueda / filtros
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--app-space-4);
+  margin-bottom: var(--app-space-4);
+}
+
+.filtros .mat-mdc-form-field {
+  min-width: 200px;
+}
+
+.filtros .campo-busqueda {
+  flex: 1 1 280px;
+  max-width: 420px;
+}
+
+// Secciones de formulario en reportes
+.panel {
+  background: var(--app-surface);
+  border: 1px solid var(--app-divider);
+  border-radius: var(--app-radius-card);
+  padding: var(--app-space-4) var(--app-space-6);
+  margin-bottom: var(--app-space-4);
+}
+
+.panel__titulo {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  margin: 0 0 var(--app-space-3);
+}
+
+.acciones-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--app-space-3);
+}
+
+// Tablas
+.tabla-contenedor {
+  background: var(--app-surface);
+  border: 1px solid var(--app-divider);
+  border-radius: var(--app-radius-card);
+  overflow: hidden;
+}
+
+.tabla-scroll {
+  overflow-x: auto;
+}
+
+.tabla-contenedor table,
+.tabla-scroll table {
+  width: 100%;
+}
+
+.tabla-resumen {
+  font-size: 16px;
+  font-weight: 500;
+  margin: var(--app-space-4) 0 var(--app-space-3);
+}
+
+.mat-column-acciones {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right !important;
+}
+
+.celda-numero,
+.derecha {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.celda-secundaria {
+  color: var(--app-text-secondary);
+}
+
+@media (max-width: 599.98px) {
+  .ocultar-movil {
+    display: none;
+  }
+
+  .mat-mdc-header-cell,
+  .mat-mdc-cell {
+    padding: 0 var(--app-space-2) !important;
+  }
+}
+
+tr.fila-seleccionable {
+  cursor: pointer;
+}
+
+tr.fila-seleccionable:hover,
+tr.fila-seleccionable:focus-visible {
+  background: var(--app-primary-container);
+  outline: none;
+}
+
+.boton-eliminar.mat-mdc-icon-button {
+  color: var(--app-error);
+}
+
+// Formularios en diálogos
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--app-space-4);
+  row-gap: var(--app-space-2);
+  padding-top: var(--app-space-2);
+}
+
+.form-grid--una {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.form-grid > .completo {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 599.98px) {
+  .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.form-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--app-space-2) var(--app-space-6);
+  align-items: center;
+}
+
+.mat-mdc-dialog-actions {
+  justify-content: flex-end;
+  gap: var(--app-space-2);
+}
+
+.dialog-subtitulo {
+  color: var(--app-text-secondary);
+  margin: 0 0 var(--app-space-3);
+}
+
+// Textos auxiliares
+.nota {
+  color: var(--app-text-secondary);
+  font-size: 13px;
+  line-height: 18px;
+  margin: 0;
+}
+
+.texto-error {
+  color: var(--app-error);
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-2);
+}
+
+.texto-error .mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+// Estados: siempre icono + etiqueta
+.estado {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-space-1);
+  padding: 2px var(--app-space-2) 2px 6px;
+  border-radius: var(--app-radius-button);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.estado .mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.estado--pagado { color: var(--app-pagado); background: var(--app-pagado-container); }
+.estado--pendiente { color: var(--app-pendiente); background: var(--app-pendiente-container); box-shadow: inset 0 0 0 1px var(--app-pendiente-border); }
+.estado--adeudo { color: var(--app-error); background: var(--app-error-container); }
+.estado--ausente { color: var(--app-ausente); background: var(--app-ausente-container); }
+.estado--condonado { color: var(--app-condonado); background: var(--app-condonado-container); }
+.estado--activo { color: var(--app-pagado); background: var(--app-pagado-container); }
+.estado--inactivo { color: var(--app-ausente); background: var(--app-ausente-container); }
+
+// Avisos (MatSnackBar)
+.mat-mdc-snack-bar-container.aviso-exito {
+  --mat-snack-bar-container-color: #2E7D4F;
+  --mat-snack-bar-supporting-text-color: #FFFFFF;
+  --mat-snack-bar-button-color: #FFFFFF;
+}
+
+.mat-mdc-snack-bar-container.aviso-error {
+  --mat-snack-bar-container-color: #B3261E;
+  --mat-snack-bar-supporting-text-color: #FFFFFF;
+  --mat-snack-bar-button-color: #FFFFFF;
+}
+
+// Carga en curso
+.barra-carga {
+  margin-bottom: var(--app-space-3);
+}
+
+/*
+ * Reemplazo de los antiguos directivos de @angular/flex-layout aplicados a `.container`.
+ */
+.container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--app-space-4);
+  justify-content: center;
+  align-items: stretch;
+}
+
+@media screen and (max-width: 599.98px) {
+  .container {
+    flex-direction: column;
+  }
+}

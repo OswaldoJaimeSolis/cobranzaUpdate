@@ -1,0 +1,19 @@
+.grupos-filtro {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--app-space-4) var(--app-space-6);
+}
+
+.grupo-filtro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-2);
+}
+
+.icono-estado {
+  vertical-align: middle;
+}
+
+.icono-estado--1 { color: var(--app-pagado-solid); }
+.icono-estado--2 { color: var(--app-pendiente); }
+.icono-estado--3 { color: var(--app-ausente); }

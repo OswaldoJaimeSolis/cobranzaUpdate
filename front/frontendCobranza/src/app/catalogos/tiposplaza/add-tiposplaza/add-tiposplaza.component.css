@@ -1,27 +1,10 @@
-columns-container {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .columns-container > * {
-    width: 30%;
-    margin-left: 50px;
-  }
-  
-  .columns-right-align {
-    text-align: right;
-  }
-  
-  input.columns-right-align::-webkit-outer-spin-button,
-  input.columns-right-align::-webkit-inner-spin-button {
-    display: none;
-  }
-  
-  input.columns-right-align {
-    -moz-appearance: textfield;
-  }
-.nota-cobro {
-  color: rgba(0, 0, 0, 0.6);
-  font-size: 13px;
-  margin: 8px 0 0;
+.form-checks {
+  margin: var(--app-space-2) 0 var(--app-space-3);
+}
+
+.seccion-cobro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--app-space-3);
 }

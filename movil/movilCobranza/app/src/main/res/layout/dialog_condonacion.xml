@@ -10,15 +10,20 @@
     <TextView
         android:id="@+id/tvCondonacionDetalle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:lineSpacingExtra="2dp"
+        android:textAppearance="@style/TextAppearance.Cobranza.Body" />
 
+    <!-- EditText simple (no TextInputLayout): MainActivity le pone hint y setError. -->
     <EditText
         android:id="@+id/etCondonacionMotivo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/space_md"
+        android:background="@drawable/bg_field_outlined"
         android:gravity="top"
         android:inputType="textMultiLine|textCapSentences"
         android:maxLength="500"
-        android:minLines="3" />
+        android:minLines="3"
+        android:padding="@dimen/space_md" />
 </LinearLayout>

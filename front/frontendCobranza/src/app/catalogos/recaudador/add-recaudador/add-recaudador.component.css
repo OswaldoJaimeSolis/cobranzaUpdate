@@ -1,6 +1,10 @@
-.columns-container {
+.form-checks {
+  margin-bottom: var(--app-space-3);
+}
+
+.seccion-tipos {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding-top: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--app-space-3);
 }

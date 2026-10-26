@@ -11,14 +11,18 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 
 import android.os.Environment;
+import android.graphics.Typeface;
 import android.text.Editable;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.StyleSpan;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
@@ -87,6 +91,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.core.app.ActivityCompat;
 import jpos.JposException;
 import jpos.POSPrinter;
@@ -256,8 +261,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
 
-                DatePickerDialog dialog= new DatePickerDialog(MainActivity.this,android.R.style.Theme_Holo_Dialog_MinWidth,mDateSetListener,year,month,day);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                DatePickerDialog dialog= new DatePickerDialog(MainActivity.this, mDateSetListener,year,month,day);
                 dialog.show();
             }
         });
@@ -443,7 +447,7 @@ public class MainActivity extends AppCompatActivity {
                 propietarioPlazas= new ArrayList<>();
                 etContribuyente.setText("");
                 actualizaImporte(true);
-                Toast.makeText(getApplicationContext(), "Verique el código. \nActualice el catálogo", Toast.LENGTH_SHORT).show();
+                mostrarAviso("Contribuyente no encontrado", "Verifique el código. Si es correcto, actualice el catálogo.");
             }
         }
     }
@@ -483,7 +487,7 @@ public class MainActivity extends AppCompatActivity {
         if(id== R.id.actualizar_catalogo_setting){
            new  ActualizarCatalogosRemoto(false, null, null, null).execute();
             /*if(tiposPlaza==null || tiposPlaza.size()<1){
-                Toast.makeText(this, "No existen tipos de plaza", Toast.LENGTH_SHORT).show();
+                mostrarAviso("Sin tipos de plaza", "No existen tipos de plaza. Actualice los catálogos.");
             }
             else {
                 Intent intent = new Intent(MainActivity.this, ActualizarContribucionesRemotasActivity.class);
@@ -495,7 +499,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(id== R.id.actualizar_catalogo_contribuciones_setting){
             if(tiposPlaza==null || tiposPlaza.size()<1){
-                Toast.makeText(this, "No existen tipos de plaza", Toast.LENGTH_SHORT).show();
+                mostrarAviso("Sin tipos de plaza", "No existen tipos de plaza. Actualice los catálogos.");
             }
             else if (equipoRecaudador!=null && !equipoRecaudador.getCodigoEquipo().isEmpty()){
                 Intent intent = new Intent(MainActivity.this, ActualizarContribucionesRemotasActivity.class);
@@ -505,7 +509,7 @@ public class MainActivity extends AppCompatActivity {
             }
             else {
 
-                Toast.makeText(getApplicationContext(),"Debe asignar un código al equipo",Toast.LENGTH_LONG).show();
+                mostrarAviso("Equipo sin código", "Debe asignar un código al equipo en Datos equipo.");
             }
 
 
@@ -514,7 +518,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if(id== R.id.agregar_contribuyente_setting){
             if(tiposPlaza==null || tiposPlaza.size()<1){
-                Toast.makeText(this, "No existen tipos de plaza", Toast.LENGTH_SHORT).show();
+                mostrarAviso("Sin tipos de plaza", "No existen tipos de plaza. Actualice los catálogos.");
             }
             else {
                 Intent intent = new Intent(MainActivity.this, ContribuyenteActivity.class);
@@ -598,7 +602,8 @@ public class MainActivity extends AppCompatActivity {
 
         if(requestCode==REQUEST_VALIDAR_RECAUDADOR){
            if(RecaudadorActivo.getRecaudadorActivo()==null){
-               Toast.makeText(getApplicationContext(),"Debe loguearse correctamente",Toast.LENGTH_LONG).show();
+               //la pantalla se cierra enseguida: sólo un toast sobrevive al cierre
+               Avisos.alCerrar(this, "Debe iniciar sesión correctamente");
                finish();
            }
            //sin el permiso el recaudador no ve ninguna acción de condonación
@@ -623,13 +628,13 @@ public class MainActivity extends AppCompatActivity {
                         new ActualizarCatalogosRemoto(true,fechaA,codigoTipoPlaza,equipoRecaudador.getCodigoEquipo()).execute();
                     }
                     catch (Exception e){
-                        Toast.makeText(getApplicationContext(),"Hubo un error no se pudo actualizar las constribuciones",Toast.LENGTH_LONG).show();
+                        mostrarAviso("Error", "Hubo un error, no se pudieron actualizar las contribuciones");
                     }
                 }
 
             }
             else{
-                Toast.makeText(getApplicationContext(),"Canceló la actualización",Toast.LENGTH_LONG).show();
+                mostrarAviso("Actualización cancelada", "Canceló la actualización");
             }
         }
 
@@ -683,7 +688,7 @@ public class MainActivity extends AppCompatActivity {
             else {
                 propietarioPlazas= new ArrayList<>();
                 actualizaImporte(true);
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                mostrarAviso("Aviso", message);
             }
 
         }
@@ -697,7 +702,7 @@ public class MainActivity extends AppCompatActivity {
           //al cambiar la fecha se recarga la lista: se conserva la plaza que estaba seleccionada
           String codigoSeleccionado= cbPlazas.getSelectedItem() instanceof PropietarioPlaza?
                   ((PropietarioPlaza) cbPlazas.getSelectedItem()).getCodigoPropietarioPlaza(): null;
-          ArrayAdapter adapterPP= new ArrayAdapter<PropietarioPlaza>(this, android.R.layout.simple_spinner_item, propietarioPlazas);
+          ArrayAdapter adapterPP= new ArrayAdapter<PropietarioPlaza>(this, R.layout.item_spinner, propietarioPlazas);
           cbPlazas.setAdapter(adapterPP);
           for(int i=0; codigoSeleccionado!=null && i<propietarioPlazas.size(); i++){
               if(codigoSeleccionado.equals(propietarioPlazas.get(i).getCodigoPropietarioPlaza())){
@@ -874,9 +879,22 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         int vencidas= fechasVencidas(propietarioPlaza).length;
-        tvAdeudo.setText("Adeudo: $ "+String.format("%.2f", propietarioPlaza.getAdeudo())
-                +(vencidas>0? " ("+vencidas+" fechas vencidas, toque para verlas)": ""));
+        tvAdeudo.setText(textoAdeudo(String.format("%.2f", propietarioPlaza.getAdeudo()), vencidas));
         tvAdeudo.setVisibility(View.VISIBLE);
+    }
+
+    /** "Adeudo $ X · N fechas vencidas · Toca para cobrar", con el monto resaltado (sólo presentación). */
+    private CharSequence textoAdeudo(String monto, int vencidas){
+        SpannableStringBuilder sb= new SpannableStringBuilder(getString(R.string.adeudo_titulo)).append(" ");
+        int inicio= sb.length();
+        sb.append("$ ").append(monto);
+        sb.setSpan(new AbsoluteSizeSpan(getResources().getDimensionPixelSize(R.dimen.text_debt)), inicio, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        sb.setSpan(new StyleSpan(Typeface.BOLD), inicio, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        if(vencidas>0){
+            sb.append("\n").append(getResources().getQuantityString(R.plurals.adeudo_fechas_vencidas, vencidas, vencidas))
+                    .append(" · ").append(getString(R.string.adeudo_toca));
+        }
+        return sb;
     }
 
     private String[] fechasVencidas(PropietarioPlaza propietarioPlaza){
@@ -904,13 +922,13 @@ public class MainActivity extends AppCompatActivity {
         catch (ParseException e){
             return;
         }
-        new AlertDialog.Builder(this).setTitle("FECHAS VENCIDAS")
+        new MaterialAlertDialogBuilder(this).setTitle("Fechas vencidas")
                 .setItems(etiquetas, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int cual) {
                         setCurrentDateOnView(valores[cual]);
                     }
                 })
-                .setNegativeButton("CERRAR", null).show();
+                .setNegativeButton("Cerrar", null).show();
     }
 
     /**
@@ -926,11 +944,11 @@ public class MainActivity extends AppCompatActivity {
                 +"\nRecaudador: "+RecaudadorActivo.getRecaudadorActivo().getCodigoRecaudador());
         final EditText etObservaciones= contenido.findViewById(R.id.etCondonacionMotivo);
         etObservaciones.setHint(condonacion? "Observaciones: motivo de la condonación (obligatorio)": "Comentario del pago (obligatorio)");
-        final AlertDialog dialog= new AlertDialog.Builder(this)
-                .setTitle(condonacion? "CONDONAR ADEUDO": "PAGO DE ADEUDO ANTERIOR")
+        final AlertDialog dialog= new MaterialAlertDialogBuilder(this)
+                .setTitle(condonacion? "Condonar adeudo": "Pago de adeudo anterior")
                 .setView(contenido)
-                .setPositiveButton(condonacion? "CONDONAR": "PAGAR", null)
-                .setNegativeButton("CANCELAR", null)
+                .setPositiveButton(condonacion? "Condonar": "Pagar", null)
+                .setNegativeButton(R.string.cancelar, null)
                 .create();
         dialog.show();
         //se asigna después de show() para que el diálogo no se cierre si falta el texto
@@ -980,7 +998,7 @@ public class MainActivity extends AppCompatActivity {
             Object sel= cbPlazas.getSelectedItem();
             String tipo= sel instanceof PropietarioPlaza && ((PropietarioPlaza) sel).getTipoPlaza()!=null?
                     " del tipo "+((PropietarioPlaza) sel).getTipoPlaza().getCodigoTipoPlaza(): "";
-            mostrarAviso("SIN PRECIO", "No existe precio vigente"+tipo+" para el "+etFecha.getText()
+            mostrarAviso("Sin precio", "No existe precio vigente"+tipo+" para el "+etFecha.getText()
                     +". Capture la vigencia del tipo de plaza en la web y actualice catálogos.");
         }
     }
@@ -1070,7 +1088,7 @@ public class MainActivity extends AppCompatActivity {
             ConfiguracionCobro config= getConfiguracionCobro(plazaSeleccionada);
             if (contribucion != null) {
                 if(pagadoEnOtraFecha){
-                    mostrarAviso("MES PAGADO", "Este mes ya está pagado: se cobró el "+getSdf().format(contribucion.getFecha())
+                    mostrarAviso("Mes pagado", "Este mes ya está pagado: se cobró el "+getSdf().format(contribucion.getFecha())
                             +" (folio "+contribucion.getFolioDedicado()+"). Sólo se puede reimprimir.");
                 }
                 etImporte.setText(String.format("%.2f", contribucion.getImporte()));
@@ -1125,7 +1143,7 @@ public class MainActivity extends AppCompatActivity {
                 else if(obligacion!=null){
                     if(cbAdeudoAnterior.isChecked()){
                         cbAdeudoAnterior.setChecked(false);
-                        mostrarAviso("ADEUDO ANTERIOR", "En esta fecha hay un cobro programado. Para pagar el adeudo anterior elija otra fecha");
+                        mostrarAviso("Adeudo anterior", "En esta fecha hay un cobro programado. Para pagar el adeudo anterior elija otra fecha");
                     }
                     mostrarImporteConfigurado(config.importe(obligacion, new Date(), vigenciaSeleccionada(plazaSeleccionada)));
                 }
@@ -1134,7 +1152,7 @@ public class MainActivity extends AppCompatActivity {
                     etImporte.setText("");
                     btnConfirmar.setEnabled(false);
                     Date proxima= proximoPendiente;
-                    mostrarAviso("SIN COBRO", "Sin cobro programado para esta fecha"
+                    mostrarAviso("Sin cobro", "Sin cobro programado para esta fecha"
                             +(proxima!=null? ". Próximo cobro: "+getSdf().format(proxima): ""));
                 }
             }
@@ -1148,7 +1166,7 @@ public class MainActivity extends AppCompatActivity {
                         importe= tph.getImporte();
                     }
                     else{
-                        Toast.makeText(getApplicationContext(), "No existen importe vigente", Toast.LENGTH_SHORT).show();
+                        mostrarAviso("Sin importe", "No existe importe vigente");
                     }
                 }
                 else{
@@ -1267,7 +1285,7 @@ public class MainActivity extends AppCompatActivity {
      */
     /** Mensaje completo en un diálogo: los toasts de Android 12+ se cortan a dos líneas. */
     private void mostrarAviso(String titulo, String mensaje){
-        new AlertDialog.Builder(this).setTitle(titulo).setMessage(mensaje).setPositiveButton("ACEPTAR", null).show();
+        Avisos.error(this, titulo, mensaje);
     }
 
     /**
@@ -1581,23 +1599,23 @@ public class MainActivity extends AppCompatActivity {
                             new ConfirmarContribucion(contribucion).execute();
                         }
                     } else {
-                        Toast.makeText(getApplicationContext(), "No se puden pagar contribuciones mayores a un mes", Toast.LENGTH_LONG).show();
+                        mostrarAviso("Fecha no permitida", "No se pueden pagar contribuciones mayores a un mes");
                     }
                 }
                 else{
-                    mostrarAviso("NO AUTORIZADO", "El recaudador no tiene asignado el tipo de plaza "
+                    mostrarAviso("No autorizado", "El recaudador no tiene asignado el tipo de plaza "
                             +(contribucion.getTipoPlaza()!=null? contribucion.getTipoPlaza().getCodigoTipoPlaza(): "")
                             +". Pida al administrador que se lo asigne y actualice los recaudadores.");
                 }
             }
             else{
-                Toast.makeText(getApplicationContext(), "No hay recaudador seleccioando", Toast.LENGTH_LONG).show();
+                mostrarAviso("Sin recaudador", "No hay recaudador seleccionado");
             }
 
         }
 
         else{
-            Toast.makeText(getApplicationContext(), "Llene todos los datos", Toast.LENGTH_LONG).show();
+            mostrarAviso("Datos incompletos", "Llene todos los datos");
         }
 
     }
@@ -1714,16 +1732,16 @@ public class MainActivity extends AppCompatActivity {
             pbBusqueda.setVisibility(View.INVISIBLE);
             if(vencidaAnterior!=null){
                 final Date masAntigua= vencidaAnterior;
-                new AlertDialog.Builder(MainActivity.this).setTitle("ADEUDO MÁS ANTIGUO")
+                new MaterialAlertDialogBuilder(MainActivity.this).setTitle("Adeudo más antiguo")
                         .setMessage("La plaza tiene un cobro vencido del "+getSdf().format(masAntigua)
                                 +" que debe cubrirse antes del "+getSdf().format(contribucion.getFecha())
                                 +". No se guardó la contribución.\n\n¿Desea ir al cobro más antiguo?")
-                        .setPositiveButton("SI", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.si, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 setCurrentDateOnView(masAntigua);
                             }
                         })
-                        .setNegativeButton("NO", null).show();
+                        .setNegativeButton(R.string.no, null).show();
                 return;
             }
             //si hay contribuciones anteriores las muestra, de lo cotrario carga la
@@ -1733,20 +1751,20 @@ public class MainActivity extends AppCompatActivity {
                     sb.append(con.toString()).append("\n");
                 }
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                AlertDialog.Builder builder = new MaterialAlertDialogBuilder(MainActivity.this);
                 // Add the buttons
-                builder.setPositiveButton("SI", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton(R.string.si, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         setCurrentDateOnView(contribucionesAnteriores.get(0).getFecha());
                          //new VerificarExistenciaContribucion(contribucionesAnteriores.get(0),false).execute();
                     }
                 });
-                builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // User cancelled the dialog
                     }
                 });
-                builder.setTitle("CONTRIBUCIONES PENDIENTES");
+                builder.setTitle("Contribuciones pendientes");
                 sb.append("\n¿Desea hacer el pago del anterior?");
                 builder.setMessage(sb.toString());
 
@@ -1762,11 +1780,11 @@ public class MainActivity extends AppCompatActivity {
                     imprimir=false;
                 }
                 new VerificarExistenciaContribucion(contribucion,imprimir).execute(contribucion.getContribuyente().getCodigoContribuyente(), contribucion.getFecha(), contribucion.getPlaza().getCodigoPlaza());
-                Toast.makeText(getApplicationContext(),"Contribución correcta",Toast.LENGTH_SHORT).show();
+                Avisos.exito(MainActivity.this, "Contribución correcta");
 
             }
             else{
-                Toast.makeText(getApplicationContext(),"Contribución correcta",Toast.LENGTH_SHORT).show();
+                Avisos.exito(MainActivity.this, "Contribución correcta");
             }
 
 

@@ -1,8 +1,8 @@
 .columns-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding-top: 8px;
+  gap: var(--app-space-3);
+  padding-top: var(--app-space-1);
 }
 
 .fila {
@@ -13,7 +13,7 @@
 }
 
 .mes {
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--app-divider);
   padding-bottom: 4px;
 }
 
@@ -33,18 +33,43 @@
 .dia {
   display: inline-flex;
   align-items: center;
-  background: #e8eaf6;
-  border-radius: 16px;
+  background: var(--app-primary-container);
+  color: var(--app-primary-dark);
+  border-radius: var(--app-radius-button);
   padding-left: 10px;
 }
 
 .sin-cobro {
-  color: #757575;
+  color: var(--app-text-secondary);
 }
 
 .dia-nuevo {
   width: 60px;
+  height: 36px;
+  box-sizing: border-box;
+  padding: 0 var(--app-space-2);
+  border: 1px solid var(--app-outline-control);
+  border-radius: var(--app-radius-field);
+  font: inherit;
+  color: var(--app-text);
+}
+
+.dia-nuevo:focus {
+  outline: 2px solid var(--app-primary);
+  outline-offset: -1px;
+}
+
+.quitar-dia {
+  --mat-icon-button-state-layer-size: 32px;
+  width: 32px;
   height: 32px;
+  padding: 4px;
+}
+
+.quitar-dia .mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .corto {
@@ -59,12 +84,15 @@
   font-weight: 500;
 }
 
-h4 {
-  margin: 8px 0 0;
+.seccion {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  margin: var(--app-space-2) 0 0;
 }
 
 .nota {
-  color: #757575;
+  color: var(--app-text-secondary);
   font-size: 13px;
   margin: 0;
 }

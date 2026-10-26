@@ -39,11 +39,24 @@ export class BusquedaRecaudadoresComponent implements OnInit {
   }
 
   openAddRecaudador() {
-    let dAdd = this.dialog.open(AddRecaudadorComponent);
+    let dAdd = this.dialog.open(AddRecaudadorComponent, { width: '560px', maxWidth: '95vw' });
     dAdd.afterClosed().subscribe((result) => {
       this.getRecaudadores(), console.error();
 
     }, (error: any) => console.log(error));
+  }
+
+  /** Texto del renglón para lectores de pantalla */
+  etiqueta(row: Recaudador): string {
+    return row.codigoRecaudador + ' ' + row.nombreRecaudador;
+  }
+
+  /** Enter en la búsqueda elige el primer resultado */
+  seleccionarPrimero() {
+    const filas = this.dataSource.filteredData;
+    if (filas.length > 0) {
+      this.selectRow(filas[0]);
+    }
   }
 
   selectRow(row: Recaudador) {

@@ -1,32 +1,37 @@
-<h2 mat-dialog-title>{{encabezado}} Contribuyente</h2>
+<h2 mat-dialog-title>{{editarId ? 'Editar contribuyente' : 'Nuevo contribuyente'}}</h2>
 <form (ngSubmit)="onSave(conFinal)" #contribuyenteForm="ngForm">
   <mat-dialog-content>
-
-    <div class="columns-container">
-
-      <mat-form-field>
-        <input name="codigoContribuyente" matInput placeholder="Código: " [(ngModel)]="conFinal.codigoContribuyente" #data="ngModel"
-          disabled=true readonly=true  required>
+    <div class="form-grid">
+      @if (editarId) {
+        <mat-form-field appearance="outline" class="completo">
+          <mat-label>Código</mat-label>
+          <input name="codigoContribuyente" matInput [(ngModel)]="conFinal.codigoContribuyente" disabled readonly>
+        </mat-form-field>
+      }
+      <mat-form-field appearance="outline" class="completo">
+        <mat-label>Nombre(s)</mat-label>
+        <input name="nombre" matInput [(ngModel)]="conFinal.nombre" required cdkFocusInitial>
+        <mat-error>Capture el nombre</mat-error>
       </mat-form-field>
-      <mat-form-field>
-        <input name="nombre" matInput placeholder="Nombre: " [(ngModel)]="conFinal.nombre" #data="ngModel" required>
+      <mat-form-field appearance="outline">
+        <mat-label>Apellido paterno</mat-label>
+        <input name="apePaterno" matInput [(ngModel)]="conFinal.apePaterno" required>
+        <mat-error>Capture el apellido paterno</mat-error>
       </mat-form-field>
-      <mat-form-field>
-        <input name="apePaterno" matInput placeholder="Ape. Paterno: " [(ngModel)]="conFinal.apePaterno" #data="ngModel" required>
+      <mat-form-field appearance="outline">
+        <mat-label>Apellido materno</mat-label>
+        <input name="apeMaterno" matInput [(ngModel)]="conFinal.apeMaterno" required>
+        <mat-error>Capture el apellido materno</mat-error>
       </mat-form-field>
-      <mat-form-field>
-        <input name="apeMaterno" matInput placeholder="Ape. Materno: " [(ngModel)]="conFinal.apeMaterno" #data="ngModel" required>
-      </mat-form-field>
-
-      <mat-form-field>
-        <input name="rfc" matInput placeholder="RFC: " [(ngModel)]="conFinal.rfcContribuyente" #data="ngModel">
+      <mat-form-field appearance="outline" class="completo">
+        <mat-label>RFC</mat-label>
+        <input name="rfc" matInput [(ngModel)]="conFinal.rfcContribuyente" maxlength="13">
       </mat-form-field>
     </div>
-
   </mat-dialog-content>
 
   <mat-dialog-actions>
-    <button mat-button (click)="onCancel()">Cancel</button>
-    <button mat-raised-button color="primary" type="submit" [disabled]="!contribuyenteForm.form.valid" >Save</button>
+    <button mat-button type="button" (click)="onCancel()">Cancelar</button>
+    <button mat-flat-button type="submit" [disabled]="!contribuyenteForm.form.valid">Guardar</button>
   </mat-dialog-actions>
 </form>

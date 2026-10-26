@@ -1,8 +1,85 @@
 :host {
   display: flex;
   align-items: center;
+  min-width: 0;
+}
+
+.menu-barra {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-1);
+}
+
+.menu-barra__grupo,
+.cuenta {
+  --mat-button-text-label-text-color: var(--app-on-primary);
+  --mat-button-text-state-layer-color: var(--app-on-primary);
+  --mat-button-text-ripple-color: rgba(255, 255, 255, 0.16);
+}
+
+.menu-barra__grupo.activo {
+  background: rgba(255, 255, 255, 0.16);
 }
 
 .espacio {
   flex: 1;
+}
+
+.cuenta {
+  height: auto;
+  min-height: 40px;
+  text-align: left;
+}
+
+.cuenta__textos {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 16px;
+  vertical-align: middle;
+}
+
+.cuenta__nombre {
+  font-weight: 500;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cuenta__rol {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+@media (max-width: 599.98px) {
+  .cuenta__textos {
+    display: none;
+  }
+
+  .cuenta {
+    min-width: 0;
+    padding: 0 var(--app-space-2);
+  }
+}
+
+.mat-mdc-menu-item.activo {
+  background: var(--app-primary-container);
+  color: var(--app-primary-dark);
+}
+
+/* Panel lateral (móvil) */
+:host:has(.lateral) {
+  display: block;
+}
+
+.lateral__encabezado {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-2);
+  height: 56px;
+  padding: 0 var(--app-space-4);
+  background: var(--app-primary);
+  color: var(--app-on-primary);
+  font-size: 16px;
+  font-weight: 500;
 }

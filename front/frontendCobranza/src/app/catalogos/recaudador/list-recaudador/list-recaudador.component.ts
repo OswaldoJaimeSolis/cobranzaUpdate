@@ -1,4 +1,8 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
+import { RecaudadorPipe } from '../filter/recaudador.pipe';
+import { AvisoService } from 'src/app/shared/aviso.service';
 import { Recaudador } from '../model/recaudador';
 import { RecaudadorService } from '../service/recaudador.service';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
@@ -18,7 +22,23 @@ export class ListRecaudadorComponent implements OnInit {
   displayOrNot: boolean = true;
   stringBusqueda: string;
   isLoading: boolean = false;
-  constructor(private service: RecaudadorService, public dialog: MatDialog) { }
+  readonly columnas = ['codigo', 'nombre', 'estado', 'condona', 'acciones'];
+  dataSource = new MatTableDataSource<Recaudador>([]);
+  private filtro = new RecaudadorPipe();
+
+  @ViewChild(MatSort) set sort(sort: MatSort) {
+    this.dataSource.sort = sort;
+  }
+
+  constructor(private service: RecaudadorService, public dialog: MatDialog, private aviso: AvisoService) {
+    this.dataSource.sortingDataAccessor = (o: Recaudador, columna: string) =>
+      columna == 'codigo' ? o.codigoRecaudador : (o.nombreRecaudador || '').toLocaleLowerCase();
+  }
+
+  /** La tabla se alimenta con el resultado del pipe de filtro existente */
+  filtrar() {
+    this.dataSource.data = this.filtro.transform(this.recaudadores, this.stringBusqueda);
+  }
 
   ngOnInit() {
 
@@ -33,12 +53,13 @@ export class ListRecaudadorComponent implements OnInit {
       .subscribe(
         (data: Recaudador[]) => { //start of (1)
           this.recaudadores = data;
+          this.filtrar();
           if (this.recaudadores.length > 0)
             this.displayOrNot = false;
           else
             this.displayOrNot = true;
         }, //end of (1)
-        (error: any) => console.log(error), //(2) second argument
+        (error: any) => { console.log(error); this.isLoading = false; }, //(2) second argument
         () => { console.log('all data gets'); this.isLoading = false } //(3) second argument
       );
   }
@@ -49,8 +70,10 @@ export class ListRecaudadorComponent implements OnInit {
     var respuesta: Boolean = false;
     const dConfig = new MatDialogConfig();
     dConfig.data = {
-      title: "Eliminando",
-      message: '¿Está seguro de eliminar el registro?',
+      title: "Eliminar recaudador",
+      message: '¿Seguro que desea eliminar el recaudador ' + codigoRecaudador + '? Esta acción no se puede deshacer.',
+      textoAceptar: 'Eliminar',
+      destructivo: true,
       respuesta: respuesta
     }
     const dialogAnswer = this.dialog.open(DialgAnswerSiNoComponent, dConfig);
@@ -67,7 +90,7 @@ export class ListRecaudadorComponent implements OnInit {
       if (respuesta) {
         this.service.deleteRecaudador(codigoRecaudador)
           .subscribe(
-            (res: any) => this.getRecaudadores(), //(1)
+            (res: any) => { this.aviso.exito('Recaudador eliminado'); this.getRecaudadores(); }, //(1)
             (error: any) => console.log(error), //(2)
             () => console.log('deleted') //(3)
           );
@@ -83,7 +106,8 @@ export class ListRecaudadorComponent implements OnInit {
   openDialog(): void {
     let dialogRef = this.dialog.open(AddRecaudadorComponent,
       {
-        width: '500px',
+        width: '560px',
+        maxWidth: '95vw',
       });
 
 
@@ -97,6 +121,8 @@ export class ListRecaudadorComponent implements OnInit {
   openDialogEdit(o: Recaudador): void {
     //console.log(op.numeroPresidenciaEmpleado);
     let dialogRef = this.dialog.open(AddRecaudadorComponent, {
+      width: '560px',
+      maxWidth: '95vw',
       data: {
         recaudador: o
       }

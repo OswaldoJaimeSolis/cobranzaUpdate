@@ -1,4 +1,9 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
+import { TiposplazaPipe } from '../filter/tiposplaza.pipe';
+import { AvisoService } from 'src/app/shared/aviso.service';
+import { DialgAnswerSiNoComponent } from 'src/app/shared/dialg-answer-si-no/dialg-answer-si-no.component';
 import { TipoPlaza } from '../model/tipo-plaza';
 import { TiposplazaService } from '../service/tiposplaza.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -18,7 +23,23 @@ export class ListTiposplazaComponent implements OnInit {
   displayOrNot: boolean = true;
   stringBusqueda: string;
   isLoading:boolean=false;
-  constructor(private service: TiposplazaService, private dialog: MatDialog) { }
+  readonly columnas = ['codigo', 'descripcion', 'importe', 'addLocal', 'acciones'];
+  dataSource = new MatTableDataSource<TipoPlaza>([]);
+  private filtro = new TiposplazaPipe();
+
+  @ViewChild(MatSort) set sort(sort: MatSort) {
+    this.dataSource.sort = sort;
+  }
+
+  constructor(private service: TiposplazaService, private dialog: MatDialog, private aviso: AvisoService) {
+    this.dataSource.sortingDataAccessor = (o: TipoPlaza, columna: string) =>
+      columna == 'codigo' ? o.codigoTipoPlaza : (o.descripcionTipoPlaza || '').toLocaleLowerCase();
+  }
+
+  /** La tabla se alimenta con el resultado del pipe de filtro existente */
+  filtrar() {
+    this.dataSource.data = this.filtro.transform(this.tiposPlaza, this.stringBusqueda);
+  }
 
   ngOnInit() {
     this.getTiposPlaza();
@@ -30,20 +51,37 @@ export class ListTiposplazaComponent implements OnInit {
       .subscribe(
         (data: TipoPlaza[]) => { //start of (1)
           this.tiposPlaza = data;
+          this.filtrar();
           if (this.tiposPlaza.length > 0)
             this.displayOrNot = false;
           else
             this.displayOrNot = true;
         }, //end of (1)
-        (error: any) => console.log(error), //(2) second argument
+        (error: any) => { console.log(error); this.isLoading = false; }, //(2) second argument
         () => {console.log('all data gets');this.isLoading=false;} //(3) second argument
       );
+  }
+
+  confirmarEliminar(codigoTipoPlaza: string) {
+    this.dialog.open(DialgAnswerSiNoComponent, {
+      data: {
+        title: 'Eliminar tipo de plaza',
+        message: '¿Seguro que desea eliminar el tipo de plaza ' + codigoTipoPlaza + '? Esta acción no se puede deshacer.',
+        respuesta: false,
+        textoAceptar: 'Eliminar',
+        destructivo: true
+      }
+    }).afterClosed().subscribe(data => {
+      if (data?.respuesta) {
+        this.deleteO(codigoTipoPlaza);
+      }
+    });
   }
 
   deleteO(codigoTipoPlaza: string) {
     this.service.deleteTipoPlaza(codigoTipoPlaza)
       .subscribe(
-        (res: any) => this.getTiposPlaza(), //(1)
+        (res: any) => { this.aviso.exito('Tipo de plaza eliminado'); this.getTiposPlaza(); }, //(1)
         (error: any) => console.log(error), //(2)
         () => console.log('deleted') //(3)
       )
@@ -52,7 +90,8 @@ export class ListTiposplazaComponent implements OnInit {
   openDialog(): void {
     let dialogRef = this.dialog.open(AddTiposplazaComponent,
       {
-        width: '500px',
+        width: '560px',
+        maxWidth: '95vw',
       });
 
 
@@ -63,6 +102,8 @@ export class ListTiposplazaComponent implements OnInit {
       // después si el cobro es diario, mensual o anual
       if (creado && creado.porImporteGlobalTipoPlaza) {
         this.dialog.open(ListTiposplazaVigenciaComponent, {
+          width: '560px',
+          maxWidth: '95vw',
           data: { tipoPlaza: creado, service: this.service }
         }).afterClosed().subscribe(() => this.openDialogCobro(creado));
       }
@@ -71,7 +112,7 @@ export class ListTiposplazaComponent implements OnInit {
 
   openDialogCobro(o: TipoPlaza): void {
     this.dialog.open(ConfigCobroComponent, {
-      width: '760px',
+      width: '900px',
       maxWidth: '95vw',
       data: {
         tipoPlaza: o
@@ -82,6 +123,8 @@ export class ListTiposplazaComponent implements OnInit {
   openDialogEdit(o: TipoPlaza): void {
     //console.log(op.numeroPresidenciaEmpleado);
     let dialogRef = this.dialog.open(AddTiposplazaComponent, {
+      width: '560px',
+      maxWidth: '95vw',
       data: {
         tipoPlaza: o
       }

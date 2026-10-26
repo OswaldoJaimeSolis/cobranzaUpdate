@@ -4,19 +4,15 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.jalpa.cobranza.model.dao.AppDataBase;
 import com.jalpa.cobranza.model.dao.Database;
 import com.jalpa.cobranza.model.entidades.EquipoRecaudador;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 public class DatosEquipoActivity extends AppCompatActivity {
 
@@ -30,8 +26,7 @@ public class DatosEquipoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_datos_equipo);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        Pantalla.configurarBarra(this, true);
         equipoRecaudador=(EquipoRecaudador) getIntent().getExtras().get("recaudadorEquipo");
         etCodigoEquipo= findViewById(R.id.etCodigoEquipo);
         etDescripcionEquipo= findViewById(R.id.etDescripcionEquipo);
@@ -63,7 +58,7 @@ public class DatosEquipoActivity extends AppCompatActivity {
 
     private boolean validarDatos(){
         if(etDescripcionEquipo.getText().toString().isEmpty() ||etCodigoEquipo.getText().toString().isEmpty()){
-            Toast.makeText(getApplicationContext(), "Llene todos los campos", Toast.LENGTH_LONG).show();
+            Avisos.error(this, "Datos incompletos", "Llene todos los campos");
         }
         return  true;
     }
@@ -110,11 +105,10 @@ public class DatosEquipoActivity extends AppCompatActivity {
         protected void onPostExecute(EquipoRecaudador equipoRecaudador) {
             super.onPostExecute(equipoRecaudador);
             if(equipoRecaudador!=null){
-                Toast.makeText(getApplicationContext(), "Se ha guardado correctamente", Toast.LENGTH_LONG);
                 terminarActivity(equipoRecaudador);
             }
             else{
-                Toast.makeText(getApplicationContext(), "Hubo un problema", Toast.LENGTH_SHORT);
+                Avisos.error(DatosEquipoActivity.this, "Error", "Hubo un problema al guardar los datos del equipo");
             }
         }
     }

@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
@@ -47,6 +46,7 @@ public class ScanActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
+        Pantalla.configurarBarra(this, true);
         camaraView = findViewById(R.id.camaraView);
 
         BarcodeScannerOptions options = new BarcodeScannerOptions.Builder()
@@ -59,7 +59,8 @@ public class ScanActivity extends AppCompatActivity {
                 == PackageManager.PERMISSION_GRANTED) {
             startCamera();
         } else {
-            Toast.makeText(this, "Hubo un problema con el detector", Toast.LENGTH_LONG).show();
+            //la pantalla se cierra enseguida: sólo un toast sobrevive al cierre
+            Avisos.alCerrar(this, "Hubo un problema con el detector");
             finish();
         }
     }
@@ -73,7 +74,8 @@ public class ScanActivity extends AppCompatActivity {
                 bindPreviewAndAnalysis(cameraProvider);
             } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "Hubo un problema con el detector", Toast.LENGTH_LONG).show();
+                //la pantalla se cierra enseguida: sólo un toast sobrevive al cierre
+            Avisos.alCerrar(this, "Hubo un problema con el detector");
                 finish();
             }
         }, ContextCompat.getMainExecutor(this));

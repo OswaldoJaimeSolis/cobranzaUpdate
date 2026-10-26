@@ -1,34 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/list_row_min_height"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/space_lg"
+    android:paddingTop="@dimen/space_sm"
+    android:paddingEnd="@dimen/space_lg"
+    android:paddingBottom="@dimen/space_sm">
 
-    <TextView
-        android:id="@+id/txtPlazaCB"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:ems="6"
-        android:layout_marginLeft="5px"/>
+        android:layout_marginEnd="@dimen/space_md"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/txtNombreCB"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="9"
-        android:layout_marginLeft="3px"/>
+        <TextView
+            android:id="@+id/txtNombreCB"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="@style/TextAppearance.Cobranza.Body" />
 
-    <TextView
-        android:id="@+id/txtEstadoCB"
+        <TextView
+            android:id="@+id/txtPlazaCB"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Cobranza.Label" />
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ems="6"
-        android:layout_marginLeft="3px"/>
-    <TextView
-        android:id="@+id/txtImporteCB"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="right"
-        android:ems="6"
-        android:layout_marginLeft="3px"/>
+        android:gravity="end"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txtImporteCB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textAppearance="@style/TextAppearance.Cobranza.Body"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtEstadoCB"
+            style="@style/Widget.Cobranza.StatusChip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs" />
+    </LinearLayout>
 
 </LinearLayout>

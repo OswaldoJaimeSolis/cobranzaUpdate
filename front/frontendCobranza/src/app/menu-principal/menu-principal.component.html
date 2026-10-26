@@ -1,27 +1,76 @@
-@if (auth.esAdmin()) {
-  <button mat-button [matMenuTriggerFor]="catalogos">Catálogos</button>
-  <mat-menu #catalogos="matMenu">
-    <button mat-menu-item [routerLink]="['contribuyentes']">Contribuyentes</button>
-    <button mat-menu-item [routerLink]="['recaudadores']">Recaudadores </button>
-    <button mat-menu-item [routerLink]="['tiposPlaza']">Tipos de plaza </button>
-    <button mat-menu-item [routerLink]="['propietarioPlaza']">Plazas </button>
-    <button mat-menu-item [routerLink]="['usuarios']">Usuarios </button>
-  </mat-menu>
+@if (modo === 'barra') {
+  <nav class="menu-barra" aria-label="Menú principal">
+    @if (auth.esAdmin()) {
+      <button mat-button class="menu-barra__grupo" [class.activo]="esActivo(rutasCatalogos)"
+        [matMenuTriggerFor]="catalogos">
+        Catálogos <mat-icon iconPositionEnd>arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #catalogos="matMenu">
+        @for (op of catalogosMenu; track op.ruta) {
+          <a mat-menu-item [routerLink]="['/', op.ruta]" routerLinkActive="activo">
+            <mat-icon>{{op.icono}}</mat-icon><span>{{op.texto}}</span>
+          </a>
+        }
+      </mat-menu>
+    }
+    <button mat-button class="menu-barra__grupo" [class.activo]="esActivo(rutasReportes)"
+      [matMenuTriggerFor]="reportes">
+      Reportes <mat-icon iconPositionEnd>arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #reportes="matMenu">
+      @for (op of reportesMenu; track op.ruta) {
+        <a mat-menu-item [routerLink]="['/', op.ruta]" routerLinkActive="activo">
+          <mat-icon>{{op.icono}}</mat-icon><span>{{op.texto}}</span>
+        </a>
+      }
+    </mat-menu>
+  </nav>
 }
 
-<button mat-button [matMenuTriggerFor]="reportes">Reportes</button>
-<mat-menu #reportes="matMenu">
-  <button mat-menu-item [routerLink]="['reporteContribuciones']">Reporte contribuciones</button>
-  <button mat-menu-item [routerLink]="['reporteContribuyentes']">Reporte contribuyentes</button>
-  <button mat-menu-item [routerLink]="['reporteMorosidad']">Morosidad y requerimientos de pago</button>
-  <button mat-menu-item [routerLink]="['bitacoraCondonaciones']">Bitácora de condonaciones</button>
-</mat-menu>
+@if (modo === 'lateral') {
+  <div class="lateral">
+    <div class="lateral__encabezado">
+      <mat-icon aria-hidden="true">account_balance</mat-icon>
+      <span>Cobro de plazas</span>
+    </div>
+    <mat-nav-list>
+      @if (auth.esAdmin()) {
+        <h3 matSubheader>Catálogos</h3>
+        @for (op of catalogosMenu; track op.ruta) {
+          <a mat-list-item [routerLink]="['/', op.ruta]" routerLinkActive #rla="routerLinkActive"
+            [activated]="rla.isActive" (click)="navego.emit()">
+            <mat-icon matListItemIcon>{{op.icono}}</mat-icon>
+            <span matListItemTitle>{{op.texto}}</span>
+          </a>
+        }
+      }
+      <h3 matSubheader>Reportes</h3>
+      @for (op of reportesMenu; track op.ruta) {
+        <a mat-list-item [routerLink]="['/', op.ruta]" routerLinkActive #rla="routerLinkActive"
+          [activated]="rla.isActive" (click)="navego.emit()">
+          <mat-icon matListItemIcon>{{op.icono}}</mat-icon>
+          <span matListItemTitle>{{op.texto}}</span>
+        </a>
+      }
+    </mat-nav-list>
+  </div>
+}
 
-<span class="espacio"></span>
-<button mat-button [matMenuTriggerFor]="cuenta">
-  <mat-icon>account_circle</mat-icon> {{auth.sesion?.nombre}}
-</button>
-<mat-menu #cuenta="matMenu">
-  <button mat-menu-item (click)="cambiarPassword()">Cambiar contraseña</button>
-  <button mat-menu-item (click)="auth.logout()">Cerrar sesión</button>
-</mat-menu>
+@if (modo !== 'lateral') {
+  <span class="espacio"></span>
+  <button mat-button class="cuenta" [matMenuTriggerFor]="cuenta" aria-label="Cuenta de usuario">
+    <mat-icon>account_circle</mat-icon>
+    <span class="cuenta__textos">
+      <span class="cuenta__nombre">{{auth.sesion?.nombre}}</span>
+      <span class="cuenta__rol">{{nombreRol()}}</span>
+    </span>
+  </button>
+  <mat-menu #cuenta="matMenu" xPosition="before">
+    <button mat-menu-item (click)="cambiarPassword()">
+      <mat-icon>key</mat-icon><span>Cambiar contraseña</span>
+    </button>
+    <button mat-menu-item (click)="auth.logout()">
+      <mat-icon>logout</mat-icon><span>Cerrar sesión</span>
+    </button>
+  </mat-menu>
+}

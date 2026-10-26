@@ -2,6 +2,7 @@ import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/cor
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Contribuyente } from '../model/contribuyente';
 import { ContribuyenteService } from '../service/contribuyente.service';
+import { AvisoService } from 'src/app/shared/aviso.service';
 
 export interface DialogData {
   contribuyente: Contribuyente;
@@ -21,7 +22,7 @@ export class AddContribuyenteComponent implements OnInit {
   editarId = false;
   constructor(public dialogRef: MatDialogRef<AddContribuyenteComponent>,
     @Inject(MAT_DIALOG_DATA) public dd: DialogData,
-    private service: ContribuyenteService) {
+    private service: ContribuyenteService, private aviso: AvisoService) {
     if (this.dd != null) {
        this.conFinal.codigoContribuyente= dd.contribuyente.codigoContribuyente;
        this.conFinal.nombre=dd.contribuyente.nombre;
@@ -47,6 +48,7 @@ export class AddContribuyenteComponent implements OnInit {
         .subscribe(
             (data: Contribuyente) => {
                 console.log('created: ',data);
+                this.aviso.exito('Contribuyente guardado');
                 this.onCancel();
             }, // (1)
             (error: any) => console.log(error), //(2)

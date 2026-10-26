@@ -1,3 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Espaciado (base 4). -->
+    <dimen name="space_xs">4dp</dimen>
+    <dimen name="space_sm">8dp</dimen>
+    <dimen name="space_md">12dp</dimen>
+    <dimen name="space_lg">16dp</dimen>
+    <dimen name="space_xl">24dp</dimen>
+    <dimen name="screen_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+
+    <!-- Áreas táctiles. -->
+    <dimen name="touch_min">48dp</dimen>
+    <dimen name="touch_preferred">56dp</dimen>
+    <dimen name="button_primary_height">64dp</dimen>
+    <dimen name="list_row_min_height">56dp</dimen>
+
+    <!-- Radios. -->
+    <dimen name="radius_field">4dp</dimen>
+    <dimen name="radius_button">8dp</dimen>
+    <dimen name="radius_card">12dp</dimen>
+
+    <!-- Tipografía para uso en campo. -->
+    <dimen name="text_body">18sp</dimen>
+    <dimen name="text_label">14sp</dimen>
+    <dimen name="text_secondary">16sp</dimen>
+    <dimen name="text_title">20sp</dimen>
+    <dimen name="text_headline">24sp</dimen>
+    <dimen name="text_amount">34sp</dimen>
+    <dimen name="text_debt">22sp</dimen>
+    <dimen name="text_button">18sp</dimen>
+
+    <dimen name="login_symbol_size">72dp</dimen>
+    <dimen name="icon_size">24dp</dimen>
 </resources>

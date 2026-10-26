@@ -1,192 +1,274 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    Pantalla de cobro. Los id se conservan: MainActivity los busca con casts concretos
+    (EditText, Spinner, RadioGroup, RadioButton, CheckBox, TextView, Button, ImageButton).
+    Las vistas que MainActivity oculta/muestra (tvAdeudo, cbAdeudoAnterior, cbCondonar,
+    btnReimprimir, btnGenerarQR) son hijas directas, sin contenedor propio que quede vacío.
+-->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:fillViewport="true"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
-    tools:showIn="@layout/activity_main"
-    android:paddingTop="16dp"
-    android:paddingLeft="16dp">
+    tools:showIn="@layout/activity_main">
 
-    <TextView
-        android:id="@+id/tvContribuyente"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/name_contribuyente"
-        android:layout_marginTop="20px"/>
-    <EditText
-        android:id="@+id/etContribuyente"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/tvContribuyente"
-        android:layout_marginLeft="5px"
-        android:ems="12"/>
-
-    <ImageButton
-        android:id="@+id/btnScan"
-        android:layout_width="160px"
-        android:layout_height="160px"
-        android:layout_marginLeft="7dp"
-        android:layout_marginTop="-50px"
-        android:layout_toRightOf="@+id/etContribuyente"
-        android:src="@drawable/im_qr"
-        android:tooltipText="@string/ms_scan_contribuyente"
-        android:background="@null"/>
-
-    <TextView
-        android:id="@+id/tvFecha"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5px"
-        android:layout_marginTop="20px"
-        android:text="Fecha"
-        android:layout_below="@id/etContribuyente"/>
-    <EditText
-        android:id="@+id/etDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="8"
-        android:layout_toRightOf="@+id/tvFecha"
-        android:layout_centerHorizontal="true"
-        android:inputType="date"
-        android:layout_marginLeft="100px"
-        android:layout_below="@id/etContribuyente"/>
-    <TextView
-        android:id="@+id/tvPlaza"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5px"
-        android:layout_marginTop="20px"
-        android:text="Plaza"
-        android:layout_below="@id/etDate"/>
-    <Spinner
-        android:id="@+id/cbPlaza"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/etDate"
-        android:layout_toRightOf="@id/tvPlaza"
-        android:layout_marginLeft="120px">
-
-    </Spinner>
-    <TextView
-        android:id="@+id/tvImporte"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5px"
-        android:layout_marginTop="40px"
-        android:text="Importe"
-        android:layout_below="@id/cbPlaza"/>
-    <EditText
-        android:id="@+id/etImporte"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="6"
-        android:layout_toRightOf="@+id/tvFecha"
-        android:gravity="right"
-        android:inputType="numberDecimal"
-        android:layout_marginLeft="100px"
-        android:layout_below="@id/cbPlaza"/>
-
-    <TextView
-        android:id="@+id/tvAdeudo"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/etImporte"
-        android:layout_marginLeft="10px"
-        android:layout_marginTop="10px"
-        android:textColor="#B71C1C"
-        android:visibility="gone" />
+        android:orientation="vertical"
+        android:paddingStart="@dimen/screen_margin"
+        android:paddingTop="@dimen/space_lg"
+        android:paddingEnd="@dimen/screen_margin"
+        android:paddingBottom="@dimen/space_xl">
 
-    <CheckBox
-        android:id="@+id/cbAdeudoAnterior"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tvAdeudo"
-        android:layout_marginLeft="10px"
-        android:text="Pago de adeudo anterior"
-        android:visibility="gone" />
+        <!-- 1 y 2. Contribuyente, fecha y plaza -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <CheckBox
-        android:id="@+id/cbCondonar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/cbAdeudoAnterior"
-        android:layout_marginLeft="10px"
-        android:text="Condonar"
-        android:visibility="gone" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-    <RadioGroup
-        android:id="@+id/rgEstado"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/cbCondonar"
-        android:layout_centerHorizontal="true">
-        <RadioButton
-            android:id="@+id/rbPagado"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilContribuyente"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/name_contribuyente"
+                        app:helperText="@string/contribuyente_ayuda">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            style="@style/Widget.Cobranza.TextInputEditText"
+                            android:id="@+id/etContribuyente"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textMultiLine|textNoSuggestions"
+                            android:maxLines="3" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <ImageButton
+                        android:id="@+id/btnScan"
+                        android:layout_width="@dimen/touch_preferred"
+                        android:layout_height="@dimen/touch_preferred"
+                        android:layout_marginStart="@dimen/space_sm"
+                        android:layout_marginTop="@dimen/space_sm"
+                        android:background="@drawable/bg_icon_button"
+                        android:contentDescription="@string/ms_scan_contribuyente"
+                        android:scaleType="center"
+                        android:src="@drawable/ic_qr_scan"
+                        android:tooltipText="@string/ms_scan_contribuyente"
+                        app:tint="@color/primary" />
+                </LinearLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_md"
+                    android:hint="@string/fecha"
+                    app:startIconDrawable="@drawable/ic_calendar"
+                    app:startIconTint="@color/primary_medium">
+
+                    <!-- No enfocable: al tocarla abre el calendario sin mostrar el teclado. -->
+                    <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.Cobranza.TextInputEditText"
+                        android:id="@+id/etDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:cursorVisible="false"
+                        android:focusable="false"
+                        android:inputType="date" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/tvPlaza"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_md"
+                    android:layout_marginBottom="@dimen/space_xs"
+                    android:text="@string/plaza"
+                    android:textAppearance="@style/TextAppearance.Cobranza.Label" />
+
+                <FrameLayout
+                    style="@style/Widget.Cobranza.SpinnerBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <Spinner
+                        android:id="@+id/cbPlaza"
+                        style="@style/Widget.Cobranza.Spinner"
+                        android:layout_gravity="center_vertical"
+                        android:spinnerMode="dropdown" />
+                </FrameLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 3. Importe -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            app:cardBackgroundColor="@color/primary_container"
+            app:strokeColor="@color/primary_container">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvImporte"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/space_md"
+                    android:text="@string/importe"
+                    android:textAppearance="@style/TextAppearance.Cobranza.Title"
+                    android:textColor="@color/primary" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:boxBackgroundColor="@color/surface"
+                    app:prefixText="@string/moneda"
+                    app:prefixTextAppearance="@style/TextAppearance.Cobranza.Amount">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        style="@style/Widget.Cobranza.TextInputEditText"
+                        android:id="@+id/etImporte"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="end|center_vertical"
+                        android:inputType="numberDecimal"
+                        android:maxLines="1"
+                        android:textAppearance="@style/TextAppearance.Cobranza.Amount"
+                        android:textSize="@dimen/text_amount"
+                        android:textStyle="bold" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 4. Adeudo: el propio TextView es la tarjeta (MainActivity lo oculta si no hay saldo). -->
+        <TextView
+            android:id="@+id/tvAdeudo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            android:background="@drawable/bg_adeudo"
+            android:clickable="true"
+            android:drawablePadding="@dimen/space_md"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:minHeight="@dimen/touch_preferred"
+            android:padding="@dimen/space_lg"
+            android:textColor="@color/status_adeudo_fg"
+            android:textSize="@dimen/text_secondary"
+            android:visibility="gone"
+            app:drawableStartCompat="@drawable/ic_warning"
+            tools:text="Adeudo $ 350.00\n3 fechas vencidas · Toca para cobrar"
+            tools:visibility="visible" />
+
+        <CheckBox
+            android:id="@+id/cbAdeudoAnterior"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_sm"
+            android:text="@string/pago_adeudo_anterior"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <CheckBox
+            android:id="@+id/cbCondonar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/condonar"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <!-- 5. Estado: RadioGroup horizontal con aspecto de segmentos. -->
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pagar"
-            android:enabled="true">
+            android:layout_marginTop="@dimen/space_lg"
+            android:layout_marginBottom="@dimen/space_sm"
+            android:text="@string/estado"
+            android:textAppearance="@style/TextAppearance.Cobranza.Label" />
 
-        </RadioButton>
-        <RadioButton
-            android:id="@+id/rbPendiente"
-            android:layout_width="wrap_content"
+        <RadioGroup
+            android:id="@+id/rgEstado"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pendiente"/>
-        <RadioButton
-            android:id="@+id/rbAusente"
-            android:layout_width="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbPagado"
+                style="@style/Widget.Cobranza.Segment"
+                android:background="@drawable/bg_segment_pagado"
+                android:text="@string/estado_pagar"
+                android:textColor="@color/segment_text_pagado" />
+
+            <RadioButton
+                android:id="@+id/rbPendiente"
+                style="@style/Widget.Cobranza.Segment"
+                android:layout_marginStart="@dimen/space_sm"
+                android:layout_marginEnd="@dimen/space_sm"
+                android:background="@drawable/bg_segment_pendiente"
+                android:text="@string/estado_pendiente"
+                android:textColor="@color/segment_text_pendiente" />
+
+            <RadioButton
+                android:id="@+id/rbAusente"
+                style="@style/Widget.Cobranza.Segment"
+                android:background="@drawable/bg_segment_ausente"
+                android:text="@string/estado_ausente"
+                android:textColor="@color/segment_text_ausente" />
+        </RadioGroup>
+
+        <!-- 6. Acciones -->
+        <Button
+            android:id="@+id/btnConfirmar"
+            style="@style/Widget.Cobranza.Button.Primary"
+            android:layout_marginTop="@dimen/space_xl"
+            android:text="@string/confirmar_cobro" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ausente"/>
-    </RadioGroup>
+            android:layout_marginTop="@dimen/space_md"
+            android:orientation="horizontal">
 
-<Button
-    android:id="@+id/btnConfirmar"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_below="@+id/rgEstado"
-    android:layout_centerHorizontal="true"
-    android:layout_marginTop="100px"
-    android:text="Confirmar"/>
+            <Button
+                android:id="@+id/btnReimprimir"
+                style="@style/Widget.Cobranza.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/space_sm"
+                android:layout_weight="1"
+                android:text="@string/reimprimir"
+                app:icon="@drawable/ic_print" />
 
-    <Button
-        android:id="@+id/btnReimprimir"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/btnConfirmar"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20px"
-        android:text="Reimprimir"/>
+            <Button
+                android:id="@+id/btnGenerarQR"
+                style="@style/Widget.Cobranza.Button.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/generar_qr"
+                app:icon="@drawable/ic_qr_scan" />
+        </LinearLayout>
 
-    <Button
-        android:id="@+id/btnGenerarQR"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/btnReimprimir"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20px"
-        android:text="Generar QR"/>
-
-    <ProgressBar
-        android:id="@+id/pbActualizarCatalogos"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:visibility="gone"
-        android:layout_above="@id/etContribuyente"/>
-
-    <ProgressBar
-        android:id="@+id/pbBusqueda"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:visibility="gone"
-        android:layout_above="@id/cbPlaza"/>
-
-
-</RelativeLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

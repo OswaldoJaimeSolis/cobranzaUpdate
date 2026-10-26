@@ -49,27 +49,33 @@
         <activity
             android:name=".DatosEquipoActivity"
             android:exported="false"
+            android:windowSoftInputMode="adjustResize"
             android:label="@string/title_activity_datos_equipo"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".LogueoActivity"
             android:exported="false"
+            android:windowSoftInputMode="adjustResize"
             android:label="@string/title_activity_logueo"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ScanActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:label="@string/title_activity_scan" />
         <activity
             android:name=".contribuyente.ContribuyenteActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:label="@string/title_activity_contribuyente"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ActualizarContribucionesRemotasActivity"
             android:exported="false"
-            android:label="ContribucionesRemotas"
+            android:label="@string/title_activity_contribuciones_remotas"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".busqueda.BusquedaContribuyente"
             android:exported="false"
+            android:label="@string/title_activity_busqueda_contribuyente"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -88,7 +94,8 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -1,132 +1,108 @@
-<h3 class="centerText"> Reporte contribuciones</h3>
-<div>
+<div class="page">
+  <app-page-header titulo="Reporte de contribuciones"
+    subtitulo="Cobros registrados en un período, por estado de pago, tipo de plaza, contribuyente o recaudador">
+  </app-page-header>
 
-  <div class="centerText">
-    <mat-form-field>
-      <input matInput [matDatepicker]="picker1" placeholder="Fecha inicial" [(ngModel)]="fechaInicial">
-      <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
-      <mat-datepicker #picker1></mat-datepicker>
-    </mat-form-field>
-
-    <mat-form-field style="margin-left: 100px">
-      <input matInput [matDatepicker]="picker2" placeholder="Fecha final" [(ngModel)]="fechaFinal">
-      <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
-      <mat-datepicker #picker2></mat-datepicker>
-    </mat-form-field>
-    <mat-divider>
-    </mat-divider>
-  </div>
-
-
-
-  <div class="container">
-    <div fxflex="50%" class="centertText">
-      <h4 class="centerText">Estado pago</h4>
-      <div class="centerText">
-        <mat-form-field>
-          <mat-label>Estado</mat-label>
-          <mat-select [(value)]="estadoSelect">
-            @for (estado of estadosPago; track estado) {
-              <mat-option [value]="estado.value">
-                {{estado.viewValue}}
-              </mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </div>
-    <div fxflex="50%" class="centertText">
-      <h4 class="centerText">Tipos de plaza</h4>
-      <div class="centerText">
-        <mat-checkbox name="todosTP" [(ngModel)]="todosTP" (change)="actualizarTodos(todosTP,true)">
-          Todos
-        </mat-checkbox>
-        <mat-form-field style="position: relative;text-align: right; margin-left: 50px">
-
-          <button mat-mini-fab color="primary" color="primary" (click)="buscarTipoPlaza()" disabled={{todosTP}}>
-            <mat-icon>search</mat-icon>
-          </button>
-          <input name="codigoTipoPlaza" matInput placeholder="Tipo plaza: "
-            style="position: relative;text-align: left; margin-left: 50px" [(ngModel)]="tipoPlaza.codigoTipoPlaza"
-            #data="ngModel" readonly=true disabled={{todosTP}} required>
-        </mat-form-field>
-      </div>
-    </div>
-    <div style="margin-left: 100px" fxflex="50%" class="centertText">
-      <h4 class="centerText">Contribuyentes</h4>
-      <div class="centerText">
-        <mat-checkbox name="todosContribuyente" [(ngModel)]="todosContribuyente"
-          (change)="actualizarTodos(todosContribuyente,false)">
-          Todos
-        </mat-checkbox>
-        <mat-form-field style="position: relative;text-align: right; margin-left: 50px">
-          <button mat-mini-fab color="primary" (click)="buscarContribuyente()" disabled={{todosContribuyente}}>
-            <mat-icon>search</mat-icon>
-          </button>
-          <input name="contribuyente" matInput placeholder="Contribuyent: "
-            [(ngModel)]="contribuyente.codigoContribuyente"
-            style="position: relative;text-align: left; margin-left: 50px" #data="ngModel" readonly=true
-            disabled={{todosContribuyente}} required>
-
-        </mat-form-field>
-      </div>
-    </div>
-
-  </div>
-  <div class="centerText">
-    <h4 class="centerText">Recaudadores</h4>
-    <div class="centerText">
-      <mat-checkbox name="todosRecaudador" [(ngModel)]="todosRecaudador"
-        (change)="actualizarTodosR(todosRecaudador)">
-        Todos
-      </mat-checkbox>
-      <mat-form-field style="position: relative;text-align: right; margin-left: 50px">
-        <button mat-mini-fab color="primary" (click)="buscarRecaudador()" disabled={{todosRecaudador}}>
-          <mat-icon>search</mat-icon>
-        </button>
-        <input name="recaudador" matInput placeholder="Recaudador: "
-          [(ngModel)]="recaudador.codigoRecaudador"
-          style="position: relative;text-align: left; margin-left: 50px" #data="ngModel" readonly=true
-          disabled={{todosRecaudador}} required>
-
+  <section class="panel" aria-labelledby="titulo-periodo">
+    <h2 class="panel__titulo" id="titulo-periodo">Período</h2>
+    <div class="filtros">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Fecha inicial</mat-label>
+        <input matInput [matDatepicker]="picker1" [(ngModel)]="fechaInicial">
+        <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+        <mat-datepicker #picker1></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Fecha final</mat-label>
+        <input matInput [matDatepicker]="picker2" [(ngModel)]="fechaFinal">
+        <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+        <mat-datepicker #picker2></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Estado de pago</mat-label>
+        <mat-select [(value)]="estadoSelect">
+          @for (estado of estadosPago; track estado) {
+            <mat-option [value]="estado.value">
+              @if (iconoEstado[estado.value]) {
+                <mat-icon [class]="'icono-estado icono-estado--' + estado.value">{{iconoEstado[estado.value]}}</mat-icon>
+              }
+              {{estado.viewValue}}
+            </mat-option>
+          }
+        </mat-select>
       </mat-form-field>
     </div>
-  </div>
+  </section>
 
-
-
-
-
-
-
-  <mat-divider>
-  </mat-divider>
-
-  <div class="centerText" layout="row" layout-align="space-between center" flex>
-    <div fxflex="50%" class="centertText">
-
-      <div class="centerText">
-        <mat-form-field>
-          <mat-label>Formato reporte</mat-label>
-          <mat-select [(value)]="formatoSelect">
-            @for (formato of formatos; track formato) {
-              <mat-option [value]="formato.value">
-                {{formato.viewValue}}
-              </mat-option>
-            }
-          </mat-select>
+  <section class="panel" aria-labelledby="titulo-filtros">
+    <h2 class="panel__titulo" id="titulo-filtros">Filtros</h2>
+    <div class="grupos-filtro">
+      <div class="grupo-filtro">
+        <mat-checkbox name="todosTP" [(ngModel)]="todosTP" (change)="actualizarTodos(todosTP,true)">
+          Todos los tipos de plaza
+        </mat-checkbox>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Tipo de plaza</mat-label>
+          <input name="codigoTipoPlaza" matInput [(ngModel)]="tipoPlaza.codigoTipoPlaza" readonly
+            [disabled]="todosTP" required (click)="buscarTipoPlaza()">
+          <button mat-icon-button matSuffix type="button" (click)="buscarTipoPlaza()" [disabled]="todosTP"
+            aria-label="Buscar tipo de plaza" matTooltip="Buscar tipo de plaza">
+            <mat-icon>search</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+      <div class="grupo-filtro">
+        <mat-checkbox name="todosContribuyente" [(ngModel)]="todosContribuyente"
+          (change)="actualizarTodos(todosContribuyente,false)">
+          Todos los contribuyentes
+        </mat-checkbox>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Contribuyente</mat-label>
+          <input name="contribuyente" matInput [(ngModel)]="contribuyente.codigoContribuyente" readonly
+            [disabled]="todosContribuyente" required (click)="buscarContribuyente()">
+          <button mat-icon-button matSuffix type="button" (click)="buscarContribuyente()" [disabled]="todosContribuyente"
+            aria-label="Buscar contribuyente" matTooltip="Buscar contribuyente">
+            <mat-icon>search</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+      <div class="grupo-filtro">
+        <mat-checkbox name="todosRecaudador" [(ngModel)]="todosRecaudador" (change)="actualizarTodosR(todosRecaudador)">
+          Todos los recaudadores
+        </mat-checkbox>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Recaudador</mat-label>
+          <input name="recaudador" matInput [(ngModel)]="recaudador.codigoRecaudador" readonly
+            [disabled]="todosRecaudador" required (click)="buscarRecaudador()">
+          <button mat-icon-button matSuffix type="button" (click)="buscarRecaudador()" [disabled]="todosRecaudador"
+            aria-label="Buscar recaudador" matTooltip="Buscar recaudador">
+            <mat-icon>search</mat-icon>
+          </button>
         </mat-form-field>
       </div>
     </div>
-    <button mat-stroked-button disabled={{isLoading}} (click)="recuperaReporte(formatoSelect, true)">Reporte
-    contribuciones</button>
-    <button mat-stroked-button disabled={{isLoading}} (click)="recuperaReporte(formatoSelect,false)">Reporte movimientos
-    </button>
-    <span flex></span>
-    <span flex></span>
-  </div>
-  <div class="container">
+  </section>
+
+  <section class="panel" aria-labelledby="titulo-generar">
+    <h2 class="panel__titulo" id="titulo-generar">Generar</h2>
+    <div class="filtros">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Formato</mat-label>
+        <mat-select [(value)]="formatoSelect">
+          @for (formato of formatos; track formato) {
+            <mat-option [value]="formato.value">{{formato.viewValue}}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <button mat-flat-button [disabled]="isLoading" (click)="recuperaReporte(formatoSelect, true)">
+        <mat-icon>download</mat-icon> Reporte de contribuciones
+      </button>
+      <button mat-stroked-button [disabled]="isLoading" (click)="recuperaReporte(formatoSelect,false)">
+        <mat-icon>download</mat-icon> Reporte de movimientos
+      </button>
+    </div>
     @if (isLoading) {
-      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+      <mat-progress-bar mode="indeterminate" aria-label="Generando reporte"></mat-progress-bar>
     }
-  </div>
+  </section>
+</div>

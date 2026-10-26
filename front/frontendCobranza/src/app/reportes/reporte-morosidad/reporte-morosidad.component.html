@@ -1,105 +1,105 @@
-<h3 class="centerText">Reporte de morosidad y requerimientos de pago</h3>
-<div class="container">
-  <div class="centerText">
-    <h4 class="centerText">Tipos de plaza</h4>
-    <div class="centerText">
-      <mat-checkbox name="todosTP" [(ngModel)]="todosTP">
-        Todos
-      </mat-checkbox>
-      <mat-form-field style="position: relative;text-align: right; margin-left: 50px">
-        <button mat-mini-fab color="primary" (click)="buscarTipoPlaza()" disabled={{todosTP}}>
+<div class="page">
+  <app-page-header titulo="Morosidad y requerimientos de pago"
+    subtitulo="Plazas con adeudo a una fecha de corte y emisión de requerimientos">
+    <button mat-flat-button [disabled]="isLoading" (click)="consultar()">
+      <mat-icon>search</mat-icon> Consultar
+    </button>
+    <button mat-stroked-button [disabled]="isLoading" (click)="requerimientosMasivo()">
+      <mat-icon>picture_as_pdf</mat-icon> Requerimientos (todas)
+    </button>
+  </app-page-header>
+
+  <section class="panel" aria-labelledby="titulo-filtros">
+    <h2 class="panel__titulo" id="titulo-filtros">Filtros</h2>
+    <div class="filtros">
+      <mat-checkbox name="todosTP" [(ngModel)]="todosTP">Todos los tipos de plaza</mat-checkbox>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Tipo de plaza</mat-label>
+        <input name="codigoTipoPlaza" matInput [(ngModel)]="tipoPlaza.codigoTipoPlaza" readonly
+          [disabled]="todosTP" required (click)="buscarTipoPlaza()">
+        <button mat-icon-button matSuffix type="button" (click)="buscarTipoPlaza()" [disabled]="todosTP"
+          aria-label="Buscar tipo de plaza" matTooltip="Buscar tipo de plaza">
           <mat-icon>search</mat-icon>
         </button>
-        <input name="codigoTipoPlaza" matInput placeholder="Tipo plaza: "
-          style="position: relative;text-align: left; margin-left: 50px" [(ngModel)]="tipoPlaza.codigoTipoPlaza"
-          readonly=true disabled={{todosTP}} required>
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Adeudo al</mat-label>
+        <input matInput [matDatepicker]="pickerCorte" name="fechaCorte" [(ngModel)]="fechaCorte" required>
+        <mat-datepicker-toggle matSuffix [for]="pickerCorte"></mat-datepicker-toggle>
+        <mat-datepicker #pickerCorte></mat-datepicker>
       </mat-form-field>
     </div>
-  </div>
-  <div class="centerText">
-    <h4 class="centerText">Fecha de corte</h4>
-    <mat-form-field>
-      <mat-label>Adeudo al</mat-label>
-      <input matInput [matDatepicker]="pickerCorte" name="fechaCorte" [(ngModel)]="fechaCorte" required>
-      <mat-datepicker-toggle matSuffix [for]="pickerCorte"></mat-datepicker-toggle>
-      <mat-datepicker #pickerCorte></mat-datepicker>
-    </mat-form-field>
-  </div>
-  <div class="centerText">
-    <h4 class="centerText">Requerimientos de pago</h4>
-    <mat-form-field class="observaciones">
-      <mat-label>Observaciones</mat-label>
+    <mat-form-field appearance="outline" class="observaciones">
+      <mat-label>Observaciones del requerimiento</mat-label>
       <textarea matInput rows="2" name="observaciones" [(ngModel)]="observaciones"></textarea>
-      <mat-hint>Se imprimen en cada requerimiento</mat-hint>
+      <mat-hint>Se imprimen en cada requerimiento de pago</mat-hint>
     </mat-form-field>
-  </div>
-</div>
+  </section>
 
-<mat-divider></mat-divider>
-
-<div class="centerText botones">
-  <button mat-raised-button color="primary" disabled={{isLoading}} (click)="consultar()">Consultar</button>
-  <button mat-stroked-button disabled={{isLoading}} (click)="requerimientosMasivo()">
-    Requerimientos 
-  </button>
-</div>
-
-<div class="container">
   @if (isLoading) {
-    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+    <mat-progress-bar class="barra-carga" mode="indeterminate" aria-label="Procesando"></mat-progress-bar>
+  }
+
+  @if (consultado && plazas.length == 0) {
+    <div class="tabla-contenedor">
+      <app-empty-state icono="check_circle"
+        [texto]="'No hay plazas con adeudo al ' + (corteConsultado | date:'dd/MM/yyyy')"></app-empty-state>
+    </div>
+  }
+  @if (plazas.length > 0) {
+    <p class="tabla-resumen">
+      {{plazas.length}} plazas con adeudo al {{corteConsultado | date:'dd/MM/yyyy'}} · Total {{total | currency}}
+    </p>
+    <div class="tabla-contenedor">
+      <div class="tabla-scroll">
+        <table mat-table [dataSource]="plazas">
+          <ng-container matColumnDef="plaza">
+            <th mat-header-cell *matHeaderCellDef>Plaza</th>
+            <td mat-cell *matCellDef="let p">{{p.codigoPlaza}}</td>
+          </ng-container>
+          <ng-container matColumnDef="tipoPlaza">
+            <th mat-header-cell *matHeaderCellDef>Tipo de plaza</th>
+            <td mat-cell *matCellDef="let p">{{p.tipoPlaza}}</td>
+          </ng-container>
+          <ng-container matColumnDef="propietario">
+            <th mat-header-cell *matHeaderCellDef>Propietario</th>
+            <td mat-cell *matCellDef="let p">{{p.codigoContribuyente}} {{p.nombreContribuyente}}</td>
+          </ng-container>
+          <ng-container matColumnDef="licencia">
+            <th mat-header-cell *matHeaderCellDef>Lic. comercio</th>
+            <td mat-cell *matCellDef="let p" class="celda-secundaria">{{p.licenciaComercio}}</td>
+          </ng-container>
+          <ng-container matColumnDef="tipoCobro">
+            <th mat-header-cell *matHeaderCellDef>Tipo de cobro</th>
+            <td mat-cell *matCellDef="let p" class="celda-secundaria">{{p.tipoCobro}}</td>
+          </ng-container>
+          <ng-container matColumnDef="vencidas">
+            <th mat-header-cell *matHeaderCellDef class="derecha">Vencidas</th>
+            <td mat-cell *matCellDef="let p" class="derecha">{{p.vencidas}}</td>
+          </ng-container>
+          <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef class="derecha">Adeudo</th>
+            <td mat-cell *matCellDef="let p" class="derecha">
+              <span class="estado estado--adeudo"><mat-icon aria-hidden="true">warning</mat-icon>{{p.total | currency}}</span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef class="derecha">Requerimiento</th>
+            <td mat-cell *matCellDef="let p">
+              <button mat-icon-button [disabled]="isLoading" (click)="requerimientoPlaza(p, true)"
+                matTooltip="Descargar PDF" [attr.aria-label]="'Descargar requerimiento de la plaza ' + p.codigoPlaza">
+                <mat-icon>download</mat-icon>
+              </button>
+              <button mat-icon-button [disabled]="isLoading" (click)="requerimientoPlaza(p, false)"
+                matTooltip="Abrir para imprimir" [attr.aria-label]="'Imprimir requerimiento de la plaza ' + p.codigoPlaza">
+                <mat-icon>print</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+        </table>
+      </div>
+    </div>
   }
 </div>
-
-@if (consultado && plazas.length == 0) {
-  <h4 class="centerText">No hay plazas con adeudo al {{corteConsultado | date:'dd/MM/yyyy'}}</h4>
-}
-@if (plazas.length > 0) {
-  <h4 class="centerText">{{plazas.length}} plazas con adeudo al {{corteConsultado | date:'dd/MM/yyyy'}} · Total {{total | currency}}</h4>
-  <div class="tabla">
-    <table mat-table [dataSource]="plazas">
-      <ng-container matColumnDef="plaza">
-        <th mat-header-cell *matHeaderCellDef>Plaza</th>
-        <td mat-cell *matCellDef="let p">{{p.codigoPlaza}}</td>
-      </ng-container>
-      <ng-container matColumnDef="tipoPlaza">
-        <th mat-header-cell *matHeaderCellDef>Tipo de plaza</th>
-        <td mat-cell *matCellDef="let p">{{p.tipoPlaza}}</td>
-      </ng-container>
-      <ng-container matColumnDef="propietario">
-        <th mat-header-cell *matHeaderCellDef>Propietario</th>
-        <td mat-cell *matCellDef="let p">{{p.codigoContribuyente}} {{p.nombreContribuyente}}</td>
-      </ng-container>
-      <ng-container matColumnDef="licencia">
-        <th mat-header-cell *matHeaderCellDef>Lic. comercio</th>
-        <td mat-cell *matCellDef="let p">{{p.licenciaComercio}}</td>
-      </ng-container>
-      <ng-container matColumnDef="tipoCobro">
-        <th mat-header-cell *matHeaderCellDef>Tipo de cobro</th>
-        <td mat-cell *matCellDef="let p">{{p.tipoCobro}}</td>
-      </ng-container>
-      <ng-container matColumnDef="vencidas">
-        <th mat-header-cell *matHeaderCellDef class="derecha">Vencidas</th>
-        <td mat-cell *matCellDef="let p" class="derecha">{{p.vencidas}}</td>
-      </ng-container>
-      <ng-container matColumnDef="total">
-        <th mat-header-cell *matHeaderCellDef class="derecha">Adeudo</th>
-        <td mat-cell *matCellDef="let p" class="derecha">{{p.total | currency}}</td>
-      </ng-container>
-      <ng-container matColumnDef="acciones">
-        <th mat-header-cell *matHeaderCellDef>Requerimiento</th>
-        <td mat-cell *matCellDef="let p">
-          <button mat-icon-button color="primary" title="Descargar PDF" disabled={{isLoading}}
-            (click)="requerimientoPlaza(p, true)">
-            <mat-icon>download</mat-icon>
-          </button>
-          <button mat-icon-button color="primary" title="Abrir para imprimir" disabled={{isLoading}}
-            (click)="requerimientoPlaza(p, false)">
-            <mat-icon>print</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-      <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
-    </table>
-  </div>
-}

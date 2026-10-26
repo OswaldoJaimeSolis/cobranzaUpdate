@@ -1,48 +1,78 @@
-<mat-list>
-  <div class="add-btn">
-    <button mat-fab color="primary" (click)="openDialog()">
-      <mat-icon>add</mat-icon>
+<div class="page">
+  <app-page-header titulo="Recaudadores" subtitulo="Personal que cobra en campo con la app móvil">
+    <button mat-flat-button (click)="openDialog()">
+      <mat-icon>add</mat-icon> Nuevo recaudador
     </button>
+  </app-page-header>
+
+  <div class="filtros">
+    <mat-form-field appearance="outline" class="campo-busqueda" subscriptSizing="dynamic">
+      <mat-label>Buscar</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [(ngModel)]="stringBusqueda" (ngModelChange)="filtrar()" placeholder="Código o nombre">
+      @if (stringBusqueda) {
+        <button mat-icon-button matSuffix (click)="stringBusqueda = ''; filtrar()" aria-label="Limpiar búsqueda"
+          matTooltip="Limpiar búsqueda">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
   </div>
 
-  @if (displayOrNot) {
-    <h2 mat-subheader>No hay recaudadores</h2>
-  } @else {
-    <div class="centerTitle">
-      <h2>Recaudadores</h2>
-    </div>
-    <div>
-      <mat-form-field>
-        <input matInput #myInput placeholder="Búsqueda..." [(ngModel)]="stringBusqueda">
-      </mat-form-field>
-    </div>
-    @for (o of recaudadores| filterRecaudadores: stringBusqueda; track o) {
-      <mat-list-item>
-        <mat-icon matListItemIcon>watch_later</mat-icon>
-        <span matListItemTitle>{{o.codigoRecaudador}}</span>
-        <span matListItemLine>{{o.nombreRecaudador}}</span>
-        <div matListItemMeta>
-          <button mat-mini-fab color="primary" (click)="openDialogEdit(o)">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-mini-fab color="primary" (click)="deleteRecaudador(o.codigoRecaudador)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </div>
-      </mat-list-item>
-      <mat-divider></mat-divider>
+  <div class="tabla-contenedor">
+    @if (isLoading) {
+      <mat-progress-bar mode="indeterminate" aria-label="Cargando recaudadores"></mat-progress-bar>
     }
-  }
-
-  <div>
-    <!-- for the add button -->
-
+    @if (!displayOrNot) {
+      <div class="tabla-scroll">
+        <table mat-table [dataSource]="dataSource" matSort>
+          <ng-container matColumnDef="codigo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Código</th>
+            <td mat-cell *matCellDef="let o">{{o.codigoRecaudador}}</td>
+          </ng-container>
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+            <td mat-cell *matCellDef="let o">{{o.nombreRecaudador}}</td>
+          </ng-container>
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef>Estado</th>
+            <td mat-cell *matCellDef="let o">
+              @if (o.activoRecaudador) {
+                <span class="estado estado--activo"><mat-icon aria-hidden="true">check_circle</mat-icon>Activo</span>
+              } @else {
+                <span class="estado estado--inactivo"><mat-icon aria-hidden="true">person_off</mat-icon>Inactivo</span>
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="condona">
+            <th mat-header-cell class="ocultar-movil" *matHeaderCellDef>Condona adeudos</th>
+            <td mat-cell class="ocultar-movil celda-secundaria" *matCellDef="let o">{{o.puedeCondonar ? 'Sí' : 'No'}}</td>
+          </ng-container>
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef><span class="cdk-visually-hidden">Acciones</span></th>
+            <td mat-cell *matCellDef="let o">
+              <button mat-icon-button (click)="openDialogEdit(o)" matTooltip="Editar"
+                [attr.aria-label]="'Editar recaudador ' + o.codigoRecaudador">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button class="boton-eliminar" (click)="deleteRecaudador(o.codigoRecaudador)"
+                matTooltip="Eliminar" [attr.aria-label]="'Eliminar recaudador ' + o.codigoRecaudador">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+          <tr class="mat-mdc-row" *matNoDataRow>
+            <td class="mat-mdc-cell" [attr.colspan]="columnas.length">
+              <app-empty-state icono="search_off" texto="No hay recaudadores que coincidan con la búsqueda">
+              </app-empty-state>
+            </td>
+          </tr>
+        </table>
+      </div>
+    } @else if (!isLoading) {
+      <app-empty-state icono="badge" texto="No hay recaudadores"></app-empty-state>
+    }
   </div>
-
-</mat-list>
-
-<div class="container">
-  @if (isLoading) {
-    <mat-progress-spinner mode="indeterminate"  ></mat-progress-spinner>
-  }
 </div>

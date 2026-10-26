@@ -1,58 +1,82 @@
-<h2 mat-dialog-title>{{encabezado}} </h2>
-<form  #ppForm="ngForm">
+<h2 mat-dialog-title>{{nuevo ? 'Nuevo propietario de plaza' : 'Editar propietario de plaza'}}</h2>
+<form #ppForm="ngForm">
   <mat-dialog-content>
+    <div class="form-grid">
+      @if (!nuevo) {
+        <mat-form-field appearance="outline" class="completo">
+          <mat-label>Plaza</mat-label>
+          <input matInput name="codigoPlaza" [(ngModel)]="oFinal.plaza.codigoPlaza" disabled readonly>
+        </mat-form-field>
+      }
 
-    <div class="columns-container">
-
-      <mat-form-field>
-        <input matInput name="codigoPlaza" placeholder="Plaza: " [(ngModel)]="oFinal.plaza.codigoPlaza" #data="ngModel" disabled=true
-          readonly=true required>
-      </mat-form-field>
-      <mat-form-field style="position: relative;text-align: right">
-
-        <button mat-mini-fab color="primary" color="primary" (click)="buscarTipoPlaza()">
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo de plaza</mat-label>
+        <input name="codigoTipoPlaza" matInput [(ngModel)]="oFinal.tipoPlaza.codigoTipoPlaza" readonly required
+          (click)="buscarTipoPlaza()" (keydown.enter)="buscarTipoPlaza(); $event.preventDefault()">
+        <button mat-icon-button matSuffix type="button" (click)="buscarTipoPlaza()" aria-label="Buscar tipo de plaza"
+          matTooltip="Buscar tipo de plaza">
           <mat-icon>search</mat-icon>
         </button>
-        <input name="codigoTipoPlaza" matInput placeholder="Tipo plaza: " style="position: relative;text-align: left"
-          [(ngModel)]="oFinal.tipoPlaza.codigoTipoPlaza" #data="ngModel" readonly=true required>
-
+        @if (oFinal.tipoPlaza.descripcionTipoPlaza) {
+          <mat-hint>{{oFinal.tipoPlaza.descripcionTipoPlaza}}</mat-hint>
+        }
+        <mat-error>Seleccione el tipo de plaza</mat-error>
       </mat-form-field>
-      <mat-form-field style="position: relative;text-align: right">
-        <button mat-mini-fab color="primary" (click)="buscarContribuyente()">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Contribuyente</mat-label>
+        <input name="contribuyente" matInput [(ngModel)]="oFinal.contribuyente.codigoContribuyente" readonly required
+          (click)="buscarContribuyente()" (keydown.enter)="buscarContribuyente(); $event.preventDefault()">
+        <button mat-icon-button matSuffix type="button" (click)="buscarContribuyente()" aria-label="Buscar contribuyente"
+          matTooltip="Buscar contribuyente">
           <mat-icon>search</mat-icon>
         </button>
-        <input name="contribuyente" matInput placeholder="Contribuyente: " [(ngModel)]="oFinal.contribuyente.codigoContribuyente"
-          style="position: relative;text-align: left" #data="ngModel" readonly=true  required>
-
+        @if (oFinal.contribuyente.nombre) {
+          <mat-hint>{{oFinal.contribuyente.nombre}} {{oFinal.contribuyente.apePaterno}} {{oFinal.contribuyente.apeMaterno}}</mat-hint>
+        }
+        <mat-error>Seleccione el contribuyente</mat-error>
       </mat-form-field>
 
-      <mat-form-field>
-        <input name="fInicial" matInput [matDatepicker]="picker1" placeholder="Fecha inicial" [(ngModel)]="oFinal.vigenciaInicial"
-          readonly=true>
+      <mat-form-field appearance="outline">
+        <mat-label>Fecha inicial</mat-label>
+        <input name="fInicial" matInput [matDatepicker]="picker1" [(ngModel)]="oFinal.vigenciaInicial" readonly
+          (click)="picker1.open()">
         <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
         <mat-datepicker #picker1></mat-datepicker>
       </mat-form-field>
 
-      <mat-form-field>
-        <input name="fFinal" matInput placeholder="Giro: " [(ngModel)]="oFinal.giroDescripcion" #data="ngModel" required>
+      <mat-form-field appearance="outline">
+        <mat-label>Giro</mat-label>
+        <input name="fFinal" matInput [(ngModel)]="oFinal.giroDescripcion" required>
+        <mat-error>Capture el giro</mat-error>
       </mat-form-field>
-      <mat-form-field>
-        <input name="importe" type="number" matInput placeholder="Importe: " style="text-align: right" [(ngModel)]="oFinal.importe" #data="ngModel"
-          required={{!oFinal.tipoPlaza.porImporteGlobalTipoPlaza}}
-          disabled={{oFinal.tipoPlaza.porImporteGlobalTipoPlaza}}>
-      </mat-form-field>
-      <mat-form-field>
-        <input name="adeudoAnterior" type="number" min="0" matInput placeholder="Adeudo anterior: " style="text-align: right"
-          [(ngModel)]="oFinal.adeudoAnterior">
-      </mat-form-field>
-      <mat-checkbox name="licenciaComercio" [(ngModel)]="oFinal.licenciaComercio">Licencia de comercio</mat-checkbox>
 
+      <mat-form-field appearance="outline">
+        <mat-label>Importe</mat-label>
+        <input name="importe" type="number" matInput class="numero" [(ngModel)]="oFinal.importe"
+          [required]="!oFinal.tipoPlaza.porImporteGlobalTipoPlaza"
+          [disabled]="oFinal.tipoPlaza.porImporteGlobalTipoPlaza">
+        @if (oFinal.tipoPlaza.porImporteGlobalTipoPlaza) {
+          <mat-hint>Definido por la vigencia</mat-hint>
+        }
+        <mat-error>Capture el importe</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Adeudo anterior</mat-label>
+        <input name="adeudoAnterior" type="number" min="0" matInput class="numero" [(ngModel)]="oFinal.adeudoAnterior">
+      </mat-form-field>
+
+      <div class="completo">
+        <mat-checkbox name="licenciaComercio" [(ngModel)]="oFinal.licenciaComercio">Licencia de comercio</mat-checkbox>
+      </div>
     </div>
-
   </mat-dialog-content>
 
   <mat-dialog-actions>
-    <button mat-button (click)="onCancel()">Cancel</button>
-  <button mat-raised-button color="primary" (click)="guardarPropietarioPlaza(oFinal)"  [disabled]="!ppForm.form.valid" >Save</button>
+    <button mat-button type="button" (click)="onCancel()">Cancelar</button>
+    <button mat-flat-button type="button" (click)="guardarPropietarioPlaza(oFinal)" [disabled]="!ppForm.form.valid">
+      Guardar
+    </button>
   </mat-dialog-actions>
 </form>

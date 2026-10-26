@@ -39,11 +39,24 @@ export class BusquedaTiposPlazaComponent implements OnInit {
   }
 
   openAddTipoPlaza() {
-    let dAdd = this.dialog.open(AddTiposplazaComponent);
+    let dAdd = this.dialog.open(AddTiposplazaComponent, { width: '560px', maxWidth: '95vw' });
     dAdd.afterClosed().subscribe((result) => {
       this.getTiposPlaza(), console.error();
 
     }, (error: any) => console.log(error));
+  }
+
+  /** Texto del renglón para lectores de pantalla */
+  etiqueta(row: TipoPlaza): string {
+    return row.codigoTipoPlaza + ' ' + row.descripcionTipoPlaza;
+  }
+
+  /** Enter en la búsqueda elige el primer resultado */
+  seleccionarPrimero() {
+    const filas = this.dataSource.filteredData;
+    if (filas.length > 0) {
+      this.selectRow(filas[0]);
+    }
   }
 
   selectRow(row: TipoPlaza) {

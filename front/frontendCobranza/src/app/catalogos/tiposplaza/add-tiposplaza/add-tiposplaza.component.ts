@@ -4,6 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialog, MatDialogConfig } from '@angu
 import { TiposplazaService } from '../service/tiposplaza.service';
 import { ListTiposplazaVigenciaComponent } from '../list-tiposplaza-vigencia/list-tiposplaza-vigencia.component';
 import { ConfigCobroComponent } from '../config-cobro/config-cobro.component';
+import { AvisoService } from 'src/app/shared/aviso.service';
 export interface DialogData {
   tipoPlaza: TipoPlaza;
 }
@@ -21,7 +22,7 @@ export class AddTiposplazaComponent implements OnInit {
   noEditarId = false;
   constructor(private dialogRef: MatDialogRef<AddTiposplazaComponent>,
     @Inject(MAT_DIALOG_DATA) dd: DialogData, private dialogV: MatDialog,
-    private service: TiposplazaService) {
+    private service: TiposplazaService, private aviso: AvisoService) {
     if (dd != null) {
       this.oFinal = dd.tipoPlaza;
       
@@ -47,6 +48,7 @@ export class AddTiposplazaComponent implements OnInit {
       .subscribe(
         (data: TipoPlaza) => {
           console.log('created: ', data);
+          this.aviso.exito('Tipo de plaza guardado');
           // Al dar de alta se devuelve el tipo creado para que la lista abra su configuración de cobro
           this.dialogRef.close(this.noEditarId ? null : data);
         }, // (1)
@@ -57,7 +59,7 @@ export class AddTiposplazaComponent implements OnInit {
 
   mostrarConfigCobro(tipoPlaza: TipoPlaza) {
     this.dialogV.open(ConfigCobroComponent, {
-      width: '760px',
+      width: '900px',
       maxWidth: '95vw',
       data: {
         tipoPlaza: tipoPlaza
@@ -67,6 +69,8 @@ export class AddTiposplazaComponent implements OnInit {
 
   mostrarPeriodos(tipoPlaza: TipoPlaza) {
     const dialogConfig = new MatDialogConfig();
+    dialogConfig.width = '560px';
+    dialogConfig.maxWidth = '95vw';
     dialogConfig.data = {
       tipoPlaza: tipoPlaza,
       service: this.service

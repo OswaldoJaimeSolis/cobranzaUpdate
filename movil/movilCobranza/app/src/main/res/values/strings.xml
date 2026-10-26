@@ -1,9 +1,85 @@
 <resources>
     <string name="app_name">Cobranza</string>
     <string name="action_settings">Opciones</string>
+
+    <!-- Títulos de pantalla -->
+    <string name="title_activity_logueo">Iniciar sesión</string>
+    <string name="title_activity_datos_equipo">Datos del equipo</string>
+    <string name="title_activity_busqueda_contribuciones">Contribuciones</string>
+    <string name="title_activity_contribuciones_remotas">Recuperar contribuciones</string>
+    <string name="title_activity_contribuyente">Agregar contribuyente</string>
+    <string name="title_activity_busqueda_contribuyente">Buscar contribuyente</string>
+    <string name="title_activity_scan">Escanear QR</string>
+
+    <!-- Acciones comunes -->
+    <string name="aceptar">Aceptar</string>
+    <string name="guardar">Guardar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="si">Sí</string>
+    <string name="no">No</string>
+
+    <!-- Inicio de sesión -->
+    <string name="login_titulo">Cobranza de plazas</string>
+    <string name="login_subtitulo">Ingresa con tu usuario de recaudador</string>
+    <string name="usuario">Usuario</string>
+    <string name="contrasena">Contraseña</string>
+    <string name="entrar">Entrar</string>
+    <string name="actualizar_recaudadores">Actualizar recaudadores</string>
+    <string name="cd_simbolo">Cobranza de plazas</string>
+
+    <!-- Pantalla de cobro -->
     <string name="name_contribuyente">Contribuyente</string>
-    <string name="ms_scan_contribuyente">Lea el QR del contribuyente</string>
-    <string name="title_activity_logueo">LogueoActivity</string>
-    <string name="title_activity_datos_equipo">DatosEquipo</string>
-    <string name="title_activity_busqueda_contribuciones">BusquedaContribuciones</string>
+    <string name="ms_scan_contribuyente">Escanear el QR del contribuyente</string>
+    <string name="contribuyente_ayuda">Escanea el QR o búscalo en el menú</string>
+    <string name="fecha">Fecha</string>
+    <string name="plaza">Plaza</string>
+    <string name="importe">Importe</string>
+    <string name="moneda">$</string>
+    <string name="estado">Estado</string>
+    <string name="pago_adeudo_anterior">Pago de adeudo anterior</string>
+    <string name="condonar">Condonar</string>
+    <string name="estado_pagar">Pagar</string>
+    <string name="estado_pendiente">Pendiente</string>
+    <string name="estado_ausente">Ausente</string>
+    <string name="confirmar_cobro">Confirmar cobro</string>
+    <string name="reimprimir">Reimprimir</string>
+    <string name="generar_qr">Generar QR</string>
+    <string name="adeudo_titulo">Adeudo</string>
+    <plurals name="adeudo_fechas_vencidas">
+        <item quantity="one">%1$d fecha vencida</item>
+        <item quantity="other">%1$d fechas vencidas</item>
+    </plurals>
+    <string name="adeudo_toca">Toca para cobrar</string>
+
+    <!-- Recuperar contribuciones / búsqueda -->
+    <string name="fecha_inicial">Fecha inicial</string>
+    <string name="tipo_plaza">Tipo de plaza</string>
+    <string name="recuperar_contribuciones">Recuperar contribuciones</string>
+    <string name="buscar_contribuyente_hint">Nombre del contribuyente</string>
+
+    <!-- Contribuyente nuevo -->
+    <string name="nombre">Nombre</string>
+    <string name="ape_paterno">Apellido paterno</string>
+    <string name="ape_materno">Apellido materno</string>
+    <string name="fecha_nacimiento">Fecha de nacimiento</string>
+    <string name="sin_fecha_nacimiento">Fecha de nacimiento no disponible</string>
+    <string name="rfc">RFC</string>
+    <string name="giro">Giro</string>
+    <string name="crear_contribuyente">Crear contribuyente</string>
+
+    <!-- Datos del equipo -->
+    <string name="codigo_equipo">Código del equipo</string>
+    <string name="descripcion_equipo">Descripción</string>
+
+    <!-- Menú de la pantalla de cobro -->
+    <string name="menu_buscar_contribuyente">Buscar contribuyente</string>
+    <string name="menu_contribuciones">Contribuciones</string>
+    <string name="menu_actualizar_catalogos">Actualizar catálogos</string>
+    <string name="menu_recuperar_contribuciones">Recuperar contribuciones</string>
+    <string name="menu_agregar_contribuyente">Agregar contribuyente</string>
+    <string name="menu_datos_equipo">Datos del equipo</string>
+    <string name="menu_forzar_envio">Forzar envío</string>
+
+    <!-- Escáner -->
+    <string name="scan_ayuda">Apunta la cámara al código QR del contribuyente</string>
 </resources>

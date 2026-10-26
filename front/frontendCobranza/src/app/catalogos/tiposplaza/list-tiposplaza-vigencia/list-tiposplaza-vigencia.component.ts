@@ -23,6 +23,7 @@ export class ListTiposplazaVigenciaComponent implements OnInit {
   vigencias: TipoPlazaVigencia[];
   displayOrNot: boolean = true;
   isLoading: boolean = false;
+  readonly columnas = ['inicio', 'fin', 'importe', 'descuento', 'acciones'];
   constructor(private dialogRef: MatDialogRef<ListTiposplazaVigenciaComponent>,
     @Inject(MAT_DIALOG_DATA) public dd: DialogData, private dialogAdd: MatDialog) {
     this.service = dd.service;
@@ -44,7 +45,7 @@ export class ListTiposplazaVigenciaComponent implements OnInit {
         else
           this.displayOrNot = true;
       },
-        (error: any) => console.log(error), //(2) second argument
+        (error: any) => { console.log(error); this.isLoading = false; }, //(2) second argument
         () => { console.log('all data gets'); this.isLoading = false; } //(3) second argument
 
 
@@ -54,6 +55,8 @@ export class ListTiposplazaVigenciaComponent implements OnInit {
   openDialog(): void {
     console.log(this.tipoPlaza.codigoTipoPlaza);
     let dialogRef = this.dialogAdd.open(AddTiposplazaVigenciaComponent, {
+      width: '560px',
+      maxWidth: '95vw',
       data: {
 
         tipoPlaza: this.tipoPlaza
@@ -71,6 +74,8 @@ export class ListTiposplazaVigenciaComponent implements OnInit {
   openDialogEdit(o: TipoPlazaVigencia): void {
     //console.log(op.numeroPresidenciaEmpleado);
     let dialogRef = this.dialogAdd.open(AddTiposplazaVigenciaComponent, {
+      width: '560px',
+      maxWidth: '95vw',
       data: {
         tipoPlazaVigencia: o,
         tipoPlaza: this.tipoPlaza
@@ -87,8 +92,10 @@ export class ListTiposplazaVigenciaComponent implements OnInit {
     var respuesta: Boolean = false;
     const dConfig = new MatDialogConfig();
     dConfig.data = {
-      title: "Eliminando",
-      message: '¿Está seguro de eliminar el registro?',
+      title: "Eliminar período",
+      message: '¿Seguro que desea eliminar este período? Esta acción no se puede deshacer.',
+      textoAceptar: 'Eliminar',
+      destructivo: true,
       respuesta: respuesta
     }
     const dialogAnswer = this.dialogAdd.open(DialgAnswerSiNoComponent, dConfig);

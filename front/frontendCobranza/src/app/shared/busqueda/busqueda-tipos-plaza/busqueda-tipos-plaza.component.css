@@ -1,3 +1,9 @@
-table {
-    width: 100%;
-  }
+.barra-busqueda {
+  margin-bottom: var(--app-space-2);
+}
+
+.tabla-busqueda {
+  max-height: 55vh;
+  overflow: auto;
+  margin-top: var(--app-space-3);
+}

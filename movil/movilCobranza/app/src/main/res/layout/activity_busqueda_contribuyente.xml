@@ -1,25 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical"
     tools:context=".busqueda.BusquedaContribuyente">
+
+    <include layout="@layout/toolbar" />
 
     <SearchView
         android:id="@+id/searchView1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/screen_margin"
+        android:background="@drawable/bg_field_outlined"
+        android:minHeight="@dimen/touch_preferred"
+        android:queryHint="@string/buscar_contribuyente_hint" />
 
     <ListView
         android:id="@+id/listView1"
-        android:layout_below="@+id/searchView1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/surface"
+        android:divider="@color/divider"
+        android:dividerHeight="1dp" />
 
-
-
-
-</RelativeLayout>
+</LinearLayout>

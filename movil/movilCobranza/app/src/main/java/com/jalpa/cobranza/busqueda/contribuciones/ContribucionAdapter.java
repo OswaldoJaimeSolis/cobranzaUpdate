@@ -9,6 +9,8 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+
 import com.jalpa.cobranza.R;
 import com.jalpa.cobranza.model.entidades.Contribucion;
 import com.jalpa.cobranza.model.entidades.Contribuyente;
@@ -70,10 +72,27 @@ public class ContribucionAdapter extends BaseAdapter{//  implements Filterable {
         holder.tvPlaza.setText(contribucionArrayList.get(i).getPlaza().getCodigoPlaza());
         holder.tvNombre.setText(contribucionArrayList.get(i).getContribuyente().getNombreFull());
         holder.tvEstado.setText(getEstadoPago(contribucionArrayList.get(i).getEstadoPago()));
+        aplicarColorEstado(holder.tvEstado, contribucionArrayList.get(i).getEstadoPago());
         holder.tvImporte.setText(contribucionArrayList.get(i).getImporte()!=null?String.format("%.2f", contribucionArrayList.get(i).getImporte()):"");
 
 
         return view;
+    }
+
+    /** Chip de estado con los colores comunes (sólo presentación). */
+    private void aplicarColorEstado(TextView tv, Integer estadoPago){
+        int fondo= R.drawable.bg_status_chip_ausente;
+        int texto= R.color.status_ausente_fg;
+        if(estadoPago!=null && estadoPago==1){
+            fondo= R.drawable.bg_status_chip_pagado;
+            texto= R.color.status_pagado_fg;
+        }
+        else if(estadoPago!=null && estadoPago==2){
+            fondo= R.drawable.bg_status_chip_pendiente;
+            texto= R.color.status_pendiente_fg;
+        }
+        tv.setBackgroundResource(fondo);
+        tv.setTextColor(ContextCompat.getColor(tv.getContext(), texto));
     }
 
     private String getEstadoPago(Integer estadoPago){

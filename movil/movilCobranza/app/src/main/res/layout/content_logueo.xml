@@ -1,69 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".LogueoActivity"
     tools:showIn="@layout/activity_logueo">
-    <TextView
-        android:id="@+id/tvUsuario"
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="130px"
-        android:layout_marginLeft="20px"
-        android:text="Usuario:"/>
-    <EditText
-        android:id="@+id/etUsuario"
-        android:layout_toRightOf="@id/tvUsuario"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100px"
-        android:layout_marginLeft="57px"
-        android:ems="8"/>
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/screen_margin"
+        android:paddingTop="@dimen/space_xl"
+        android:paddingEnd="@dimen/screen_margin"
+        android:paddingBottom="@dimen/space_xl">
 
-    <TextView
-        android:id="@+id/tvPass"
-        android:layout_below="@+id/etUsuario"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30px"
-        android:layout_marginLeft="20px"
-        android:text="Contraseña:"/>
-    <EditText
-        android:id="@+id/etPass"
-        android:layout_toRightOf="@+id/tvPass"
-        android:layout_below="@+id/etUsuario"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30px"
-        android:inputType="textPassword"
+        <!-- Identidad neutra (sin logo de administración): símbolo account_balance. -->
+        <ImageView
+            android:layout_width="88dp"
+            android:layout_height="88dp"
+            android:background="@drawable/bg_circle_primary"
+            android:contentDescription="@string/cd_simbolo"
+            android:padding="20dp"
+            android:src="@drawable/ic_account_balance"
+            app:tint="@color/white" />
 
-        android:ems="8"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_lg"
+            android:text="@string/login_titulo"
+            android:textAppearance="@style/TextAppearance.Cobranza.Headline" />
 
-    <Button
-        android:id="@+id/btnConfirmarUsuario"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/etPass"
-        android:text="Aceptar"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50px"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:layout_marginBottom="@dimen/space_xl"
+            android:gravity="center"
+            android:text="@string/login_subtitulo"
+            android:textAppearance="@style/TextAppearance.Cobranza.Secondary" />
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/usuario">
 
+            <com.google.android.material.textfield.TextInputEditText
+                style="@style/Widget.Cobranza.TextInputEditText"
+                android:id="@+id/etUsuario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionNext"
+                android:inputType="text|textNoSuggestions"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            android:hint="@string/contrasena"
+            app:endIconMode="password_toggle">
 
-    <ProgressBar
-        android:id="@+id/pbActualizaRecaudadores"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:visibility="gone"
-        android:layout_above="@id/btnConfirmarUsuario"/>
+            <com.google.android.material.textfield.TextInputEditText
+                style="@style/Widget.Cobranza.TextInputEditText"
+                android:id="@+id/etPass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionDone"
+                android:inputType="textPassword"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Contenedor propio: LogueoActivity llama a bringToFront() sobre el indicador. -->
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md">
 
+            <ProgressBar
+                android:id="@+id/pbActualizaRecaudadores"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminateTint="@color/primary_medium"
+                android:visibility="gone" />
+        </FrameLayout>
 
+        <Button
+            android:id="@+id/btnConfirmarUsuario"
+            style="@style/Widget.Cobranza.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            android:text="@string/entrar" />
 
-</RelativeLayout>
+        <!-- Antes era un FAB; conserva el id. -->
+        <Button
+            android:id="@+id/fabActualizarRecaudadores"
+            style="@style/Widget.Cobranza.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            android:minHeight="@dimen/touch_preferred"
+            android:text="@string/actualizar_recaudadores"
+            app:icon="@drawable/ic_sync"
+            app:iconGravity="textStart" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

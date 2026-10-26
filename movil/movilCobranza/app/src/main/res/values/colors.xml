@@ -1,6 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <!-- Tokens de la paleta institucional (comunes con la web). -->
+    <color name="primary_dark">#0B2E4F</color>
+    <color name="primary">#123E6B</color>
+    <color name="primary_medium">#1A5490</color>
+    <color name="accent">#1F6FB8</color>
+    <!-- Sólo para iconos. -->
+    <color name="blue_light">#2E86D1</color>
+    <color name="primary_container">#DCEAF7</color>
+    <color name="background">#F3F7FB</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="text">#1F2933</color>
+    <color name="text_secondary">#56606B</color>
+    <color name="outline_control">#8A96A3</color>
+    <color name="divider">#DDE3E7</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Estados: texto (fg) / fondo (bg). -->
+    <color name="status_pagado_fg">#1E6B3F</color>
+    <color name="status_pagado_bg">#E6F4EA</color>
+    <color name="status_pagado_solid">#2E7D4F</color>
+    <color name="status_pendiente_fg">#7A5200</color>
+    <color name="status_pendiente_bg">#FFF4D6</color>
+    <color name="status_pendiente_border">#F2A900</color>
+    <color name="status_adeudo_fg">#B3261E</color>
+    <color name="status_adeudo_bg">#FDECEA</color>
+    <color name="error">#B3261E</color>
+    <color name="error_bg">#FDECEA</color>
+    <color name="status_ausente_fg">#56606B</color>
+    <color name="status_ausente_bg">#EDF0F3</color>
+    <color name="status_condonado_fg">#3F3D9E</color>
+    <color name="status_condonado_bg">#E8E7F8</color>
+
+    <!-- Nombres heredados, apuntan a la paleta nueva. -->
+    <color name="colorPrimary">@color/primary</color>
+    <color name="colorPrimaryDark">@color/primary_dark</color>
+    <color name="colorAccent">@color/accent</color>
 </resources>

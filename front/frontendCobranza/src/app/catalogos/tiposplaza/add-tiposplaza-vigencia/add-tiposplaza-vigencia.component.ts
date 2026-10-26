@@ -71,8 +71,9 @@ export class AddTiposplazaVigenciaComponent implements OnInit {
   showMessage(messageF: string) {
     const dConfig = new MatDialogConfig();
     dConfig.data = {
-      title: 'Cuidado',
-      message: messageF
+      title: 'Revise el período',
+      message: messageF,
+      tipo: 'aviso'
     }
     let dMessage = this.dialogI.open(DialogInformativoComponent, dConfig);
 

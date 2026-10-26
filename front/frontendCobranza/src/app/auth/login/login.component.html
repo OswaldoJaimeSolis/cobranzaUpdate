@@ -1,19 +1,39 @@
-<div class="login-container">
-  <form class="login-form" (ngSubmit)="entrar()">
-    <h2>Iniciar sesión</h2>
-    <mat-form-field>
-      <input matInput placeholder="Usuario" name="usuario" [(ngModel)]="usuario" autocomplete="username" required>
-    </mat-form-field>
-    <mat-form-field>
-      <input matInput placeholder="Contraseña" name="password" type="password" [(ngModel)]="password"
-        autocomplete="current-password" required>
-    </mat-form-field>
-    @if (error) {
-      <div class="login-error">{{error}}</div>
-    }
-    <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">Entrar</button>
-    @if (isLoading) {
-      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-    }
-  </form>
+<div class="login">
+  <mat-card class="login__tarjeta" appearance="outlined">
+    <div class="login__marca">
+      <span class="login__simbolo" aria-hidden="true">
+        <mat-icon>account_balance</mat-icon>
+      </span>
+      <h1 class="login__titulo">Cobro de plazas</h1>
+      <p class="login__subtitulo">Tesorería Municipal · Jalpa, Zac.</p>
+    </div>
+
+    <form class="login__form" (ngSubmit)="entrar()">
+      <mat-form-field appearance="outline">
+        <mat-label>Usuario</mat-label>
+        <input matInput name="usuario" [(ngModel)]="usuario" autocomplete="username" required>
+        <mat-icon matPrefix>person</mat-icon>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Contraseña</mat-label>
+        <input matInput name="password" [type]="verPassword ? 'text' : 'password'" [(ngModel)]="password"
+          autocomplete="current-password" required>
+        <mat-icon matPrefix>lock</mat-icon>
+        <button mat-icon-button matSuffix type="button" (click)="verPassword = !verPassword"
+          [attr.aria-label]="verPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+          [matTooltip]="verPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+          <mat-icon>{{verPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+      </mat-form-field>
+      @if (error) {
+        <div class="texto-error" role="alert">
+          <mat-icon aria-hidden="true">error</mat-icon><span>{{error}}</span>
+        </div>
+      }
+      <button mat-flat-button class="login__boton" type="submit" [disabled]="isLoading">Entrar</button>
+      @if (isLoading) {
+        <mat-progress-bar mode="indeterminate" aria-label="Iniciando sesión"></mat-progress-bar>
+      }
+    </form>
+  </mat-card>
 </div>

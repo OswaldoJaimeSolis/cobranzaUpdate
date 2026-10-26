@@ -8,8 +8,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.jalpa.cobranza.model.dao.Database;
 import com.jalpa.cobranza.model.entidades.Recaudador;
 
@@ -23,8 +21,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,12 +95,12 @@ public class LogueoActivity extends AppCompatActivity {
         });
 
 
-        FloatingActionButton fab = findViewById(R.id.fabActualizarRecaudadores);
+        Button fab = findViewById(R.id.fabActualizarRecaudadores);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(etUsuario.getText().toString().trim().isEmpty() || etPassword.getText().toString().isEmpty()){
-                    Toast.makeText(getApplicationContext(), "Escribe tu usuario y contraseña para descargar los recaudadores", Toast.LENGTH_LONG).show();
+                    Avisos.error(LogueoActivity.this, "Datos incompletos", "Escribe tu usuario y contraseña para descargar los recaudadores");
                     return;
                 }
                 new ActualizarCatalogosRemoto().execute();
@@ -126,7 +122,7 @@ public class LogueoActivity extends AppCompatActivity {
         String codigoRecaudador= etUsuario.getText().toString().trim();
         String passRecaudador= etPassword.getText().toString();
         if(codigoRecaudador.isEmpty() || passRecaudador.isEmpty()) {
-            Toast.makeText(getApplicationContext(), "Llena los datos correctamente", Toast.LENGTH_SHORT).show();
+            Avisos.error(this, "Datos incompletos", "Llena los datos correctamente");
             return;
         }
         Recaudador rec= buscarLocal(codigoRecaudador, passRecaudador);
@@ -150,7 +146,7 @@ public class LogueoActivity extends AppCompatActivity {
 
     private void entrar(Recaudador rec, String passRecaudador){
         if(!Boolean.TRUE.equals(rec.getActivoRecaudador())){
-            Toast.makeText(getApplicationContext(),"El usuario no está activo, avise al administrador", Toast.LENGTH_SHORT).show();
+            Avisos.error(this, "Usuario inactivo", "El usuario no está activo, avise al administrador");
             limpiarCajas();
             return;
         }
@@ -193,10 +189,10 @@ public class LogueoActivity extends AppCompatActivity {
                 entrar(rec, passRecaudador);
             }
             else if(resultado==WebService.LOGIN_SIN_CONEXION && (recaudadores==null || recaudadores.isEmpty())){
-                Toast.makeText(getApplicationContext(), "Sin conexión: la primera vez hay que conectarse para descargar los recaudadores", Toast.LENGTH_LONG).show();
+                Avisos.error(LogueoActivity.this, "Sin conexión", "La primera vez hay que conectarse para descargar los recaudadores");
             }
             else{
-                Toast.makeText(getApplicationContext(), "Los datos son incorrectos o el usuario no existe", Toast.LENGTH_SHORT).show();
+                Avisos.error(LogueoActivity.this, "Datos incorrectos", "Los datos son incorrectos o el usuario no existe");
                 etPassword.setText("");
             }
         }
@@ -255,16 +251,16 @@ public class LogueoActivity extends AppCompatActivity {
             super.onPostExecute(aVoid);
             pbActualizaRecaudadores.setVisibility(View.INVISIBLE);
             if(descargados){
-                Toast.makeText(getApplicationContext(), "Recaudadores actualizados", Toast.LENGTH_SHORT).show();
+                Avisos.exito(LogueoActivity.this, "Recaudadores actualizados");
             }
             else if(resultadoLogin==WebService.LOGIN_RECHAZADO){
-                Toast.makeText(getApplicationContext(), "Usuario o contraseña incorrectos, o recaudador inactivo", Toast.LENGTH_LONG).show();
+                Avisos.error(LogueoActivity.this, "No se pudo actualizar", "Usuario o contraseña incorrectos, o recaudador inactivo");
             }
             else if(resultadoLogin==WebService.LOGIN_SIN_CONEXION){
-                Toast.makeText(getApplicationContext(), "No hay conexión con el servidor", Toast.LENGTH_LONG).show();
+                Avisos.error(LogueoActivity.this, "Sin conexión", "No hay conexión con el servidor");
             }
             else{
-                Toast.makeText(getApplicationContext(), "El servidor no devolvió recaudadores", Toast.LENGTH_LONG).show();
+                Avisos.error(LogueoActivity.this, "Sin recaudadores", "El servidor no devolvió recaudadores");
             }
 
         }

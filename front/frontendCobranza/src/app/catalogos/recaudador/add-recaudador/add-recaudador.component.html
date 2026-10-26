@@ -1,31 +1,44 @@
-<h2 mat-dialog-title>{{encabezado}} </h2>
+<h2 mat-dialog-title>{{editarId ? 'Editar recaudador' : 'Nuevo recaudador'}}</h2>
 
 <mat-dialog-content>
-
-  <div class="columns-container">
-
-    <mat-form-field>
-      <input matInput placeholder="Código: " [(ngModel)]="oFinal.codigoRecaudador" #data="ngModel" disabled={{editarId}}
-        readonly={{editarId}} required>
+  <div class="form-grid">
+    <mat-form-field appearance="outline">
+      <mat-label>Código</mat-label>
+      <input matInput [(ngModel)]="oFinal.codigoRecaudador" [disabled]="editarId" [readonly]="editarId" required>
+      <mat-error>Capture el código</mat-error>
     </mat-form-field>
-    <mat-form-field>
-      <input matInput placeholder="Nombre: " [(ngModel)]="oFinal.nombreRecaudador" #data="ngModel" required>
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre</mat-label>
+      <input matInput [(ngModel)]="oFinal.nombreRecaudador" required>
+      <mat-error>Capture el nombre</mat-error>
     </mat-form-field>
-    <mat-form-field>
-      <input matInput [placeholder]="editarId ? 'Contraseña (vacía conserva la actual): ' : 'Contraseña: '"
-        [(ngModel)]="oFinal.passRecaudador" type="password" autocomplete="new-password" #data="ngModel"
+    <mat-form-field appearance="outline" class="completo">
+      <mat-label>Contraseña</mat-label>
+      <input matInput [(ngModel)]="oFinal.passRecaudador" type="password" autocomplete="new-password"
         [required]="!editarId">
+      @if (editarId) {
+        <mat-hint>Déjela vacía para conservar la actual</mat-hint>
+      }
+      <mat-error>Capture la contraseña</mat-error>
     </mat-form-field>
 
-    <mat-checkbox class="check-container" [(ngModel)]="oFinal.activoRecaudador">Activo</mat-checkbox>
-    <mat-checkbox class="check-container" [(ngModel)]="oFinal.puedeCondonar">Puede condonar adeudos</mat-checkbox>
-    <button mat-raised-button color="primary" (click)="tiposPlazaRecaudador()" >TiposPlaza</button>
+    <div class="form-checks completo">
+      <mat-checkbox [(ngModel)]="oFinal.activoRecaudador">Activo</mat-checkbox>
+      <mat-checkbox [(ngModel)]="oFinal.puedeCondonar">Puede condonar adeudos</mat-checkbox>
+    </div>
 
+    <div class="completo seccion-tipos">
+      <button mat-stroked-button type="button" (click)="tiposPlazaRecaudador()">
+        <mat-icon>category</mat-icon> Tipos de plaza asignados
+      </button>
+      @if (!editarId) {
+        <p class="nota">Guarde el recaudador para asignarle tipos de plaza.</p>
+      }
+    </div>
   </div>
-
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button mat-button (click)="onCancel()">Cancel</button>
-  <button mat-raised-button color="primary" (click)="onSave(oFinal)">Save</button>
+  <button mat-button type="button" (click)="onCancel()">Cancelar</button>
+  <button mat-flat-button type="button" (click)="onSave(oFinal)">Guardar</button>
 </mat-dialog-actions>

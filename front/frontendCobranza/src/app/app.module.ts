@@ -12,6 +12,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCardModule } from '@angular/material/card';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatPaginatorModule, MatPaginatorIntl } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatDividerModule } from '@angular/material/divider';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';  //for the form element
@@ -60,6 +67,9 @@ import { CambiarPasswordComponent } from './auth/cambiar-password/cambiar-passwo
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { ListUsuarioComponent } from './catalogos/usuario/list-usuario/list-usuario.component';
 import { AddUsuarioComponent } from './catalogos/usuario/add-usuario/add-usuario.component';
+import { PageHeaderComponent } from './shared/page-header/page-header.component';
+import { EmptyStateComponent } from './shared/empty-state/empty-state.component';
+import { paginadorEnEspanol } from './shared/paginador-es';
 
 
 
@@ -95,7 +105,9 @@ import { AddUsuarioComponent } from './catalogos/usuario/add-usuario/add-usuario
         LoginComponent,
         CambiarPasswordComponent,
         ListUsuarioComponent,
-        AddUsuarioComponent
+        AddUsuarioComponent,
+        PageHeaderComponent,
+        EmptyStateComponent
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         AppRoutingModule,
@@ -116,5 +128,12 @@ import { AddUsuarioComponent } from './catalogos/usuario/add-usuario/add-usuario
         FormsModule,
         BrowserModule,
         MatProgressBarModule,
-        MatProgressSpinnerModule], providers: [ContribuyenteService, RecaudadorService, TiposplazaService, PropietarioPlazaService, ReportesService, { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, DatePipe, provideHttpClient(withXhr(), withInterceptorsFromDi()), { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }] })
+        MatProgressSpinnerModule,
+        MatSidenavModule,
+        MatTooltipModule,
+        MatCardModule,
+        MatSnackBarModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatDividerModule], providers: [{ provide: MatPaginatorIntl, useFactory: paginadorEnEspanol }, ContribuyenteService, RecaudadorService, TiposplazaService, PropietarioPlazaService, ReportesService, { provide: MAT_DATE_LOCALE, useValue: 'es-ES' }, DatePipe, provideHttpClient(withXhr(), withInterceptorsFromDi()), { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }] })
 export class AppModule { }

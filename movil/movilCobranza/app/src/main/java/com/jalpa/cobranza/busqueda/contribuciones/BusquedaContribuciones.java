@@ -1,16 +1,11 @@
 package com.jalpa.cobranza.busqueda.contribuciones;
 
 import android.app.DatePickerDialog;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,6 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.jalpa.cobranza.MainActivity;
+import com.jalpa.cobranza.Pantalla;
 import com.jalpa.cobranza.R;
 import com.jalpa.cobranza.busqueda.BusquedaContribuyente;
 import com.jalpa.cobranza.model.dao.Database;
@@ -58,8 +54,7 @@ public class BusquedaContribuciones extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_busqueda_contribuciones);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        Pantalla.configurarBarra(this, true);
 
         etFechaCB= findViewById(R.id.etDateCB);
         cbTipoPlazaCB= findViewById(R.id.cbTipoPlazasBC);
@@ -67,7 +62,7 @@ public class BusquedaContribuciones extends AppCompatActivity {
         lvContribuciones= findViewById(R.id.lvContribuciones);
 
         tiposPlaza=(List<TipoPlaza>)getIntent().getExtras().get("tiposPlaza");
-        ArrayAdapter adapterPP= new ArrayAdapter<TipoPlaza>(this, android.R.layout.simple_spinner_item, tiposPlaza);
+        ArrayAdapter adapterPP= new ArrayAdapter<TipoPlaza>(this, R.layout.item_spinner, tiposPlaza);
         cbTipoPlazaCB.setAdapter(adapterPP);
         String codigoTipoPlaza= getIntent().getStringExtra("codigoTipoPlaza");
         if(codigoTipoPlaza!=null){
@@ -94,7 +89,7 @@ public class BusquedaContribuciones extends AppCompatActivity {
         estados.add("PENDIENTE");
         estados.add("AUSENTE");
         estados.add("SIN REGISTRAR");
-        ArrayAdapter adapterEstados= new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,estados);
+        ArrayAdapter adapterEstados= new ArrayAdapter<String>(this, R.layout.item_spinner,estados);
         cbEstadoCB.setAdapter(adapterEstados);
 
         cbEstadoCB.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -129,8 +124,7 @@ public class BusquedaContribuciones extends AppCompatActivity {
                     year= Integer.parseInt(fecha[2]);
                 }
 
-                DatePickerDialog dialog = new DatePickerDialog(BusquedaContribuciones.this, android.R.style.Theme_Holo_Dialog_MinWidth, mDateSetListener, year, month, day);
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                DatePickerDialog dialog = new DatePickerDialog(BusquedaContribuciones.this,  mDateSetListener, year, month, day);
                 dialog.show();
             }
         });

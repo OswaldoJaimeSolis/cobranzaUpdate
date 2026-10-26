@@ -1,68 +1,81 @@
-<h3 class="centerText">Bitácora de condonaciones</h3>
-<div class="centerText filtros">
-  <mat-form-field>
-    <input matInput [matDatepicker]="picker1" placeholder="Fecha inicial" [(ngModel)]="fechaInicial" readonly=true>
-    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
-    <mat-datepicker #picker1></mat-datepicker>
-  </mat-form-field>
-  <mat-form-field>
-    <input matInput [matDatepicker]="picker2" placeholder="Fecha final" [(ngModel)]="fechaFinal" readonly=true>
-    <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
-    <mat-datepicker #picker2></mat-datepicker>
-  </mat-form-field>
-  <button mat-raised-button color="primary" disabled={{isLoading}} (click)="consultar()">Consultar</button>
-  <button mat-stroked-button disabled={{isLoading}} (click)="exportarPdf()">
-    <mat-icon>picture_as_pdf</mat-icon> Exportar PDF
-  </button>
-</div>
+<div class="page">
+  <app-page-header titulo="Bitácora de condonaciones"
+    subtitulo="Condonaciones registradas desde la app móvil en el período">
+  </app-page-header>
 
-<div class="container">
+  <div class="filtros">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Fecha inicial</mat-label>
+      <input matInput [matDatepicker]="picker1" [(ngModel)]="fechaInicial" readonly (click)="picker1.open()">
+      <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+      <mat-datepicker #picker1></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Fecha final</mat-label>
+      <input matInput [matDatepicker]="picker2" [(ngModel)]="fechaFinal" readonly (click)="picker2.open()">
+      <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+      <mat-datepicker #picker2></mat-datepicker>
+    </mat-form-field>
+    <button mat-flat-button [disabled]="isLoading" (click)="consultar()">
+      <mat-icon>search</mat-icon> Consultar
+    </button>
+    <button mat-stroked-button [disabled]="isLoading" (click)="exportarPdf()">
+      <mat-icon>picture_as_pdf</mat-icon> Exportar PDF
+    </button>
+  </div>
+
   @if (isLoading) {
-    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+    <mat-progress-bar class="barra-carga" mode="indeterminate" aria-label="Consultando"></mat-progress-bar>
+  }
+
+  @if (consultado && condonaciones.length == 0) {
+    <div class="tabla-contenedor">
+      <app-empty-state icono="volunteer_activism" texto="No hay condonaciones en el período"></app-empty-state>
+    </div>
+  }
+  @if (condonaciones.length > 0) {
+    <p class="tabla-resumen">{{condonaciones.length}} condonaciones · Total condonado {{total | currency}}</p>
+    <div class="tabla-contenedor">
+      <div class="tabla-scroll">
+        <table mat-table [dataSource]="condonaciones">
+          <ng-container matColumnDef="fecha">
+            <th mat-header-cell *matHeaderCellDef>Fecha y hora</th>
+            <td mat-cell *matCellDef="let c" class="sin-salto">{{c.fechaCondonacion}}</td>
+          </ng-container>
+          <ng-container matColumnDef="usuario">
+            <th mat-header-cell *matHeaderCellDef>Usuario</th>
+            <td mat-cell *matCellDef="let c">{{c.codigoRecaudador}} {{c.nombreRecaudador}}</td>
+          </ng-container>
+          <ng-container matColumnDef="plaza">
+            <th mat-header-cell *matHeaderCellDef>Plaza</th>
+            <td mat-cell *matCellDef="let c">{{c.codigoPlaza}} ({{c.tipoPlaza}})</td>
+          </ng-container>
+          <ng-container matColumnDef="propietario">
+            <th mat-header-cell *matHeaderCellDef>Propietario</th>
+            <td mat-cell *matCellDef="let c">{{c.codigoContribuyente}} {{c.nombreContribuyente}}</td>
+          </ng-container>
+          <ng-container matColumnDef="concepto">
+            <th mat-header-cell *matHeaderCellDef>Fecha condonada</th>
+            <td mat-cell *matCellDef="let c" class="sin-salto">{{c.fechaObligacion}}</td>
+          </ng-container>
+          <ng-container matColumnDef="monto">
+            <th mat-header-cell *matHeaderCellDef class="derecha">Monto</th>
+            <td mat-cell *matCellDef="let c" class="derecha">
+              <span class="estado estado--condonado"><mat-icon aria-hidden="true">volunteer_activism</mat-icon>{{c.montoCondonado | currency}}</span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="motivo">
+            <th mat-header-cell *matHeaderCellDef>Motivo</th>
+            <td mat-cell *matCellDef="let c">{{c.motivo}}</td>
+          </ng-container>
+          <ng-container matColumnDef="origen">
+            <th mat-header-cell *matHeaderCellDef>Origen</th>
+            <td mat-cell *matCellDef="let c" class="celda-secundaria">{{c.origen}} {{c.codigoEquipo}}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+        </table>
+      </div>
+    </div>
   }
 </div>
-
-@if (consultado && condonaciones.length == 0) {
-  <h4 class="centerText">No hay condonaciones en el período</h4>
-}
-@if (condonaciones.length > 0) {
-  <h4 class="centerText">{{condonaciones.length}} condonaciones · Total condonado {{total | currency}}</h4>
-  <div class="tabla">
-    <table mat-table [dataSource]="condonaciones">
-      <ng-container matColumnDef="fecha">
-        <th mat-header-cell *matHeaderCellDef>Fecha y hora</th>
-        <td mat-cell *matCellDef="let c">{{c.fechaCondonacion}}</td>
-      </ng-container>
-      <ng-container matColumnDef="usuario">
-        <th mat-header-cell *matHeaderCellDef>Usuario</th>
-        <td mat-cell *matCellDef="let c">{{c.codigoRecaudador}} {{c.nombreRecaudador}}</td>
-      </ng-container>
-      <ng-container matColumnDef="plaza">
-        <th mat-header-cell *matHeaderCellDef>Plaza</th>
-        <td mat-cell *matCellDef="let c">{{c.codigoPlaza}} ({{c.tipoPlaza}})</td>
-      </ng-container>
-      <ng-container matColumnDef="propietario">
-        <th mat-header-cell *matHeaderCellDef>Propietario</th>
-        <td mat-cell *matCellDef="let c">{{c.codigoContribuyente}} {{c.nombreContribuyente}}</td>
-      </ng-container>
-      <ng-container matColumnDef="concepto">
-        <th mat-header-cell *matHeaderCellDef>Fecha condonada</th>
-        <td mat-cell *matCellDef="let c">{{c.fechaObligacion}}</td>
-      </ng-container>
-      <ng-container matColumnDef="monto">
-        <th mat-header-cell *matHeaderCellDef class="derecha">Monto</th>
-        <td mat-cell *matCellDef="let c" class="derecha">{{c.montoCondonado | currency}}</td>
-      </ng-container>
-      <ng-container matColumnDef="motivo">
-        <th mat-header-cell *matHeaderCellDef>Motivo</th>
-        <td mat-cell *matCellDef="let c">{{c.motivo}}</td>
-      </ng-container>
-      <ng-container matColumnDef="origen">
-        <th mat-header-cell *matHeaderCellDef>Origen</th>
-        <td mat-cell *matCellDef="let c">{{c.origen}} {{c.codigoEquipo}}</td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-      <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
-    </table>
-  </div>
-}

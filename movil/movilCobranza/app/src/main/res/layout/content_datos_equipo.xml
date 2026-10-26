@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,48 +8,49 @@
     tools:context=".DatosEquipoActivity"
     tools:showIn="@layout/activity_datos_equipo">
 
-    <TextView
-        android:id="@+id/tvCodigoEquipo"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="130px"
-        android:layout_marginLeft="20px"
-        android:text="Codigo:"/>
-    <EditText
-        android:id="@+id/etCodigoEquipo"
-        android:layout_toRightOf="@id/tvCodigoEquipo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100px"
-        android:layout_marginLeft="58px"
-        android:ems="8"/>
+        android:orientation="vertical"
+        android:padding="@dimen/screen_margin">
 
-    <TextView
-        android:id="@+id/tvDescripcionEquipo"
-        android:layout_below="@+id/etCodigoEquipo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30px"
-        android:layout_marginLeft="20px"
-        android:text="Descripción:"/>
-    <EditText
-        android:id="@+id/etDescripcionEquipo"
-        android:layout_toRightOf="@+id/tvDescripcionEquipo"
-        android:layout_below="@+id/etCodigoEquipo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="24px"
-        android:inputType="text"
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/codigo_equipo">
 
-        android:ems="8"/>
+            <com.google.android.material.textfield.TextInputEditText
+                style="@style/Widget.Cobranza.TextInputEditText"
+                android:id="@+id/etCodigoEquipo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionNext"
+                android:inputType="text|textNoSuggestions"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
-        android:id="@+id/btnGuardarEquipo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/etDescripcionEquipo"
-        android:text="Guadar"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50px"/>
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_md"
+            android:hint="@string/descripcion_equipo">
 
-</RelativeLayout>
+            <com.google.android.material.textfield.TextInputEditText
+                style="@style/Widget.Cobranza.TextInputEditText"
+                android:id="@+id/etDescripcionEquipo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/btnGuardarEquipo"
+            style="@style/Widget.Cobranza.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xl"
+            android:text="@string/guardar" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

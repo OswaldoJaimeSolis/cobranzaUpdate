@@ -1,0 +1,32 @@
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-3) var(--app-space-4);
+  margin-bottom: var(--app-space-6);
+}
+
+.page-header__titulo {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 28px;
+  margin: 0;
+  color: var(--app-text);
+}
+
+.page-header__subtitulo {
+  margin: var(--app-space-1) 0 0;
+  color: var(--app-text-secondary);
+}
+
+.page-header__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--app-space-2);
+}
+
+.page-header__acciones:empty {
+  display: none;
+}

@@ -6,6 +6,7 @@ import { BusquedaTiposPlazaComponent } from 'src/app/shared/busqueda/busqueda-ti
 import { TipoPlaza } from '../../tiposplaza/model/tipo-plaza';
 import { ListTipoPlazaRecaudadorComponent } from '../list-tipo-plaza-recaudador/list-tipo-plaza-recaudador.component';
 import { DialogInformativoComponent } from 'src/app/shared/dialog-informativo/dialog-informativo.component';
+import { AvisoService } from 'src/app/shared/aviso.service';
 export interface DialogData {
   recaudador: Recaudador;
   codigoRecaudador: string;
@@ -29,7 +30,7 @@ export class AddRecaudadorComponent implements OnInit {
   editarId = false;
   constructor(public dialogRef: MatDialogRef<AddRecaudadorComponent>,
     @Inject(MAT_DIALOG_DATA) public dd: DialogData,
-    private service: RecaudadorService, private dialog: MatDialog) {
+    private service: RecaudadorService, private dialog: MatDialog, private aviso: AvisoService) {
     if (this.dd != null) {
       this.oFinal.codigoRecaudador = dd.recaudador.codigoRecaudador;
       //el servidor no devuelve la contraseña; vacía se conserva la actual
@@ -55,6 +56,7 @@ export class AddRecaudadorComponent implements OnInit {
       .subscribe(
         (data: Recaudador) => {
           console.log('created: ', data);
+          this.aviso.exito('Recaudador guardado');
           this.onCancel();
         }, // (1)
         (error: any) => console.log(error), //(2)
@@ -66,6 +68,8 @@ export class AddRecaudadorComponent implements OnInit {
   tiposPlazaRecaudador() {
     if (this.editarId) {
       let dialog = this.dialog.open(ListTipoPlazaRecaudadorComponent, {
+        width: '560px',
+        maxWidth: '95vw',
         data: {
           recaudador: this.oFinal,
           service: this.service
@@ -75,8 +79,9 @@ export class AddRecaudadorComponent implements OnInit {
     }
     else{
       this.dialog.open(DialogInformativoComponent,{data:{
-        title:'Atención',
-        message:'Guarde el registro primero'
+        title:'Guarde primero',
+        message:'Guarde el recaudador para poder asignarle tipos de plaza.',
+        tipo:'aviso'
       }})
     
     }
