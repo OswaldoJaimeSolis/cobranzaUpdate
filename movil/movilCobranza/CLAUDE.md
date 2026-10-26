@@ -6,7 +6,7 @@ This is the Android mobile app of a 3-repo "cobranza de plazas" (municipal marke
 
 ## Project basics
 
-- Single-module legacy Android app, package `com.jalpa.cobranza`, applicationId `com.jalpa.cobranza`.
+- Single-module legacy Android app, namespace (Java package) `com.jalpa.cobranza`, applicationId `com.jalpa.cobroplazas` and launcher name "Cobro Plazas": the new app is installed alongside the previously delivered `com.jalpa.cobranza` on the same phones, so it must keep a different applicationId (no providers/authorities to clash; data, DB and prefs are separate per app).
 - Gradle 8.14.5 (see `gradle/wrapper/gradle-wrapper.properties`), Android Gradle Plugin 8.13.2. Build with a Java 21 JDK (`JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64` on the maintainer's machine).
 - `compileSdk` 36, `targetSdk` 35, `minSdk` 26. Language is plain Java (no Kotlin), compiled at source/target level 21 with core library desugaring enabled.
 - `targetSdk` intentionally lags `compileSdk`: at 36 Android's edge-to-edge enforcement can no longer be opted out of, and none of these fixed legacy layouts apply window insets. `res/values-v35/styles.xml` carries the `android:windowOptOutEdgeToEdgeEnforcement` opt-out. Raising `targetSdk` to 36 means auditing every Activity's layout for insets first.

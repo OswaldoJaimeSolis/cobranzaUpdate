@@ -6,7 +6,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.jalpa.cobranza"
+        applicationId = "com.jalpa.cobroplazas"
         minSdk = 26
         // ...pero targetSdk se queda en 35: en 36 deja de poder desactivarse la
         // imposición de "edge to edge" (ver res/values-v35/styles.xml) y los layouts
